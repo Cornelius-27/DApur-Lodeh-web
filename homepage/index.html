@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dapur Lodeh — Order Food Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <ul class="nav-links">
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#offers">Offers</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a href="../Login/login.html" class="nav-login">Log in</a>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <div class="hero-blob blob-1"></div>
+    <div class="hero-blob blob-2"></div>
+    <p class="hero-eyebrow">🍽 Fresh. Fast. Delicious.</p>
+    <h1>Good food<br />is always<br /><em>a click away</em></h1>
+    <p class="hero-sub">Discover today's best dishes, hand-picked by our chefs — delivered hot to your door.</p>
+    <div class="hero-cta">
+      <a href="#menu" class="btn-primary">Browse Menu</a>
+      <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
+    </div>
+  </section>
+
+  <!-- ── TODAY'S TOP 3 ── -->
+  <section class="section" id="recommended">
+    <p class="section-label reveal">Chef's picks — today only</p>
+    <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
+
+    <div class="cards-grid">
+
+      <!-- Card 1 -->
+      <article class="food-card reveal reveal-delay-1">
+        <div class="card-img card-c1">
+          <span class="card-badge">#1 Today</span>
+          <span class="card-emoji">🍜</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">Noodles</p>
+          <h3 class="card-name">Spicy Ramen Bowl</h3>
+          <p class="card-desc">Rich tonkotsu broth, chashu pork, soft egg, and hand-pulled noodles — the crowd's top pick.</p>
+          <div class="card-footer">
+            <span class="card-price">Rp 65k</span>
+            <button class="card-order-btn">Order Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 2 -->
+      <article class="food-card reveal reveal-delay-2">
+        <div class="card-img card-c2">
+          <span class="card-badge">#2 Today</span>
+          <span class="card-emoji">🥗</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">Salad</p>
+          <h3 class="card-name">Garden Harvest Bowl</h3>
+          <p class="card-desc">Crisp romaine, roasted chickpeas, avocado, tahini dressing — light, fresh, and filling.</p>
+          <div class="card-footer">
+            <span class="card-price">Rp 52k</span>
+            <button class="card-order-btn">Order Now</button>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3 -->
+      <article class="food-card reveal reveal-delay-3">
+        <div class="card-img card-c3">
+          <span class="card-badge">#3 Today</span>
+          <span class="card-emoji">🍔</span>
+        </div>
+        <div class="card-body">
+          <p class="card-tag">Burger</p>
+          <h3 class="card-name">Double Smash Burger</h3>
+          <p class="card-desc">Two crispy smashed patties, American cheese, pickles, and house sauce on a brioche bun.</p>
+          <div class="card-footer">
+            <span class="card-price">Rp 78k</span>
+            <button class="card-order-btn">Order Now</button>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <footer>
+    <span class="foot-logo">Cravings</span>
+    <p>© 2026 Cravings. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    revealEls.forEach(el => io.observe(el));
+  </script>
+
+</body>
+</html>
