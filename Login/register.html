@@ -10,10 +10,6 @@
   <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="login.css" />
 
-  <!-- Google Maps JavaScript API -->
-  <!-- 🔧 GANTI YOUR_MAPS_API_KEY dengan API key kamu dari Google Cloud Console -->
-  <!-- Aktifkan: Maps JavaScript API + Geocoding API + Places API             -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
 </head>
 <body class="auth-page">
 
@@ -30,14 +26,13 @@
       <div class="auth-panel-blob blob-a"></div>
       <div class="auth-panel-blob blob-b"></div>
       <div class="auth-panel-content">
-        <p class="panel-eyebrow">🍽 Bergabung sekarang</p>
+        <p class="panel-eyebrow">Bergabung sekarang</p>
         <h2 class="panel-title">Daftar &amp;<br /><em>nikmati makanan</em><br />favoritmu.</h2>
         <ul class="panel-perks">
-          <li>⚡ Checkout lebih cepat</li>
-          <li>📦 Pantau pesanan real time</li>
-          <li>❤️ Simpan menu favorit</li>
-          <li>🎁 Promo khusus member</li>
-          <li>📍 Pengiriman ke lokasi tepat</li>
+          <li>Checkout lebih cepat</li>
+          <li>Pantau pesanan real time</li>
+          <li>Simpan menu favorit</li>
+          <li>Pengiriman ke lokasi tepat</li>
         </ul>
       </div>
     </div>
@@ -116,31 +111,9 @@
           <!-- SECTION 2: Lokasi -->
           <p class="form-section-label">📍 Lokasi pengiriman</p>
 
-          <!-- Google Maps pinpoint -->
-          <div class="form-group">
-            <label class="form-label">Pinpoint lokasi kamu di peta</label>
-            <div class="map-container">
-              <div id="map"></div>
-              <div class="map-pin-overlay">📍</div>
-            </div>
-            <p class="map-hint">Seret peta untuk memindahkan titik, atau klik lokasi yang tepat.</p>
-          </div>
 
-          <!-- Koordinat tersimpan (hidden, diisi JS) -->
-          <input type="hidden" id="lat" />
-          <input type="hidden" id="lng" />
 
-          <!-- Alamat hasil geocoding (auto-fill) -->
-          <div class="form-group">
-            <label class="form-label" for="address-auto">Alamat terdeteksi</label>
-            <input class="form-input" type="text" id="address-auto" placeholder="Otomatis terisi dari peta..." readonly style="background:#f5f0ea; cursor:default;" />
-          </div>
 
-          <!-- Detail alamat manual -->
-          <div class="form-group">
-            <label class="form-label" for="address-detail">Detail alamat</label>
-            <input class="form-input" type="text" id="address-detail" placeholder="Contoh: No. 12, RT 03/RW 05, lantai 2" />
-          </div>
 
           <div class="form-row">
             <div class="form-group">
@@ -181,23 +154,7 @@
 
   </main>
 
-  <!-- ══════════════════════════════════════════
-       GOOGLE MAPS INIT
-  ══════════════════════════════════════════ -->
-  <script>
-    let map, geocoder, selectedLat, selectedLng;
-
-    function initMap() {
-      // Default center: Jakarta
-      const defaultCenter = { lat: -6.2088, lng: 106.8456 };
-
-      geocoder = new google.maps.Geocoder();
-
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 15,
-        center: defaultCenter,
-        disableDefaultUI: true,
-        zoomControl: true,
+  <!-- Google Maps section removed -->
         gestureHandling: "greedy",
         styles: [
           { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
