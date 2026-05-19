@@ -153,68 +153,6 @@
     </div>
 
   </main>
-
-  <!-- Google Maps section removed -->
-        gestureHandling: "greedy",
-        styles: [
-          { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-        ]
-      });
-
-      // Try to get user's real location
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            map.setCenter(userPos);
-            updateLocationFromLatLng(userPos);
-          },
-          () => {} // silently fail, stay at default
-        );
-      }
-
-      // When user moves map → update pin position & reverse geocode
-      map.addListener("center_changed", () => {
-        const center = map.getCenter();
-        selectedLat = center.lat();
-        selectedLng = center.lng();
-        document.getElementById("lat").value = selectedLat;
-        document.getElementById("lng").value = selectedLng;
-      });
-
-      // Debounce reverse geocode on idle (after drag stops)
-      map.addListener("idle", () => {
-        const center = map.getCenter();
-        updateLocationFromLatLng({ lat: center.lat(), lng: center.lng() });
-      });
-    }
-
-    // Reverse geocode → fill address fields
-    function updateLocationFromLatLng(latlng) {
-      geocoder.geocode({ location: latlng }, (results, status) => {
-        if (status !== "OK" || !results[0]) return;
-
-        const result = results[0];
-        document.getElementById("address-auto").value = result.formatted_address;
-
-        // Parse address components
-        const get = type => {
-          const comp = result.address_components.find(c => c.types.includes(type));
-          return comp ? comp.long_name : "";
-        };
-
-        const sub1   = get("sublocality_level_1");   // kelurahan / village
-        const sub2   = get("sublocality_level_2");
-        const admin3 = get("administrative_area_level_3"); // kecamatan
-        const admin2 = get("administrative_area_level_2"); // kota / kabupaten
-        const postal = get("postal_code");
-
-        document.getElementById("kelurahan").value  = sub1 || sub2 || "";
-        document.getElementById("kecamatan").value  = admin3 || "";
-        document.getElementById("kota").value       = admin2 || "";
-        document.getElementById("kodepos").value    = postal || "";
-      });
-    }
   </script>
 
   <!-- ══════════════════════════════════════════
@@ -227,17 +165,7 @@
              updateProfile, onAuthStateChanged }      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp }
                                                       from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-    // 🔧 PASTE YOUR FIREBASE CONFIG HERE
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFfr-jN2EhtPWguLuVX6j7tBM-5AHSFpM",
-      authDomain: "dapur-lodeh.firebaseapp.com",
-      projectId: "dapur-lodeh",
-      storageBucket: "dapur-lodeh.firebasestorage.app",
-      messagingSenderId: "583455630184",
-      appId: "1:583455630184:web:c4ae09e2d2bdc3cf54acdd",
-      measurementId: "G-DFP52PRLLT"
-    };
+    import { firebaseConfig }                         from "../firebase-config.js";
 
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);

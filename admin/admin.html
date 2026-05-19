@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Dapur Lodeh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../homepage/style.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-page">
+
+  <div class="admin-wrapper">
+    <!-- ── SIDEBAR ── -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        Dapur Lodeh <span class="badge-admin">Admin</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-item active" data-tab="tab-menu">🍔 Menu (Selasa - Jumat)</li>
+        <li class="nav-item" data-tab="tab-customers">👥 Akun Pelanggan</li>
+        <li class="nav-item" data-tab="tab-admins">🛡️ Akun Admin</li>
+      </ul>
+      <div class="sidebar-footer">
+        <span id="admin-email" class="admin-email" style="display:block; margin-bottom:10px; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis;">Loading...</span>
+        <button id="btn-logout" class="btn-logout" style="width:100%;">Logout</button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="admin-main">
+      
+      <!-- TAB: MANAJEMEN MENU -->
+      <div id="tab-menu" class="tab-pane active">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Manajemen Menu</h1>
+            <p class="admin-sub">Daftar menu harian (Selasa - Jumat) di aplikasi.</p>
+          </div>
+          <div class="header-actions">
+            <select id="filter-day" class="btn-secondary" style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem;">
+              <option value="all">Semua Hari</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+            </select>
+            <button id="btn-init-db" class="btn-secondary" style="display:none;" title="Migrasi data awal ke Firebase">Init DB (Sekali saja)</button>
+            <button id="btn-add-menu" class="btn-primary">+ Tambah Menu</button>
+          </div>
+        </header>
+
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Emoji</th>
+                  <th>Nama Menu</th>
+                  <th>Kategori (Hari)</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="menu-tbody">
+                <tr>
+                  <td colspan="6" class="text-center">Loading data dari server...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AKUN PELANGGAN -->
+      <div id="tab-customers" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Akun Pelanggan</h1>
+            <p class="admin-sub">Daftar pelanggan terdaftar (Segera Hadir).</p>
+          </div>
+        </header>
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Email</th>
+                  <th>Total Pesanan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td colspan="3" class="text-center" style="padding: 3rem;">Fitur ini sedang dalam pengembangan 🚀</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AKUN ADMIN -->
+      <div id="tab-admins" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Daftar Akun Admin</h1>
+            <p class="admin-sub">Kelola email yang diizinkan untuk mengakses dashboard ini.</p>
+          </div>
+          <div class="header-actions">
+            <button id="btn-add-admin" class="btn-primary" style="background:var(--dark);">+ Tambah Admin</button>
+          </div>
+        </header>
+
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Email Admin</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admin-tbody">
+                <tr>
+                  <td colspan="2" class="text-center">Loading data admin...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── MODAL FORM ── -->
+  <div class="modal-overlay" id="menu-modal">
+    <div class="modal-content">
+      <h2 class="modal-title" id="modal-title">Tambah Menu</h2>
+      <form id="menu-form" class="modal-form">
+        <input type="hidden" id="menu-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nama Menu</label>
+            <input type="text" id="menu-name" required placeholder="Contoh: Nasi Goreng Spesial" />
+          </div>
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" id="menu-emoji" required placeholder="Contoh: 🍝" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="menu-cat" required>
+              <option value="noodles">Mie</option>
+              <option value="salad">Salad</option>
+              <option value="burger">Burger</option>
+              <option value="rice">Nasi</option>
+              <option value="drinks">Minuman</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Warna Background Card</label>
+            <select id="menu-color" required>
+              <option value="card-c1">Kuning (c1)</option>
+              <option value="card-c2">Hijau (c2)</option>
+              <option value="card-c3">Merah/Orange (c3)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Harga (Rp)</label>
+            <input type="number" id="menu-price" required placeholder="Contoh: 45000" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deskripsi Singkat</label>
+          <textarea id="menu-desc" rows="3" required placeholder="Deskripsi makanan..."></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel">Batal</button>
+          <button type="submit" class="btn-save" id="btn-save">Simpan Menu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast">✅ <span id="toast-msg">Berhasil!</span></div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

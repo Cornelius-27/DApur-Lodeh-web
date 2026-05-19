@@ -7,21 +7,20 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="menu.css" />
 </head>
 <body class="menu-page">
 
-  <!-- ── NAVBAR ── -->
   <nav>
-    <a class="nav-logo" href="index.html">Cravings</a>
+    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
     <ul class="nav-links">
       <li><a href="menu.html" style="color:var(--orange)">Menu</a></li>
-      <li><a href="#offers">Offers</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="../homepage/index.html#offers">Offers</a></li>
+      <li><a href="../homepage/index.html#about">About</a></li>
+      <li><a href="../homepage/index.html#contact">Contact</a></li>
     </ul>
-    <a href="login.html" class="nav-login">Log in</a>
+    <a href="../Login/login.html" class="nav-login">Log in</a>
   </nav>
 
   <!-- ── HERO BANNER — diisi JS ── -->
@@ -40,7 +39,28 @@
   <div class="menu-layout">
 
     <!-- ════════════════════════════
-         SIDEBAR — Order Summary
+         MENU CONTENT (kiri)
+    ════════════════════════════ -->
+    <section class="menu-content">
+      <div class="menu-content-header">
+        <h2 class="menu-content-title">Semua Menu</h2>
+        <div class="category-tabs" id="cat-tabs">
+          <button class="cat-tab active" data-cat="all">Semua</button>
+          <button class="cat-tab" data-cat="noodles">Mie</button>
+          <button class="cat-tab" data-cat="salad">Salad</button>
+          <button class="cat-tab" data-cat="burger">Burger</button>
+          <button class="cat-tab" data-cat="rice">Nasi</button>
+          <button class="cat-tab" data-cat="drinks">Minuman</button>
+        </div>
+      </div>
+
+      <div class="menu-grid" id="menu-grid">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <!-- ════════════════════════════
+         SIDEBAR — Order Summary (kanan)
     ════════════════════════════ -->
     <aside class="order-sidebar">
       <p class="sidebar-title">🛒 Pesananmu</p>
@@ -94,445 +114,12 @@
       </button>
     </aside>
 
-    <!-- ════════════════════════════
-         MENU CONTENT
-    ════════════════════════════ -->
-    <section class="menu-content">
-      <div class="menu-content-header">
-        <h2 class="menu-content-title">Semua Menu</h2>
-        <div class="category-tabs" id="cat-tabs">
-          <button class="cat-tab active" data-cat="all">Semua</button>
-          <button class="cat-tab" data-cat="noodles">Mie</button>
-          <button class="cat-tab" data-cat="salad">Salad</button>
-          <button class="cat-tab" data-cat="burger">Burger</button>
-          <button class="cat-tab" data-cat="rice">Nasi</button>
-          <button class="cat-tab" data-cat="drinks">Minuman</button>
-        </div>
-      </div>
-
-      <div class="menu-grid" id="menu-grid">
-        <!-- filled by JS -->
-      </div>
-    </section>
-
   </div>
 
   <!-- ── TOAST ── -->
   <div id="toast">✅ <span id="toast-msg">Ditambahkan ke pesanan!</span></div>
 
-  <script>
-  /* ══════════════════════════════════════════════════════
-     DATA — semua menu (tambah atau edit sesukamu)
-  ══════════════════════════════════════════════════════ */
-  const MENU_DATA = [
-    // ── Noodles ──────────────────────────────────────────
-    {
-      id: "ramen",
-      name: "Spicy Ramen Bowl",
-      cat: "noodles",
-      catLabel: "Mie",
-      emoji: "🍜",
-      colorClass: "card-c1",
-      price: 65000,
-      desc: "Tonkotsu kental, chashu pork, telur lembut, mie hand-pulled.",
-      addons: [
-        { name: "Telur tambahan",   price: 5000 },
-        { name: "Extra chashu",     price: 12000 },
-        { name: "Ukuran jumbo",     price: 10000 },
-        { name: "Level pedas extra",price: 0 },
-      ]
-    },
-    {
-      id: "miegoreng",
-      name: "Mie Goreng Spesial",
-      cat: "noodles",
-      catLabel: "Mie",
-      emoji: "🍝",
-      colorClass: "card-c1",
-      price: 45000,
-      desc: "Mie goreng bumbu khas dengan telur mata sapi dan kerupuk.",
-      addons: [
-        { name: "Ayam suwir",   price: 8000 },
-        { name: "Seafood mix",  price: 15000 },
-        { name: "Extra pedas",  price: 0 },
-      ]
-    },
-    // ── Salad ─────────────────────────────────────────────
-    {
-      id: "salad",
-      name: "Garden Harvest Bowl",
-      cat: "salad",
-      catLabel: "Salad",
-      emoji: "🥗",
-      colorClass: "card-c2",
-      price: 52000,
-      desc: "Romaine crispy, chickpeas panggang, alpukat, tahini dressing.",
-      addons: [
-        { name: "Tambah protein ayam", price: 10000 },
-        { name: "Dressing extra",      price: 3000 },
-        { name: "Tanpa bawang",        price: 0 },
-      ]
-    },
-    {
-      id: "caesarsalad",
-      name: "Caesar Salad",
-      cat: "salad",
-      catLabel: "Salad",
-      emoji: "🥬",
-      colorClass: "card-c2",
-      price: 48000,
-      desc: "Romaine, parmesan, crouton renyah, caesar dressing klasik.",
-      addons: [
-        { name: "Tambah ayam grilled", price: 10000 },
-        { name: "Extra crouton",       price: 4000 },
-      ]
-    },
-    // ── Burger ────────────────────────────────────────────
-    {
-      id: "burger",
-      name: "Double Smash Burger",
-      cat: "burger",
-      catLabel: "Burger",
-      emoji: "🍔",
-      colorClass: "card-c3",
-      price: 78000,
-      desc: "Dua smashed patty, keju american, acar, house sauce, brioche.",
-      addons: [
-        { name: "Tambah patty",     price: 20000 },
-        { name: "Keju extra",       price: 6000 },
-        { name: "Set (+ kentang)",  price: 15000 },
-        { name: "Minuman combo",    price: 12000 },
-      ]
-    },
-    {
-      id: "chickenburger",
-      name: "Crispy Chicken Burger",
-      cat: "burger",
-      catLabel: "Burger",
-      emoji: "🍗",
-      colorClass: "card-c3",
-      price: 65000,
-      desc: "Ayam goreng crispy, selada, tomat, mayo sriracha, brioche bun.",
-      addons: [
-        { name: "Extra saus",       price: 3000 },
-        { name: "Set (+ kentang)",  price: 15000 },
-        { name: "Minuman combo",    price: 12000 },
-      ]
-    },
-    // ── Rice ──────────────────────────────────────────────
-    {
-      id: "nasigoreng",
-      name: "Nasi Goreng Kampung",
-      cat: "rice",
-      catLabel: "Nasi",
-      emoji: "🍳",
-      colorClass: "card-c1",
-      price: 42000,
-      desc: "Nasi goreng bumbu tradisional, telur dadar, acar, kerupuk.",
-      addons: [
-        { name: "Ayam goreng",   price: 12000 },
-        { name: "Seafood",       price: 18000 },
-        { name: "Extra kerupuk", price: 2000 },
-      ]
-    },
-    {
-      id: "nasiuduk",
-      name: "Nasi Uduk Komplit",
-      cat: "rice",
-      catLabel: "Nasi",
-      emoji: "🍚",
-      colorClass: "card-c2",
-      price: 38000,
-      desc: "Nasi uduk gurih santan, ayam goreng, tempe, sambal kacang.",
-      addons: [
-        { name: "Tambah ayam",   price: 10000 },
-        { name: "Extra sambal",  price: 0 },
-        { name: "Telur balado",  price: 7000 },
-      ]
-    },
-    // ── Drinks ────────────────────────────────────────────
-    {
-      id: "esjeruk",
-      name: "Es Jeruk Peras",
-      cat: "drinks",
-      catLabel: "Minuman",
-      emoji: "🍊",
-      colorClass: "card-c3",
-      price: 18000,
-      desc: "Jeruk segar diperas langsung, gula aren, es batu banyak.",
-      addons: [
-        { name: "Less sugar",  price: 0 },
-        { name: "Extra es",    price: 0 },
-        { name: "Ukuran besar",price: 5000 },
-      ]
-    },
-    {
-      id: "matchalatte",
-      name: "Matcha Latte",
-      cat: "drinks",
-      catLabel: "Minuman",
-      emoji: "🍵",
-      colorClass: "card-c2",
-      price: 28000,
-      desc: "Matcha grade A, susu oat creamy, sedikit madu alami.",
-      addons: [
-        { name: "Less sweet",       price: 0 },
-        { name: "Susu full cream",  price: 3000 },
-        { name: "Extra matcha shot",price: 8000 },
-      ]
-    },
-  ];
-
-  /* ══════════════════════════════════════════════════════
-     STATE
-  ══════════════════════════════════════════════════════ */
-  let selectedItem = null;   // item object yang sedang dipilih
-  let qty = 1;
-  let checkedAddons = new Set();
-  const ONGKIR = 10000;
-
-  /* ══════════════════════════════════════════════════════
-     UTILS
-  ══════════════════════════════════════════════════════ */
-  function fmt(n) {
-    return "Rp " + (n / 1000).toFixed(0) + "k";
-  }
-
-  function toast(msg) {
-    const el  = document.getElementById("toast");
-    const txt = document.getElementById("toast-msg");
-    txt.textContent = msg;
-    el.classList.add("show");
-    setTimeout(() => el.classList.remove("show"), 2400);
-  }
-
-  /* ══════════════════════════════════════════════════════
-     SIDEBAR — update tampilan
-  ══════════════════════════════════════════════════════ */
-  function renderSidebar() {
-    if (!selectedItem) return;
-
-    const item = selectedItem;
-
-    // emoji box
-    const box = document.getElementById("sel-emoji-box");
-    box.className = "selected-item-emoji " + (item.colorClass === "card-c1" ? "c1" : item.colorClass === "card-c2" ? "c2" : "c3");
-    document.getElementById("sel-emoji").textContent = item.emoji;
-    document.getElementById("sel-name").textContent  = item.name;
-    document.getElementById("sel-cat").textContent   = item.catLabel;
-    document.getElementById("qty-num").textContent   = qty;
-
-    // add-ons
-    const addonList = document.getElementById("addon-list");
-    addonList.innerHTML = "";
-    item.addons.forEach((a, i) => {
-      const div = document.createElement("div");
-      div.className = "addon-item" + (checkedAddons.has(i) ? " checked" : "");
-      div.innerHTML = `
-        <div class="addon-left">
-          <div class="addon-check">${checkedAddons.has(i) ? "✓" : ""}</div>
-          <span class="addon-name">${a.name}</span>
-        </div>
-        <span class="addon-price">${a.price > 0 ? "+" + fmt(a.price) : "Gratis"}</span>
-      `;
-      div.addEventListener("click", () => {
-        if (checkedAddons.has(i)) checkedAddons.delete(i);
-        else checkedAddons.add(i);
-        renderSidebar();
-      });
-      addonList.appendChild(div);
-    });
-
-    updateTotal();
-  }
-
-  function updateTotal() {
-    if (!selectedItem) return;
-    const addonTotal = [...checkedAddons].reduce((s, i) => s + selectedItem.addons[i].price, 0);
-    const sub  = (selectedItem.price + addonTotal) * qty;
-    const grand = sub + ONGKIR;
-
-    document.getElementById("item-subtotal").textContent  = fmt(sub);
-    document.getElementById("total-subtotal").textContent = fmt(sub);
-    document.getElementById("total-grand").textContent    = fmt(grand);
-  }
-
-  /* ══════════════════════════════════════════════════════
-     MENU GRID — render berdasarkan kategori aktif
-  ══════════════════════════════════════════════════════ */
-  function renderGrid(cat) {
-    const grid = document.getElementById("menu-grid");
-    grid.innerHTML = "";
-
-    const list = cat === "all" ? MENU_DATA : MENU_DATA.filter(m => m.cat === cat);
-
-    if (list.length === 0) {
-      grid.innerHTML = `<div class="menu-empty">Belum ada menu di kategori ini 😢</div>`;
-      return;
-    }
-
-    list.forEach(item => {
-      const isSelected = selectedItem && selectedItem.id === item.id;
-      const card = document.createElement("div");
-      card.className = "menu-item" + (isSelected ? " selected-menu" : "");
-      card.innerHTML = `
-        <div class="menu-item-img ${item.colorClass}" style="position:relative;">
-          <span class="menu-item-selected-badge">Dipilih ✓</span>
-          ${item.emoji}
-        </div>
-        <div class="menu-item-body">
-          <p class="menu-item-cat">${item.catLabel}</p>
-          <h3 class="menu-item-name">${item.name}</h3>
-          <p class="menu-item-desc">${item.desc}</p>
-          <div class="menu-item-footer">
-            <span class="menu-item-price">${fmt(item.price)}</span>
-            <button class="menu-item-add" title="Pilih menu ini">${isSelected ? "✓" : "+"}</button>
-          </div>
-        </div>
-      `;
-
-      // klik card atau tombol + → pilih item
-      card.addEventListener("click", () => selectItem(item));
-
-      grid.appendChild(card);
-    });
-  }
-
-  /* ══════════════════════════════════════════════════════
-     SELECT ITEM — saat klik menu
-  ══════════════════════════════════════════════════════ */
-  function selectItem(item) {
-    const isAlreadySelected = selectedItem && selectedItem.id === item.id;
-
-    selectedItem = isAlreadySelected ? null : item;
-    qty = 1;
-    checkedAddons.clear();
-
-    // update hero
-    updateHero();
-
-    // re-render grid with current active tab
-    const activeTab = document.querySelector(".cat-tab.active");
-    renderGrid(activeTab ? activeTab.dataset.cat : "all");
-
-    if (!isAlreadySelected) {
-      renderSidebar();
-      toast(`${item.name} dipilih!`);
-    } else {
-      // reset sidebar
-      document.getElementById("sel-name").textContent = "—";
-      document.getElementById("sel-cat").textContent  = "—";
-      document.getElementById("sel-emoji").textContent = "";
-      document.getElementById("addon-list").innerHTML  = "";
-      document.getElementById("item-subtotal").textContent  = "Rp 0";
-      document.getElementById("total-subtotal").textContent = "Rp 0";
-      document.getElementById("total-grand").textContent    = fmt(ONGKIR);
-    }
-  }
-
-  /* ══════════════════════════════════════════════════════
-     HERO BANNER
-  ══════════════════════════════════════════════════════ */
-  function updateHero() {
-    if (selectedItem) {
-      document.getElementById("hero-tag").textContent   = selectedItem.catLabel;
-      document.getElementById("hero-name").textContent  = selectedItem.name;
-      document.getElementById("hero-desc").textContent  = selectedItem.desc;
-      document.getElementById("hero-emoji").textContent = selectedItem.emoji;
-    } else {
-      document.getElementById("hero-tag").textContent   = "Menu";
-      document.getElementById("hero-name").textContent  = "Pilih makananmu";
-      document.getElementById("hero-desc").textContent  = "Semua menu tersedia dan siap dipesan untuk kamu.";
-      document.getElementById("hero-emoji").textContent = "🍽";
-    }
-  }
-
-  /* ══════════════════════════════════════════════════════
-     QTY CONTROLS
-  ══════════════════════════════════════════════════════ */
-  document.getElementById("qty-minus").addEventListener("click", () => {
-    if (qty > 1) { qty--; renderSidebar(); }
-  });
-
-  document.getElementById("qty-plus").addEventListener("click", () => {
-    qty++;
-    renderSidebar();
-  });
-
-  /* ══════════════════════════════════════════════════════
-     CATEGORY TABS
-  ══════════════════════════════════════════════════════ */
-  document.querySelectorAll(".cat-tab").forEach(tab => {
-    tab.addEventListener("click", () => {
-      document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      renderGrid(tab.dataset.cat);
-    });
-  });
-
-  /* ══════════════════════════════════════════════════════
-     ORDER BUTTON
-  ══════════════════════════════════════════════════════ */
-  document.getElementById("btn-order").addEventListener("click", () => {
-    if (!selectedItem) {
-      toast("⚠️ Pilih menu dulu ya!");
-      return;
-    }
-    // TODO: hubungkan ke Firebase / checkout page
-    const note    = document.getElementById("order-note").value;
-    const addons  = [...checkedAddons].map(i => selectedItem.addons[i].name);
-    const addonTotal = [...checkedAddons].reduce((s, i) => s + selectedItem.addons[i].price, 0);
-    const sub     = (selectedItem.price + addonTotal) * qty;
-
-    const order = {
-      item:    selectedItem.name,
-      qty,
-      addons,
-      note,
-      subtotal: sub,
-      ongkir:   ONGKIR,
-      total:    sub + ONGKIR,
-    };
-
-    console.log("ORDER:", order);
-    toast("✅ Pesanan dikirim! (lihat console)");
-  });
-
-  /* ══════════════════════════════════════════════════════
-     INIT — baca URL param ?item=<id>
-  ══════════════════════════════════════════════════════ */
-  function init() {
-    const params  = new URLSearchParams(window.location.search);
-    const itemId  = params.get("item");
-
-    if (itemId) {
-      const found = MENU_DATA.find(m => m.id === itemId);
-      if (found) {
-        selectedItem = found;
-        renderSidebar();
-        updateHero();
-
-        // aktifkan tab kategori yang sesuai
-        const matchTab = document.querySelector(`.cat-tab[data-cat="${found.cat}"]`);
-        if (matchTab) {
-          document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-          matchTab.classList.add("active");
-          renderGrid(found.cat);
-        } else {
-          renderGrid("all");
-        }
-        return;
-      }
-    }
-
-    // default: tampilkan semua, tidak ada yang terpilih
-    updateHero();
-    renderGrid("all");
-    document.getElementById("total-grand").textContent = fmt(ONGKIR);
-  }
-
-  init();
-  </script>
+  <script type="module" src="menu.js"></script>
 
 </body>
 </html>

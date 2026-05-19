@@ -93,27 +93,23 @@
 
   <script type="module">
     import { initializeApp }                      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword,
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
              GoogleAuthProvider, signInWithPopup,
              onAuthStateChanged }                 from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-
-    // 🔧 PASTE YOUR FIREBASE CONFIG HERE
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFfr-jN2EhtPWguLuVX6j7tBM-5AHSFpM",
-      authDomain: "dapur-lodeh.firebaseapp.com",
-      projectId: "dapur-lodeh",
-      storageBucket: "dapur-lodeh.firebasestorage.app",
-      messagingSenderId: "583455630184",
-      appId: "1:583455630184:web:c4ae09e2d2bdc3cf54acdd",
-      measurementId: "G-DFP52PRLLT"
-    };
+    import { firebaseConfig }                     from "../firebase-config.js";
     
     const app      = initializeApp(firebaseConfig);
     const auth     = getAuth(app);
     const provider = new GoogleAuthProvider();
 
     onAuthStateChanged(auth, user => {
-      if (user) window.location.href = "../homepage/index.html";
+      if (user) {
+        if (user.email === "admindapur@gmail.com" || user.email === "admin@gmail.com" || user.email === "onel2@gmail.com") {
+          window.location.href = "../admin/admin.html";
+        } else {
+          window.location.href = "../homepage/index.html";
+        }
+      }
     });
 
     function showError(msg) {
@@ -157,9 +153,24 @@
       setLoading(true);
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "../homepage/index.html";
+        if (email === "admindapur@gmail.com" || email === "admin@gmail.com" || email === "onel2@gmail.com") {
+          window.location.href = "../admin/admin.html";
+        } else {
+          window.location.href = "../homepage/index.html";
+        }
       } catch (err) {
-        showError(friendlyError(err.code));
+        // Otomatis daftar jika menggunakan email admindapur@gmail.com
+        if (email === "admindapur@gmail.com" && password === "admin123" && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
+          try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            window.location.href = "../admin/admin.html";
+            return;
+          } catch (createErr) {
+            showError("Gagal membuat akun admin otomatis: " + createErr.message);
+          }
+        } else {
+          showError(friendlyError(err.code));
+        }
         setLoading(false);
       }
     });
