@@ -15,11 +15,14 @@
 .menu-hero {
   position: relative;
   overflow: hidden;
-  min-height: 340px;
+  min-height: 280px;
   display: flex;
   align-items: flex-end;
-  padding: 3rem 3rem 2.5rem;
+  padding: 2.2rem 2.5rem 2rem;
   background: var(--dark);
+  border-radius: 24px;
+  margin-bottom: 2.2rem;
+  box-shadow: 0 8px 32px rgba(26, 18, 8, 0.08);
 }
 
 .menu-hero-blob {
@@ -33,9 +36,9 @@
 .menu-hero-blob.b { width: 300px; height: 300px; background: #F7C96B;      bottom: -60px; left: 0; }
 
 .menu-hero-emoji {
-  font-size: 8rem;
+  font-size: 7rem;
   position: absolute;
-  right: 6%;
+  right: 5%;
   bottom: -10px;
   filter: drop-shadow(0 16px 32px rgba(0,0,0,0.35));
   animation: floatEmoji 3.5s ease-in-out infinite;
@@ -44,12 +47,12 @@
 }
 
 .menu-hero-image {
-  width: 240px;
-  height: 240px;
+  width: 200px;
+  height: 200px;
   border-radius: 50%;
   object-fit: cover;
   position: absolute;
-  right: 6%;
+  right: 5%;
   bottom: 20px;
   box-shadow: 0 16px 40px rgba(0,0,0,0.4);
   animation: floatEmoji 4s ease-in-out infinite;
@@ -65,33 +68,33 @@
 .menu-hero-content {
   position: relative;
   z-index: 1;
-  max-width: 560px;
+  max-width: 460px;
 }
 
 .menu-hero-tag {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--orange-light);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .menu-hero-name {
   font-family: 'Playfair Display', serif;
-  font-size: clamp(2rem, 4vw, 3.2rem);
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
   font-weight: 900;
   color: var(--cream);
-  line-height: 1.1;
-  margin-bottom: 0.8rem;
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
 }
 
 .menu-hero-desc {
-  font-size: 1rem;
+  font-size: 0.92rem;
   font-weight: 300;
   color: rgba(255,248,240,0.65);
-  line-height: 1.65;
-  max-width: 440px;
+  line-height: 1.6;
+  max-width: 360px;
 }
 
 /* ══════════════════════════════════════
@@ -103,7 +106,7 @@
   gap: 0;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 2rem 5rem;
+  padding: 1.5rem 2rem 5rem;
   align-items: start;
 }
 
@@ -111,8 +114,25 @@
 .order-sidebar {
   position: sticky;
   top: 90px;
-  padding: 2rem 0 2rem 3rem;
+  padding: 0 12px 2rem 3rem;
   border-left: 1px solid var(--border);
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for Cart Sidebar */
+.order-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+.order-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.order-sidebar::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 10px;
+}
+.order-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--orange-light);
 }
 
 .sidebar-title {
@@ -396,7 +416,7 @@
    MENU CONTENT
 ══════════════════════════════════════ */
 .menu-content {
-  padding: 2rem 3rem 0 0;
+  padding: 0 3rem 0 0;
 }
 
 .menu-content-header {
@@ -507,6 +527,8 @@
     border-left: none;
     border-top: 1px solid var(--border);
     margin-top: 2.5rem;
+    max-height: none;
+    overflow-y: visible;
   }
 
   .menu-content {

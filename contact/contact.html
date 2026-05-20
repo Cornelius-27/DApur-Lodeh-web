@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dapur Lodeh — Hubungi Kami</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../homepage/style.css" />
+  <link rel="stylesheet" href="contact.css" />
+</head>
+<body class="contact-page">
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <ul class="nav-links">
+      <li><a href="../menu/menu.html">Menu</a></li>
+      <li><a href="contact.html" style="color:var(--orange)">Contact</a></li>
+    </ul>
+    <a href="../Login/login.html" class="nav-login">Log in</a>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main class="contact-container">
+    
+    <!-- Header Halaman -->
+    <header class="contact-header">
+      <h1 class="contact-title">Hubungi Kami</h1>
+      <p class="contact-subtitle">Punya pertanyaan seputar menu, katering, atau ingin berkunjung langsung? Tim hangat Dapur Lodeh selalu siap menyambut Anda.</p>
+    </header>
+
+    <!-- Grid Layout -->
+    <div class="contact-layout">
+
+      <!-- ============================================
+           KOLOM KIRI: INFORMASI KONTAK & WHATSAPP
+           ============================================ -->
+      <section class="contact-column">
+        
+        <!-- Info Detail Card -->
+        <div class="contact-card">
+          <h2 class="card-title-sub">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            Informasi Kontak
+          </h2>
+          
+          <ul class="contact-info-list">
+            <li class="info-item">
+              <div class="info-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Alamat Utama</span>
+                <span class="info-value">Jl. Kebon Jeruk No. 27, RT.05/RW.02, Jakarta Barat, DKI Jakarta, Indonesia</span>
+              </div>
+            </li>
+            
+            <li class="info-item">
+              <div class="info-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Jam Operasional</span>
+                <span class="info-value">Selasa – Jumat (10.00 – 19.00 WIB)<br><small style="color: var(--warm-gray);">* Tutup pada hari Sabtu, Minggu & Senin</small></span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Contact Narahubung Card -->
+        <div class="whatsapp-card">
+          <div class="wa-profile">
+            <div class="wa-avatar">C</div>
+            <div class="wa-info">
+              <span class="wa-name">Cornelius</span>
+              <span class="wa-role">Customer Care & Orders</span>
+            </div>
+          </div>
+          <a href="https://wa.me/6281210100101" target="_blank" class="btn-wa-chat" id="btn-whatsapp-chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            <span>Chat WhatsApp</span>
+          </a>
+        </div>
+
+      </section>
+
+      <!-- ============================================
+           KOLOM KANAN: PETUNJUK LOKASI (MAPS MOCKUP)
+           ============================================ -->
+      <section class="contact-column">
+        
+        <div class="contact-card">
+          <h2 class="card-title-sub">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Petunjuk Rute Lokasi
+          </h2>
+          
+          <!-- Google Maps Link Mockup Widget -->
+          <div class="map-widget-wrapper" style="margin-top: 1.2rem;">
+            <div class="map-mockup" onclick="window.open('https://share.google/zxam7WpCF1KuQiy88', '_blank')">
+              <div class="map-grid"></div>
+              <div class="map-route-line one"></div>
+              <div class="map-route-line two"></div>
+              <div class="map-route-line three"></div>
+              <div class="map-marker">
+                <div class="map-marker-pin">
+                  <div class="map-marker-inner"></div>
+                </div>
+                <div class="map-marker-shadow"></div>
+              </div>
+            </div>
+            <div class="map-action-bar">
+              <a href="https://share.google/zxam7WpCF1KuQiy88" target="_blank" class="btn-maps" id="btn-google-maps">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+                  <line x1="9" y1="3" x2="9" y2="18"></line>
+                  <line x1="15" y1="6" x2="15" y2="21"></line>
+                </svg>
+                <span>Buka di Google Maps</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="foot-logo">Dapur Lodeh</span>
+    <p>© 2026 Dapur Lodeh. All rights reserved.</p>
+  </footer>
+
+  <!-- Firebase & Dropdown Script -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { firebaseConfig } from "../firebase-config.js";
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+
+    // Helper untuk menampilkan Dropdown Navigasi User
+    function initUserDropdown(user, userData) {
+      const nav = document.querySelector("nav");
+      const existingArea = document.querySelector(".nav-user-area");
+      const navLogin = document.querySelector(".nav-login");
+      
+      if (existingArea) {
+        existingArea.remove();
+      }
+
+      if (!user) {
+        if (navLogin) {
+          navLogin.style.display = "inline-block";
+          navLogin.textContent = "Log in";
+          navLogin.href = "../Login/login.html";
+        }
+        return;
+      }
+
+      if (navLogin) {
+        navLogin.style.display = "none";
+      }
+
+      const fullName = userData?.displayName || user.displayName || user.email.split("@")[0];
+      const firstName = userData?.firstName || fullName.split(" ")[0];
+      const initial = firstName.charAt(0).toUpperCase();
+      const email = user.email;
+
+      // Render Dropdown area
+      const userArea = document.createElement("div");
+      userArea.className = "nav-user-area";
+      userArea.innerHTML = `
+        <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8v4l3 3"></path>
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+          </svg>
+        </a>
+        <div class="nav-user-dropdown-container">
+          <button class="nav-user-trigger" id="userDropdownTrigger">
+            <div class="nav-user-avatar">${initial}</div>
+            <span class="nav-user-name">${firstName}</span>
+            <svg class="nav-user-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="nav-dropdown-menu" id="navDropdownMenu">
+            <div class="nav-dropdown-header">
+              <div class="nav-dropdown-header-name">${fullName}</div>
+              <div class="nav-dropdown-header-email">${email}</div>
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <a href="../profile/profile.html" class="nav-dropdown-item">
+              <span class="nav-dropdown-item-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </span>
+              <span>Pengaturan Profil</span>
+            </a>
+            <div class="nav-dropdown-divider"></div>
+            <button class="nav-dropdown-item logout-btn" id="btnLogoutDropdown">
+              <span class="nav-dropdown-item-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </span>
+              <span>Keluar</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      nav.appendChild(userArea);
+
+      const trigger = userArea.querySelector("#userDropdownTrigger");
+      const menu = userArea.querySelector("#navDropdownMenu");
+      const logoutBtn = userArea.querySelector("#btnLogoutDropdown");
+
+      // Toggle dropdown
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = menu.classList.contains("show");
+        if (isOpen) {
+          menu.classList.remove("show");
+          trigger.classList.remove("active");
+        } else {
+          menu.classList.add("show");
+          trigger.classList.add("active");
+        }
+      });
+
+      // Prevent closing dropdown when clicking inside the menu content
+      menu.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", () => {
+        menu.classList.remove("show");
+        trigger.classList.remove("active");
+      });
+
+      // Handle logout
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        auth.signOut().then(() => {
+          window.location.reload();
+        });
+      });
+    }
+
+    // Listener status login
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      if (user) {
+        let userData = null;
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            userData = userDoc.data();
+          }
+        } catch (err) {
+          console.error("Gagal mengambil data user:", err);
+        }
+        
+        initUserDropdown(user, userData);
+      } else {
+        initUserDropdown(null, null);
+      }
+    });
+
+  </script>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { firebaseConfig } from "../firebase-config.js";
 
@@ -16,28 +16,140 @@ let activePaymentMethod = "qris";
 /* ══════════════════════════════════════════════════════
    AUTENTIKASI STATE
    ══════════════════════════════════════════════════════ */
-onAuthStateChanged(auth, user => {
-  currentUser = user;
-  
-  // Dynamic navigation login button
+// Helper to toggle user dropdown menu & Tombol Riwayat
+function initUserDropdown(user, userData) {
+  const nav = document.querySelector("nav");
+  const existingArea = document.querySelector(".nav-user-area");
   const navLogin = document.querySelector(".nav-login");
-  if (navLogin) {
-    if (user) {
-      navLogin.textContent = "Log out";
-      navLogin.href = "#";
-      const newNavLogin = navLogin.cloneNode(true);
-      navLogin.parentNode.replaceChild(newNavLogin, navLogin);
-      newNavLogin.addEventListener("click", (e) => {
-        e.preventDefault();
-        auth.signOut().then(() => {
-          localStorage.removeItem("cart");
-          window.location.reload();
-        });
-      });
-    } else {
+  
+  if (existingArea) {
+    existingArea.remove();
+  }
+
+  if (!user) {
+    if (navLogin) {
+      navLogin.style.display = "inline-block";
       navLogin.textContent = "Log in";
       navLogin.href = "../Login/login.html";
     }
+    return;
+  }
+
+  if (navLogin) {
+    navLogin.style.display = "none";
+  }
+
+  // Prepare display name and initial
+  const fullName = userData?.displayName || user.displayName || user.email.split("@")[0];
+  const firstName = userData?.firstName || fullName.split(" ")[0];
+  const initial = firstName.charAt(0).toUpperCase();
+  const email = user.email;
+
+  // Construct user area wrapper
+  const userArea = document.createElement("div");
+  userArea.className = "nav-user-area";
+  userArea.innerHTML = `
+    <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 8v4l3 3"></path>
+        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+      </svg>
+    </a>
+    <div class="nav-user-dropdown-container">
+      <button class="nav-user-trigger" id="userDropdownTrigger">
+        <div class="nav-user-avatar">${initial}</div>
+        <span class="nav-user-name">${firstName}</span>
+        <svg class="nav-user-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div class="nav-dropdown-menu" id="navDropdownMenu">
+        <div class="nav-dropdown-header">
+          <div class="nav-dropdown-header-name">${fullName}</div>
+          <div class="nav-dropdown-header-email">${email}</div>
+        </div>
+        <div class="nav-dropdown-divider"></div>
+        <a href="../profile/profile.html" class="nav-dropdown-item">
+          <span class="nav-dropdown-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </span>
+          <span>Pengaturan Profil</span>
+        </a>
+        <div class="nav-dropdown-divider"></div>
+        <button class="nav-dropdown-item logout-btn" id="btnLogoutDropdown">
+          <span class="nav-dropdown-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </span>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </div>
+  `;
+
+  nav.appendChild(userArea);
+
+  const trigger = userArea.querySelector("#userDropdownTrigger");
+  const menu = userArea.querySelector("#navDropdownMenu");
+  const logoutBtn = userArea.querySelector("#btnLogoutDropdown");
+
+  // Toggle dropdown
+  trigger.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = menu.classList.contains("show");
+    if (isOpen) {
+      menu.classList.remove("show");
+      trigger.classList.remove("active");
+    } else {
+      menu.classList.add("show");
+      trigger.classList.add("active");
+    }
+  });
+
+  // Prevent closing dropdown when clicking inside the menu content
+  menu.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", () => {
+    menu.classList.remove("show");
+    trigger.classList.remove("active");
+  });
+
+  // Handle logout
+  logoutBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    auth.signOut().then(() => {
+      localStorage.removeItem("cart");
+      window.location.reload();
+    });
+  });
+}
+
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  
+  if (user) {
+    // Fetch user data from Firestore
+    let userData = null;
+    try {
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        userData = userDoc.data();
+      }
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    }
+    initUserDropdown(user, userData);
+  } else {
+    initUserDropdown(null, null);
   }
 });
 

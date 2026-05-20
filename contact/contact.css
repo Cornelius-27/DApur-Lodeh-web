@@ -1,0 +1,357 @@
+/* ═══════════════════════════════════════════
+   contact.css — Halaman Kontak Dapur Lodeh
+   Mewarisi style.css (variabel & reset utama)
+   ═══════════════════════════════════════════ */
+
+.contact-page {
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.contact-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 120px 2rem 60px;
+}
+
+/* Header Halaman */
+.contact-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 3rem;
+}
+
+.contact-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
+}
+
+.contact-subtitle {
+  font-size: 1.05rem;
+  color: var(--warm-gray);
+  line-height: 1.6;
+}
+
+/* Layout Grid 2 Kolom */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+
+/* Cards & Wrapper */
+.contact-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.contact-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 30px rgba(92, 51, 23, 0.04);
+}
+
+.card-title-sub {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-title-sub svg {
+  color: var(--orange);
+}
+
+/* Alamat & Informasi */
+.contact-info-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: rgba(232, 98, 26, 0.08);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--warm-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.info-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--dark);
+  line-height: 1.5;
+}
+
+/* Map Mockup Widget */
+.map-widget-wrapper {
+  margin-top: 1.5rem;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: #FFFDFB;
+  box-shadow: 0 4px 18px rgba(92, 51, 23, 0.02);
+  transition: all 0.3s ease;
+}
+
+.map-widget-wrapper:hover {
+  transform: translateY(-2px);
+  border-color: var(--orange-light);
+  box-shadow: 0 8px 24px rgba(92, 51, 23, 0.06);
+}
+
+.map-mockup {
+  height: 180px;
+  background: linear-gradient(135deg, #FFFDFB 0%, #FFF5E8 100%);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.map-grid {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image: 
+    linear-gradient(rgba(92, 51, 23, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(92, 51, 23, 0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.map-route-line {
+  position: absolute;
+  border-radius: 100px;
+  background: rgba(232, 98, 26, 0.15);
+}
+.map-route-line.one { width: 120px; height: 6px; top: 80px; left: -20px; transform: rotate(15deg); }
+.map-route-line.two { width: 150px; height: 6px; top: 110px; left: 80px; transform: rotate(-25deg); }
+.map-route-line.three { width: 100px; height: 6px; top: 50px; left: 160px; transform: rotate(45deg); }
+
+.map-marker {
+  position: absolute;
+  top: 45%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter: drop-shadow(0 4px 10px rgba(232, 98, 26, 0.3));
+  animation: mapPinPulse 2s infinite alternate;
+}
+
+@keyframes mapPinPulse {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  100% { transform: translate(-50%, -50%) scale(1.08); }
+}
+
+.map-marker-pin {
+  width: 48px;
+  height: 48px;
+  border-radius: 50% 50% 50% 0;
+  background: var(--orange);
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #fff;
+}
+
+.map-marker-inner {
+  width: 20px;
+  height: 20px;
+  background: var(--dark);
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.map-marker-shadow {
+  width: 14px;
+  height: 4px;
+  background: rgba(26, 18, 8, 0.25);
+  border-radius: 50%;
+  margin-top: 4px;
+}
+
+.map-action-bar {
+  padding: 1.2rem;
+  display: flex;
+  justify-content: center;
+  border-top: 1px solid var(--border);
+  background: #FFFDFB;
+}
+
+.btn-maps {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--orange);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 12px rgba(232, 98, 26, 0.15);
+}
+
+.btn-maps:hover {
+  background: var(--brown);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(92, 51, 23, 0.2);
+}
+
+/* WhatsApp Card Narahubung */
+.whatsapp-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #F0FFF4 0%, #DCFCE7 100%);
+  border: 1px solid rgba(37, 211, 102, 0.15);
+  border-radius: 20px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.whatsapp-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.1);
+}
+
+.wa-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.wa-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25);
+}
+
+.wa-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.wa-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #128C7E;
+}
+
+.wa-role {
+  font-size: 0.78rem;
+  color: #4A5568;
+  font-weight: 500;
+}
+
+.btn-wa-chat {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  background: #25D366;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 100px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2);
+}
+
+.btn-wa-chat:hover {
+  background: #128C7E;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(18, 140, 126, 0.3);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .contact-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  
+  .contact-container {
+    padding-top: 100px;
+  }
+  
+  .contact-title {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 500px) {
+  .contact-card {
+    padding: 1.5rem;
+  }
+  
+  .whatsapp-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .wa-profile {
+    flex-direction: column;
+  }
+  
+  .btn-wa-chat {
+    justify-content: center;
+  }
+}
