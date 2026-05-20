@@ -27,18 +27,18 @@
   <section class="hero">
     <div class="hero-blob blob-1"></div>
     <div class="hero-blob blob-2"></div>
-    <p class="hero-eyebrow">🍽 Fresh. Fast. Delicious.</p>
-    <h1>Good food<br />is always<br /><em>a click away</em></h1>
+    <p class="hero-eyebrow">🍽 Hometaste</p>
+    <h1>DapurLodeh</h1>
     <p class="hero-sub">Discover today's best dishes, hand-picked by our chefs — delivered hot to your door.</p>
     <div class="hero-cta">
-      <a href="#menu" class="btn-primary">Browse Menu</a>
+      <a href="../menu/menu.html" class="btn-primary">Browse Menu</a>
       <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
     </div>
   </section>
 
   <!-- ── TODAY'S TOP 3 ── -->
   <section class="section" id="recommended">
-    <p class="section-label reveal">Chef's picks — today only</p>
+    <p class="section-label reveal">Today's Menu</p>
     <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
 
     <div class="cards-grid">
@@ -149,6 +149,11 @@
             </div>
           `;
           return;
+        }
+
+        // Acak dan ambil maksimal 3 menu
+        if (filteredMenu.length > 3) {
+          filteredMenu = filteredMenu.sort(() => 0.5 - Math.random()).slice(0, 3);
         }
 
         // Render menu cards

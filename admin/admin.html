@@ -24,6 +24,7 @@
       </div>
       <ul class="sidebar-nav">
         <li class="nav-item active" data-tab="tab-menu">🍔 Menu (Selasa - Jumat)</li>
+        <li class="nav-item" data-tab="tab-orders">📦 Manajemen Pesanan</li>
         <li class="nav-item" data-tab="tab-customers">👥 Akun Pelanggan</li>
         <li class="nav-item" data-tab="tab-admins">🛡️ Akun Admin</li>
       </ul>
@@ -82,12 +83,68 @@
         </div>
       </div>
 
+      <!-- TAB: MANAJEMEN PESANAN -->
+      <div id="tab-orders" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Manajemen Pesanan</h1>
+            <p class="admin-sub">Pantau pesanan yang masuk dan tandai jika sudah selesai.</p>
+          </div>
+        </header>
+
+        <!-- Pesanan Sedang Dimasak -->
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem;">Pesanan Sedang Dimasak 🔥</h2>
+        <div class="admin-card" style="margin-bottom: 2rem;">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Waktu Pemesanan</th>
+                  <th>Pemesan</th>
+                  <th>Rincian Pesanan</th>
+                  <th>Total Tagihan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="orders-active-tbody">
+                <tr>
+                  <td colspan="5" class="text-center">Memuat pesanan aktif...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Histori Pesanan -->
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem;">Histori Pesanan (Selesai) ✅</h2>
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Waktu Pemesanan</th>
+                  <th>Pemesan</th>
+                  <th>Rincian Pesanan</th>
+                  <th>Total Tagihan</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="orders-history-tbody">
+                <tr>
+                  <td colspan="5" class="text-center">Memuat histori pesanan...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB: AKUN PELANGGAN -->
       <div id="tab-customers" class="tab-pane">
         <header class="admin-header">
           <div>
             <h1 class="admin-title">Akun Pelanggan</h1>
-            <p class="admin-sub">Daftar pelanggan terdaftar (Segera Hadir).</p>
+            <p class="admin-sub">Kelola data pelanggan yang terdaftar.</p>
           </div>
         </header>
         <div class="admin-card">
@@ -95,14 +152,15 @@
             <table class="menu-table">
               <thead>
                 <tr>
-                  <th>Nama</th>
-                  <th>Email</th>
-                  <th>Total Pesanan</th>
+                  <th>Profil Pelanggan</th>
+                  <th>Kontak</th>
+                  <th>Lokasi / Alamat Otomatis</th>
+                  <th>Detail Alamat</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody id="customers-tbody">
                 <tr>
-                  <td colspan="3" class="text-center" style="padding: 3rem;">Fitur ini sedang dalam pengembangan 🚀</td>
+                  <td colspan="4" class="text-center" style="padding: 3rem;">Memuat data pelanggan...</td>
                 </tr>
               </tbody>
             </table>
@@ -158,7 +216,7 @@
           </div>
           <div class="form-group">
             <label>URL Gambar</label>
-            <input type="url" id="menu-image-url" required placeholder="https://..." />
+            <input type="url" id="menu-image-url" placeholder="https://..." />
           </div>
         </div>
 
@@ -205,6 +263,16 @@
           <button type="submit" class="btn-save" id="btn-save">Simpan Menu</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="order-detail-modal">
+    <div class="modal-content" style="max-width: 600px; padding: 2rem;">
+      <button id="btn-close-order-detail" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--admin-subtext);">&times;</button>
+      <h2 class="modal-title" style="margin-bottom: 1.5rem;">Detail Pesanan</h2>
+      <div id="order-detail-body" style="font-size: 0.95rem; color: var(--admin-text); line-height: 1.6;">
+        <!-- Order details injected here via JS -->
+      </div>
     </div>
   </div>
 

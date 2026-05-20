@@ -11,6 +11,7 @@ const db = getFirestore(app);
 // DAFTAR EMAIL ADMIN DEFAULT
 const DEFAULT_ADMIN_EMAILS = ["admin@gmail.com", "admindapur@gmail.com", "onel2@gmail.com"];
 let ADMIN_EMAILS = [];
+let ALL_ORDERS = [];
 
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
@@ -61,6 +62,8 @@ onAuthStateChanged(auth, async user => {
   adminEmailEl.textContent = user.email;
   loadMenus();
   renderAdmins();
+  loadOrders();
+  loadCustomers();
 
   // --- TEMPORARY AUTO SEED SCRIPT ---
   if (localStorage.getItem("seeded_menus") !== "true") {
@@ -497,3 +500,292 @@ tabs.forEach(tab => {
     }
   });
 });
+
+// ── 6. MANAJEMEN PESANAN ──
+async function loadOrders() {
+  const activeTbody = document.getElementById("orders-active-tbody");
+  const historyTbody = document.getElementById("orders-history-tbody");
+  if (!activeTbody || !historyTbody) return;
+
+  activeTbody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat pesanan aktif...</td></tr>`;
+  historyTbody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat histori pesanan...</td></tr>`;
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "orders"));
+    ALL_ORDERS = [];
+    querySnapshot.forEach(d => {
+      ALL_ORDERS.push({ id: d.id, ...d.data() });
+    });
+
+    // Sort by createdAt descending (newest first)
+    ALL_ORDERS.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const activeOrders = ALL_ORDERS.filter(o => o.status !== "Delivered");
+    const historyOrders = ALL_ORDERS.filter(o => o.status === "Delivered");
+
+    renderOrdersTable(activeOrders, activeTbody, true);
+    renderOrdersTable(historyOrders, historyTbody, false);
+  } catch (error) {
+    console.error("Error loading orders:", error);
+    activeTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat pesanan</td></tr>`;
+    historyTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat histori</td></tr>`;
+  }
+}
+
+function renderOrdersTable(ordersList, tbody, isActiveSection) {
+  tbody.innerHTML = "";
+  if (ordersList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Belum ada pesanan di kategori ini.</td></tr>`;
+    return;
+  }
+
+  ordersList.forEach(order => {
+    const tr = document.createElement("tr");
+
+    // Format waktu
+    const dateObj = new Date(order.createdAt);
+    const dateStr = dateObj.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = dateObj.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+    // Format Items (HTML list)
+    let itemsHtml = "<ul class='order-items-list'>";
+    if (order.items && order.items.length > 0) {
+      order.items.forEach(item => {
+        const addonText = item.addons && item.addons.length > 0 ? `<br><small style="color:#64748b;">+ ${item.addons.map(a => a.name).join(", ")}</small>` : "";
+        itemsHtml += `<li><b>${item.qty}x</b> ${item.name} ${addonText}</li>`;
+      });
+    }
+    itemsHtml += "</ul>";
+    if (order.note) {
+      itemsHtml += `<div style="margin-top:8px; font-size:0.8rem; color:#f97316;"><b>Catatan:</b> ${order.note}</div>`;
+    }
+
+    // Aksi / Status kolom terakhir
+    let actionHtml = "";
+    if (isActiveSection) {
+      actionHtml = `
+        <button class="btn-success btn-mark-delivered" data-id="${order.id}">Tandai Selesai ✓</button>
+        <button class="btn-detail-order" data-id="${order.id}">Detail</button>
+      `;
+    } else {
+      actionHtml = `
+        <span class="badge-delivered">Delivered</span>
+        <button class="btn-detail-order" style="margin-left:1rem;" data-id="${order.id}">Detail</button>
+      `;
+    }
+
+    // Status Badge di bawah total
+    const statusBadge = isActiveSection 
+      ? `<span class="badge-pending" style="display:inline-block; margin-top:6px;">Sedang Dimasak</span>` 
+      : "";
+
+    tr.innerHTML = `
+      <td>
+        <div style="font-weight:600;">${dateStr}</div>
+        <div style="color:#64748b; font-size:0.85rem;">${timeStr}</div>
+        <div style="color:#94a3b8; font-size:0.75rem; margin-top:4px;">ID: ${order.id.substring(0,6)}...</div>
+      </td>
+      <td>
+        <div style="font-weight:500;">${order.userEmail || order.userId || "Tamu"}</div>
+      </td>
+      <td>${itemsHtml}</td>
+      <td>
+        <div style="font-weight:600; font-size:1.05rem;">Rp ${(order.total || 0).toLocaleString('id-ID')}</div>
+        ${statusBadge}
+      </td>
+      <td class="td-actions">${actionHtml}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Event Listener untuk tombol "Tandai Selesai"
+  if (isActiveSection) {
+    tbody.querySelectorAll(".btn-mark-delivered").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
+        const orderId = e.target.dataset.id;
+        const originalText = e.target.textContent;
+        e.target.textContent = "Memproses...";
+        e.target.disabled = true;
+
+        try {
+          await updateDoc(doc(db, "orders", orderId), { status: "Delivered" });
+          showToast("Pesanan berhasil ditandai selesai!");
+          loadOrders(); // Refresh table
+        } catch (err) {
+          console.error("Gagal update status", err);
+          alert("Gagal menandai pesanan.");
+          e.target.textContent = originalText;
+          e.target.disabled = false;
+        }
+      });
+    });
+  }
+}
+
+// Event Listener global untuk tombol "Detail"
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("btn-detail-order")) {
+    openOrderDetail(e.target.dataset.id);
+  }
+});
+
+function openOrderDetail(orderId) {
+  const order = ALL_ORDERS.find(o => o.id === orderId);
+  if (!order) return;
+
+  const modal = document.getElementById("order-detail-modal");
+  const body = document.getElementById("order-detail-body");
+  
+  const dateObj = new Date(order.createdAt);
+  const fullDate = dateObj.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const fullTime = dateObj.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
+
+  let itemsHtml = "<ul class='order-items-list' style='list-style:none; padding:0;'>";
+  if (order.items) {
+    order.items.forEach(item => {
+      const addons = item.addons && item.addons.length > 0 ? `<div style="font-size:0.8rem; color:var(--admin-subtext);">+ ${item.addons.map(a => a.name).join(", ")}</div>` : "";
+      itemsHtml += `
+        <li style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+          <div>
+            <b>${item.qty}x</b> ${item.name}
+            ${addons}
+          </div>
+          <div style="font-weight:500;">Rp ${(item.price * item.qty).toLocaleString('id-ID')}</div>
+        </li>
+      `;
+    });
+  }
+  itemsHtml += "</ul>";
+
+  body.innerHTML = `
+    <div class="detail-grid">
+      <div>
+        <div class="detail-item-title">ID Pesanan</div>
+        <div class="detail-item-value">${order.id}</div>
+      </div>
+      <div>
+        <div class="detail-item-title">Waktu Transaksi</div>
+        <div class="detail-item-value">${fullDate} - ${fullTime}</div>
+      </div>
+      <div>
+        <div class="detail-item-title">Email Pemesan</div>
+        <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
+      </div>
+      <div>
+        <div class="detail-item-title">Metode Pembayaran</div>
+        <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
+      </div>
+    </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
+      ${itemsHtml}
+    </div>
+
+    ${order.note ? `
+    <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
+      <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
+      <div style="color:#9a3412;">${order.note}</div>
+    </div>
+    ` : ""}
+
+    <div style="background:#f8fafc; padding:15px; border-radius:8px;">
+      <div class="detail-summary">
+        <span>Subtotal</span>
+        <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+      </div>
+      <div class="detail-summary">
+        <span>Ongkos Kirim</span>
+        <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+      </div>
+      <div class="detail-summary total">
+        <span>Total Bayar</span>
+        <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+      </div>
+    </div>
+  `;
+
+  modal.classList.add("show");
+}
+
+document.getElementById("btn-close-order-detail").addEventListener("click", () => {
+  document.getElementById("order-detail-modal").classList.remove("show");
+});
+
+// ── 7. MANAJEMEN AKUN PELANGGAN ──
+async function loadCustomers() {
+  const tbody = document.getElementById("customers-tbody");
+  if (!tbody) return;
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    let customers = [];
+    querySnapshot.forEach(d => {
+      customers.push({ id: d.id, ...d.data() });
+    });
+
+    // Sort by createdAt descending
+    customers.sort((a, b) => {
+      let timeA = 0;
+      if (a.createdAt) {
+        timeA = typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : new Date(a.createdAt).getTime();
+      }
+      let timeB = 0;
+      if (b.createdAt) {
+        timeB = typeof b.createdAt.toMillis === 'function' ? b.createdAt.toMillis() : new Date(b.createdAt).getTime();
+      }
+      return (timeB || 0) - (timeA || 0);
+    });
+
+    tbody.innerHTML = "";
+    if (customers.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada pelanggan terdaftar.</td></tr>`;
+      return;
+    }
+
+    customers.forEach(cust => {
+      const tr = document.createElement("tr");
+
+      // Format Join Date
+      let joinDate = "-";
+      if (cust.createdAt) {
+        const d = typeof cust.createdAt.toDate === 'function' ? cust.createdAt.toDate() : new Date(cust.createdAt);
+        joinDate = d.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
+      }
+
+      tr.innerHTML = `
+        <td>
+          <div style="font-weight:600; color:var(--admin-primary); font-size:1.05rem;">
+            ${cust.firstName || ""} ${cust.lastName || ""}
+          </div>
+          <div style="font-size:0.8rem; color:var(--admin-subtext); margin-top:4px;">
+            Bergabung: ${joinDate}
+          </div>
+        </td>
+        <td>
+          <div style="font-weight:500;">${cust.email || "-"}</div>
+          <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">${cust.phone || "-"}</div>
+        </td>
+        <td>
+          <div style="font-weight:500;">${cust.kota || "-"}</div>
+          <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">
+            Kec: ${cust.kecamatan || "-"}<br>Kel: ${cust.kelurahan || "-"}
+          </div>
+        </td>
+        <td>
+          <div style="font-size:0.9rem; line-height:1.4;">
+            ${cust.addressDetail || "-"}<br>
+            <span style="color:var(--admin-subtext); font-size:0.8rem;">
+              Auto: ${cust.addressAuto || "-"} | Pos: ${cust.kodepos || "-"}
+            </span>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+  } catch (error) {
+    console.error("Error loading customers:", error);
+    tbody.innerHTML = `<tr><td colspan="4" class="text-center" style="color:red;">Gagal memuat data pelanggan.</td></tr>`;
+  }
+}
