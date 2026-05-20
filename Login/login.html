@@ -107,7 +107,9 @@
         if (user.email === "admindapur@gmail.com" || user.email === "admin@gmail.com" || user.email === "onel2@gmail.com") {
           window.location.href = "../admin/admin.html";
         } else {
-          window.location.href = "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         }
       }
     });
@@ -156,7 +158,9 @@
         if (email === "admindapur@gmail.com" || email === "admin@gmail.com" || email === "onel2@gmail.com") {
           window.location.href = "../admin/admin.html";
         } else {
-          window.location.href = "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         }
       } catch (err) {
         // Otomatis daftar jika menggunakan email admindapur@gmail.com
@@ -179,7 +183,9 @@
       clearError();
       try {
         await signInWithPopup(auth, provider);
-        window.location.href = "../homepage/index.html";
+        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+        sessionStorage.removeItem("authRedirect");
+        window.location.href = redirect;
       } catch (err) {
         showError(friendlyError(err.code));
       }

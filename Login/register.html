@@ -174,7 +174,11 @@
 
     // Redirect if already logged in
     onAuthStateChanged(auth, user => {
-      if (user) window.location.href = "../homepage/index.html";
+      if (user) {
+        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+        sessionStorage.removeItem("authRedirect");
+        window.location.href = redirect;
+      }
     });
 
     // ── Helpers ──────────────────────────────────────────────
@@ -273,8 +277,12 @@
           phone, email,
           location: collectLocation(),
         });
-        showSuccess("Akun berhasil dibuat! Mengarahkan ke halaman utama…");
-        setTimeout(() => { window.location.href = "../homepage/index.html"; }, 1500);
+        showSuccess("Akun berhasil dibuat! Mengarahkan ke tujuan Anda…");
+        setTimeout(() => { 
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect; 
+        }, 1500);
       } catch (err) {
         showError(friendlyError(err.code));
         setLoading(false);
@@ -320,10 +328,12 @@
         location:    loc,
         });
 
-        showSuccess("Pendaftaran berhasil! Mengarahkan ke homepage...");
+        showSuccess("Pendaftaran berhasil! Mengarahkan ke tujuan Anda...");
 
         setTimeout(() => {
-        window.location.href = "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         }, 1500);
 
     } catch (err) {

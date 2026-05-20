@@ -42,58 +42,7 @@
     <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
 
     <div class="cards-grid">
-
-      <!-- Card 1 -->
-      <article class="food-card reveal reveal-delay-1">
-        <div class="card-img card-c1">
-          <span class="card-badge">#1 Today</span>
-          <span class="card-emoji">🍜</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Noodles</p>
-          <h3 class="card-name">Spicy Ramen Bowl</h3>
-          <p class="card-desc">Rich tonkotsu broth, chashu pork, soft egg, and hand-pulled noodles — the crowd's top pick.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 65k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 2 -->
-      <article class="food-card reveal reveal-delay-2">
-        <div class="card-img card-c2">
-          <span class="card-badge">#2 Today</span>
-          <span class="card-emoji">🥗</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Salad</p>
-          <h3 class="card-name">Garden Harvest Bowl</h3>
-          <p class="card-desc">Crisp romaine, roasted chickpeas, avocado, tahini dressing — light, fresh, and filling.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 52k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 3 -->
-      <article class="food-card reveal reveal-delay-3">
-        <div class="card-img card-c3">
-          <span class="card-badge">#3 Today</span>
-          <span class="card-emoji">🍔</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Burger</p>
-          <h3 class="card-name">Double Smash Burger</h3>
-          <p class="card-desc">Two crispy smashed patties, American cheese, pickles, and house sauce on a brioche bun.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 78k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
+      <!-- Cards will be dynamically loaded here by script -->
     </div>
   </section>
 
@@ -102,18 +51,184 @@
     <p>© 2026 Dapur Lodeh. All rights reserved.</p>
   </footer>
 
-  <script>
-    // Scroll reveal
-    const revealEls = document.querySelectorAll('.reveal');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          io.unobserve(e.target);
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { firebaseConfig } from "../firebase-config.js";
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+
+    onAuthStateChanged(auth, user => {
+      currentUser = user;
+      const navLogin = document.querySelector(".nav-login");
+      if (navLogin) {
+        if (user) {
+          navLogin.textContent = "Log out";
+          navLogin.href = "#";
+          const newNavLogin = navLogin.cloneNode(true);
+          navLogin.parentNode.replaceChild(newNavLogin, navLogin);
+          newNavLogin.addEventListener("click", (e) => {
+            e.preventDefault();
+            auth.signOut().then(() => {
+              window.location.reload();
+            });
+          });
+        } else {
+          navLogin.textContent = "Log in";
+          navLogin.href = "../Login/login.html";
         }
-      });
-    }, { threshold: 0.15 });
-    revealEls.forEach(el => io.observe(el));
+      }
+    });
+
+
+    // Format harga
+    function fmt(n) {
+      return "Rp " + (n / 1000).toFixed(0) + "k";
+    }
+
+    async function loadTodayMenu() {
+      const grid = document.querySelector(".cards-grid");
+      grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 3rem 0; font-size: 1.1rem;">Memuat menu hari ini... ✨</div>`;
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "menus"));
+        let MENU_DATA = [];
+
+        const catDayMap = {
+          "noodles": 2, // Selasa
+          "salad": 3,   // Rabu
+          "burger": 4,  // Kamis
+          "rice": 5     // Jumat
+        };
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const artificialDay = catDayMap[data.cat] || 0;
+          MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
+        });
+
+        // Filter berdasarkan hari ini (Selasa - Jumat)
+        const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
+        
+        let filteredMenu = [];
+        if (today >= 2 && today <= 5) {
+          filteredMenu = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
+        }
+
+        if (today < 2 || today > 5) {
+          // Weekend / Monday empty state
+          grid.innerHTML = `
+            <div style="grid-column: span 3; background: var(--card-bg); border: 1px dashed var(--border); border-radius: 24px; padding: 4rem 2rem; text-align: center; max-width: 600px; margin: 2rem auto 0;">
+              <span style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">☕</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--dark); margin-bottom: 0.8rem;">Dapur Lodeh Sedang Tutup</h3>
+              <p style="color: var(--warm-gray); line-height: 1.6; margin-bottom: 2rem; font-size: 0.95rem;">
+                Kami buka dari hari <strong>Selasa hingga Jumat</strong>. Menu makanan spesial kami berganti setiap harinya! Silakan jelajahi menu lengkap kami untuk memesan di hari kerja.
+              </p>
+              <a href="../menu/menu.html" class="btn-primary" style="display: inline-block;">Jelajahi Menu Lengkap</a>
+            </div>
+          `;
+          // Update title to be informative
+          const sectionTitle = document.querySelector(".section-title");
+          if (sectionTitle) {
+            sectionTitle.innerHTML = "Sampai Jumpa<br />Hari Selasa!";
+          }
+          return;
+        }
+
+        if (filteredMenu.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 4rem 0;">
+              <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">😢</span>
+              <p style="font-size: 1.1rem; font-weight: 500;">Belum ada menu yang aktif untuk hari ini.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Render menu cards
+        grid.innerHTML = "";
+        filteredMenu.forEach((item, index) => {
+          const card = document.createElement("article");
+          card.className = `food-card reveal reveal-delay-${(index % 3) + 1}`;
+          card.innerHTML = `
+            <div class="card-img ${item.colorClass || 'card-c1'}">
+              <span class="card-badge">Pilihan Hari Ini</span>
+              ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `<span class="card-emoji">🍽</span>`}
+            </div>
+            <div class="card-body">
+              <p class="card-tag">${item.catLabel}</p>
+              <h3 class="card-name">${item.name}</h3>
+              <p class="card-desc">${item.desc}</p>
+              <div class="card-footer">
+                <span class="card-price">${fmt(item.price)}</span>
+                <button class="card-order-btn">Pesan Sekarang</button>
+              </div>
+            </div>
+          `;
+
+          const goToOrder = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (currentUser) {
+              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
+              window.location.href = "../menu/menu.html";
+            } else {
+              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
+              sessionStorage.setItem("authRedirect", "../menu/menu.html");
+              alert("⚠️ Silakan Login terlebih dahulu untuk melakukan pemesanan!");
+              window.location.href = "../Login/login.html";
+            }
+          };
+
+
+          card.addEventListener("click", goToOrder);
+          grid.appendChild(card);
+        });
+
+        // Initialize Scroll Reveal after cards are rendered
+        initScrollReveal();
+
+      } catch (error) {
+        console.error("Error loading today's menu:", error);
+        grid.innerHTML = `
+          <div style="grid-column: span 3; text-align: center; color: red; padding: 3rem 0;">
+            Gagal memuat menu hari ini: ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // Scroll reveal registration
+    let activeObserver = null;
+    function initScrollReveal() {
+      const revealEls = document.querySelectorAll('.reveal');
+      if (activeObserver) {
+        revealEls.forEach(el => activeObserver.observe(el));
+        return;
+      }
+      activeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            activeObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealEls.forEach(el => activeObserver.observe(el));
+    }
+
+    // Initial call to reveal static text elements immediately
+    initScrollReveal();
+
+    // Run onload
+    loadTodayMenu();
   </script>
 
 </body>

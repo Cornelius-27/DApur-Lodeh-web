@@ -61,6 +61,36 @@ onAuthStateChanged(auth, async user => {
   adminEmailEl.textContent = user.email;
   loadMenus();
   renderAdmins();
+
+  // --- TEMPORARY AUTO SEED SCRIPT ---
+  if (localStorage.getItem("seeded_menus") !== "true") {
+    try {
+      console.log("Seeding menus...");
+      const snapshot = await getDocs(collection(db, "menus"));
+      // Delete old Selasa & Rabu
+      for (const d of snapshot.docs) {
+        const cat = d.data().cat;
+        if (cat === "noodles" || cat === "salad") {
+          await deleteDoc(doc(db, "menus", d.id));
+        }
+      }
+      
+      const selasa = ["Nasi kuning", "Perkedel kornet", "Pepes ikan kembung", "Telor balado", "Telor asin", "Bihun goreng", "Tongkol balado", "Terong balado", "Sayur lodeh", "Tumis sayur asin", "Bakwan jagung"];
+      for (const name of selasa) {
+        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "noodles", catLabel: "Spesial Selasa", colorClass: "card-c1", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+      }
+
+      const rabu = ["Nasi uduk", "Sayur asem", "Tumis toge", "Perkedel kornet", "Bakwan jagung", "Telor balado", "Tahu balado", "Telor asin", "Ayam goreng"];
+      for (const name of rabu) {
+        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "salad", catLabel: "Spesial Rabu", colorClass: "card-c2", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+      }
+      
+      localStorage.setItem("seeded_menus", "true");
+      alert("Menu Selasa & Rabu berhasil diperbarui! Halaman akan dimuat ulang.");
+      window.location.reload();
+    } catch(e) { console.error("Seeding failed", e); }
+  }
+  // --- END TEMPORARY SCRIPT ---
 });
 
 // Logout
@@ -124,7 +154,7 @@ function renderTable() {
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="td-emoji">${item.emoji || "🍽"}</td>
+      <td class="td-image"><img src="${item.imageUrl || 'https://via.placeholder.com/40'}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 8px;"></td>
       <td class="td-name">
         ${item.name}
         <br>
@@ -186,7 +216,7 @@ function openModal(id = null) {
     if (item) {
       document.getElementById("menu-id").value = item.id;
       document.getElementById("menu-name").value = item.name;
-      document.getElementById("menu-emoji").value = item.emoji;
+      document.getElementById("menu-image-url").value = item.imageUrl || "";
       document.getElementById("menu-cat").value = item.cat;
       document.getElementById("menu-color").value = item.colorClass;
       document.getElementById("menu-price").value = item.price;
@@ -216,16 +246,16 @@ menuForm.addEventListener("submit", async (e) => {
   
   const cat = document.getElementById("menu-cat").value;
   const catLabels = {
-    "noodles": "Mie",
-    "salad": "Salad",
-    "burger": "Burger",
-    "rice": "Nasi",
+    "noodles": "Spesial Selasa",
+    "salad": "Spesial Rabu",
+    "burger": "Spesial Kamis",
+    "rice": "Spesial Jumat",
     "drinks": "Minuman"
   };
 
   const menuData = {
     name: document.getElementById("menu-name").value,
-    emoji: document.getElementById("menu-emoji").value,
+    imageUrl: document.getElementById("menu-image-url").value,
     cat: cat,
     catLabel: catLabels[cat] || cat,
     colorClass: document.getElementById("menu-color").value,

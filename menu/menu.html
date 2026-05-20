@@ -63,57 +63,119 @@
          SIDEBAR — Order Summary (kanan)
     ════════════════════════════ -->
     <aside class="order-sidebar">
-      <p class="sidebar-title">🛒 Pesananmu</p>
+      <!-- ── VIEW 1: CART (Keranjang Pesanan) ── -->
+      <div id="cart-view" class="sidebar-pane active">
+        <p class="sidebar-title">🛒 Keranjang Belanja</p>
+        
+        <div class="cart-items-container" id="cart-items-list">
+          <!-- Dinamis oleh JS: list item di keranjang -->
+        </div>
 
-      <!-- Selected item card -->
-      <div class="selected-item-card" id="selected-card">
-        <div class="selected-item-top">
-          <div class="selected-item-emoji" id="sel-emoji-box">
-            <span id="sel-emoji">🍜</span>
+        <!-- Catatan Pesanan -->
+        <div class="note-group" id="cart-note-group" style="margin-top: 1.5rem;">
+          <label class="note-label" for="order-note">Catatan Pesanan</label>
+          <textarea class="note-input" id="order-note" placeholder="Contoh: sambal dipisah, sendok plastik…"></textarea>
+        </div>
+
+        <!-- Total Box -->
+        <div class="order-total-box" style="margin-top: 1.5rem;">
+          <div class="total-row"><span>Subtotal</span>      <span id="cart-subtotal">Rp 0</span></div>
+          <div class="total-row"><span>Ongkir</span>        <span>Rp 10k</span></div>
+          <div class="total-row main"><span>Total</span>    <span id="cart-grand">Rp 0</span></div>
+        </div>
+
+        <button class="btn-order" id="btn-submit-order" style="margin-top: 1.5rem;">
+          <span>Pesan Sekarang</span>
+          <span style="font-size:1.1rem">→</span>
+        </button>
+      </div>
+
+      <!-- ── VIEW 2: CONFIGURE ITEM (Kustomisasi Menu) ── -->
+      <div id="configure-view" class="sidebar-pane">
+        <div class="configure-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
+          <p class="sidebar-title" style="margin: 0;">⚙️ Kustomisasi</p>
+          <button id="btn-back-to-cart" class="cat-tab" style="font-size: 0.75rem; border-radius: 100px; padding: 5px 12px; border: 1.5px solid var(--border);">← Kembali</button>
+        </div>
+
+        <!-- Selected item card -->
+        <div class="selected-item-card" id="selected-card">
+          <div class="selected-item-top">
+            <div class="selected-item-emoji" id="sel-emoji-box">
+              <span id="sel-emoji">🍜</span>
+            </div>
+            <div class="selected-item-info">
+              <p class="selected-item-name" id="sel-name">—</p>
+              <p class="selected-item-cat"  id="sel-cat">—</p>
+            </div>
           </div>
-          <div class="selected-item-info">
-            <p class="selected-item-name" id="sel-name">—</p>
-            <p class="selected-item-cat"  id="sel-cat">—</p>
+          <div class="qty-row">
+            <div class="qty-controls">
+              <button class="qty-btn" id="qty-minus">−</button>
+              <span   class="qty-num"  id="qty-num">1</span>
+              <button class="qty-btn"  id="qty-plus">+</button>
+            </div>
+            <span class="item-subtotal" id="item-subtotal">Rp 0</span>
           </div>
         </div>
-        <div class="qty-row">
-          <div class="qty-controls">
-            <button class="qty-btn" id="qty-minus">−</button>
-            <span   class="qty-num"  id="qty-num">1</span>
-            <button class="qty-btn"  id="qty-plus">+</button>
+
+        <!-- Add-ons -->
+        <div class="addons-section">
+          <p class="addons-title">Tambahan</p>
+          <div class="addon-list" id="addon-list">
+            <!-- filled by JS based on category -->
           </div>
-          <span class="item-subtotal" id="item-subtotal">Rp 0</span>
         </div>
-      </div>
 
-      <!-- Add-ons -->
-      <div class="addons-section">
-        <p class="addons-title">Tambahan</p>
-        <div class="addon-list" id="addon-list">
-          <!-- filled by JS based on category -->
-        </div>
+        <button class="btn-order" id="btn-add-to-cart" style="margin-top: 2rem;">
+          <span>Tambah ke Pesanan</span>
+          <span style="font-size:1.1rem">✓</span>
+        </button>
       </div>
-
-      <!-- Catatan -->
-      <div class="note-group">
-        <label class="note-label" for="order-note">Catatan</label>
-        <textarea class="note-input" id="order-note" placeholder="Contoh: tidak pedas, tanpa bawang…"></textarea>
-      </div>
-
-      <!-- Total -->
-      <div class="order-total-box">
-        <div class="total-row"><span>Subtotal</span>      <span id="total-subtotal">Rp 0</span></div>
-        <div class="total-row"><span>Ongkir</span>        <span>Rp 10k</span></div>
-        <div class="total-row"><span>Diskon member</span><span>- Rp 0</span></div>
-        <div class="total-row main"><span>Total</span>    <span id="total-grand">Rp 0</span></div>
-      </div>
-
-      <button class="btn-order" id="btn-order">
-        <span>Pesan Sekarang</span>
-        <span style="font-size:1.1rem">→</span>
-      </button>
     </aside>
 
+  </div>
+
+  <!-- ── MODAL METODE PEMBAYARAN ── -->
+  <div class="payment-modal" id="payment-modal">
+    <div class="payment-card" id="payment-card-body">
+      <div class="payment-header">
+        <h3 class="payment-title">Metode Pembayaran</h3>
+        <button class="btn-close-payment" id="btn-close-payment">&times;</button>
+      </div>
+
+      <!-- Detail Pesanan Ringkas -->
+      <div style="margin-bottom: 1.5rem; background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem;">
+        <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); margin-bottom: 0.5rem; font-weight: 600;">Total Tagihan</p>
+        <p style="font-size: 1.6rem; font-weight: 700; color: var(--orange); margin: 0;" id="pay-modal-total">Rp 0</p>
+      </div>
+
+      <p class="addons-title" style="margin-bottom: 0.8rem;">Pilih Cara Bayar</p>
+      
+      <div class="payment-options-grid">
+        <button class="payment-option-btn active" data-method="qris">
+          <span class="payment-option-icon">📱</span>
+          <span class="payment-option-name">QRIS / Gopay</span>
+        </button>
+        <button class="payment-option-btn" data-method="tf">
+          <span class="payment-option-icon">🏦</span>
+          <span class="payment-option-name">Transfer Bank</span>
+        </button>
+        <button class="payment-option-btn" data-method="cod">
+          <span class="payment-option-icon">🛵</span>
+          <span class="payment-option-name">COD</span>
+        </button>
+      </div>
+
+      <!-- Box Detail Informasi Pembayaran -->
+      <div class="payment-details-box" id="payment-details-content">
+        <!-- Dinamis berdasarkan cara bayar -->
+      </div>
+
+      <button class="btn-order" id="btn-confirm-pay">
+        <span>Konfirmasi & Bayar</span>
+        <span style="font-size:1.1rem">💳</span>
+      </button>
+    </div>
   </div>
 
   <!-- ── TOAST ── -->
