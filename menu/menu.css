@@ -20,20 +20,14 @@
   align-items: flex-end;
   padding: 2.2rem 2.5rem 2rem;
   background: var(--dark);
-  border-radius: 24px;
+  border-radius: 8px;
   margin-bottom: 2.2rem;
-  box-shadow: 0 8px 32px rgba(26, 18, 8, 0.08);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
 .menu-hero-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  pointer-events: none;
-  opacity: 0.22;
+  display: none !important;
 }
-.menu-hero-blob.a { width: 500px; height: 500px; background: var(--orange); top: -120px; right: -80px; }
-.menu-hero-blob.b { width: 300px; height: 300px; background: #F7C96B;      bottom: -60px; left: 0; }
 
 .menu-hero-emoji {
   font-size: 7rem;
@@ -146,8 +140,8 @@
 /* Selected item card */
 .selected-item-card {
   background: var(--card-bg);
-  border: 1.5px solid var(--border);
-  border-radius: 20px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1rem;
 }
@@ -160,19 +154,19 @@
 }
 
 .selected-item-emoji {
-  font-size: 2.4rem;
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  font-size: 2rem;
+  width: 52px;
+  height: 52px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.selected-item-emoji.c1 { background: linear-gradient(135deg,#FDDBA6,#F08030); }
-.selected-item-emoji.c2 { background: linear-gradient(135deg,#C8EFC0,#4A9E3A); }
-.selected-item-emoji.c3 { background: linear-gradient(135deg,#FAC8B8,#D84025); }
+.selected-item-emoji.c1 { background: #fff1e6; }
+.selected-item-emoji.c2 { background: #e8f5e9; }
+.selected-item-emoji.c3 { background: #ffebee; }
 
 .selected-item-info { flex: 1; min-width: 0; }
 
@@ -983,4 +977,49 @@
   transform: translate(-50%, -50%) scale(1.05) !important;
   box-shadow: 0 8px 24px rgba(232, 98, 26, 0.35);
 }
+
+/* Custom styles for SVG replacements */
+.sidebar-title-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  color: var(--orange);
+  flex-shrink: 0;
+}
+
+.payment-option-icon-svg {
+  width: 24px;
+  height: 24px;
+  color: var(--orange);
+  transition: transform 0.2s ease;
+}
+
+.payment-option-btn:hover .payment-option-icon-svg {
+  transform: scale(1.1);
+}
+
+.payment-option-btn.active .payment-option-icon-svg {
+  color: var(--orange);
+}
+
+.card-placeholder-svg {
+  width: 48px;
+  height: 48px;
+  color: var(--dark);
+  opacity: 0.25;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+}
+
+.food-card:hover .card-placeholder-svg {
+  transform: scale(1.18) rotate(-4deg);
+}
+
+.selected-item-emoji svg.card-placeholder-svg {
+  width: 24px;
+  height: 24px;
+  color: var(--dark);
+  opacity: 0.4;
+}
+
 

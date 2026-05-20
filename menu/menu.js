@@ -143,6 +143,14 @@ onAuthStateChanged(auth, async user => {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         userData = userDoc.data();
+      } else {
+        const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
+        if (!admins.includes(user.email)) {
+          await auth.signOut();
+          alert("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+          window.location.reload();
+          return;
+        }
       }
     } catch (err) {
       console.error("Error fetching user data:", err);
@@ -197,7 +205,13 @@ function renderSidebar() {
   // emoji box
   const box = document.getElementById("sel-emoji-box");
   box.className = "selected-item-emoji " + (item.colorClass === "card-c1" ? "c1" : item.colorClass === "card-c2" ? "c2" : "c3");
-  box.innerHTML = item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${item.name}">` : "🍽";
+  box.innerHTML = item.imageUrl ? `<img src="${item.imageUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" alt="${item.name}">` : `
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity:0.5;">
+      <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+      <path d="M7 2v20"></path>
+      <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+    </svg>
+  `;
   document.getElementById("sel-name").textContent  = item.name;
   document.getElementById("sel-cat").textContent   = item.catLabel;
   document.getElementById("qty-num").textContent   = qty;
@@ -248,7 +262,11 @@ function renderCart() {
   if (CART.length === 0) {
     container.innerHTML = `
       <div class="cart-empty-state">
-        <span style="font-size: 2.5rem;">🛒</span>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--warm-gray); opacity: 0.6; margin-bottom: 0.5rem;">
+          <circle cx="9" cy="21" r="1"></circle>
+          <circle cx="20" cy="21" r="1"></circle>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
         <p style="margin: 0; font-weight: 500; color: var(--dark);">Keranjang belanja kosong</p>
         <small style="color: var(--warm-gray); display: block; margin-top: 4px;">Pilih hidangan lezat kami di sebelah kiri untuk memesan.</small>
       </div>
@@ -286,8 +304,14 @@ function renderCart() {
     div.innerHTML = `
       <div class="cart-item-top">
         <div>
-          <h4 class="cart-item-title">
-            ${cartItem.imageUrl ? `<img src="${cartItem.imageUrl}" style="width:24px;height:24px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px;">` : "🍽 "}
+          <h4 class="cart-item-title" style="display: flex; align-items: center; gap: 4px;">
+            ${cartItem.imageUrl ? `<img src="${cartItem.imageUrl}" style="width:24px;height:24px;object-fit:cover;border-radius:4px;vertical-align:middle;margin-right:6px;">` : `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:6px; color:var(--warm-gray);">
+                <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+                <path d="M7 2v20"></path>
+                <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+              </svg>
+            `}
             ${cartItem.name}
           </h4>
           ${addonsLabel ? `<p class="cart-item-addons-text">${addonsLabel}</p>` : ""}
@@ -365,7 +389,7 @@ function renderGrid(cat) {
   const list = cat === "all" ? MENU_DATA : MENU_DATA.filter(m => m.cat === cat);
 
   if (list.length === 0) {
-    grid.innerHTML = `<div class="menu-empty">Belum ada menu di kategori ini 😢</div>`;
+    grid.innerHTML = `<div class="menu-empty">Belum ada menu di kategori ini</div>`;
     return;
   }
 
@@ -394,10 +418,22 @@ function renderGrid(cat) {
     }
 
     card.innerHTML = `
-      <div class="card-img ${item.colorClass || 'card-c1'}" style="position:relative;">
-        ${isSelected ? '<span class="card-badge" style="background:var(--orange)">Dipilih ✓</span>' : '<span class="card-badge">Hari Ini</span>'}
-        ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `<span class="card-emoji">🍽</span>`}
-        <button class="card-hover-customize-btn">⚙️ Kustomisasi</button>
+      <div class="card-img ${item.colorClass || 'card-c1'}" style="position:relative; display:flex; align-items:center; justify-content:center;">
+        ${isSelected ? '<span class="card-badge" style="background:var(--orange)">Dipilih</span>' : '<span class="card-badge">Hari Ini</span>'}
+        ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity: 0.25;">
+            <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+            <path d="M7 2v20"></path>
+            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+          </svg>
+        `}
+        <button class="card-hover-customize-btn" style="display: flex; align-items: center; gap: 4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          Kustomisasi
+        </button>
       </div>
       <div class="card-body">
         <p class="card-tag">${item.catLabel}</p>
@@ -460,7 +496,7 @@ function renderGrid(cat) {
 
         saveCart();
         renderCart();
-        toast(`✅ ${item.name} dimasukkan keranjang!`);
+        toast(`${item.name} dimasukkan keranjang!`);
       });
     }
 
@@ -501,13 +537,25 @@ function updateHero() {
     if (selectedItem.imageUrl) {
       heroBox.innerHTML = `<img src="${selectedItem.imageUrl}" class="menu-hero-image" alt="${selectedItem.name}">`;
     } else {
-      heroBox.innerHTML = `<span style="font-size:8rem;">🍽</span>`;
+      heroBox.innerHTML = `
+        <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
+          <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+          <path d="M7 2v20"></path>
+          <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+        </svg>
+      `;
     }
   } else {
     document.getElementById("hero-tag").textContent   = "Menu";
     document.getElementById("hero-name").textContent  = "Pilih makananmu";
     document.getElementById("hero-desc").textContent  = "Semua menu tersedia dan siap dipesan untuk kamu.";
-    document.getElementById("hero-emoji").innerHTML = `<span style="font-size:8rem;">🍽</span>`;
+    document.getElementById("hero-emoji").innerHTML = `
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
+        <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+        <path d="M7 2v20"></path>
+        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+      </svg>
+    `;
   }
 }
 
@@ -532,7 +580,7 @@ document.getElementById("btn-add-to-cart").addEventListener("click", () => {
   });
 
   saveCart();
-  toast(`✅ ${selectedItem.name} ditambahkan!`);
+  toast(`${selectedItem.name} ditambahkan!`);
 
   // Reset kustomisasi & kembali ke keranjang
   selectedItem = null;
@@ -583,7 +631,7 @@ document.querySelectorAll(".cat-tab").forEach(tab => {
    ══════════════════════════════════════════════════════ */
 document.getElementById("btn-submit-order").addEventListener("click", () => {
   if (CART.length === 0) {
-    toast("⚠️ Keranjang belanja kosong!");
+    toast("Keranjang belanja kosong!");
     return;
   }
 
@@ -591,7 +639,7 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
   const user = auth.currentUser;
   if (!user) {
     sessionStorage.setItem("authRedirect", "../menu/menu.html");
-    toast("⚠️ Silakan Login terlebih dahulu untuk memesan!");
+    toast("Silakan Login terlebih dahulu untuk memesan!");
     setTimeout(() => {
       window.location.href = "../Login/login.html";
     }, 1500);
@@ -763,11 +811,14 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
 function showPaymentSuccess() {
   const cardBody = document.getElementById("payment-card-body");
   cardBody.innerHTML = `
-    <div class="payment-success-content">
-      <span class="payment-success-icon">🎉</span>
+    <div class="payment-success-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 2rem 0;">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#e8621a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1.5rem; filter: drop-shadow(0 4px 12px rgba(232, 98, 26, 0.15));">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+      </svg>
       <h3 class="payment-success-title">Pembayaran Sukses!</h3>
       <p class="payment-success-text">
-        Hore! Pesanan Anda telah resmi diterima dan sekarang sedang diproses secepatnya oleh chef handal Dapur Lodeh. Terima kasih telah mempercayakan rasa pada kami! 🛵✨
+        Hore! Pesanan Anda telah resmi diterima dan sekarang sedang diproses secepatnya oleh chef handal Dapur Lodeh. Terima kasih telah mempercayakan rasa pada kami!
       </p>
       <button class="btn-order" id="btn-success-close">Kembali ke Menu</button>
     </div>

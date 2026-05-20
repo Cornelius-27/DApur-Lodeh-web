@@ -95,10 +95,10 @@ nav {
   background: var(--dark);
   border: none;
   padding: 10px 24px;
-  border-radius: 100px;
+  border-radius: 8px;
   cursor: pointer;
   letter-spacing: 0.03em;
-  transition: background 0.2s, transform 0.15s;
+  transition: background-color 0.2s, transform 0.15s;
   text-decoration: none;
 }
 
@@ -121,23 +121,7 @@ nav {
 }
 
 .hero-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.25;
-  pointer-events: none;
-}
-
-.blob-1 {
-  width: 600px; height: 600px;
-  background: var(--orange);
-  top: -100px; right: -100px;
-}
-
-.blob-2 {
-  width: 400px; height: 400px;
-  background: #F7C96B;
-  bottom: 0; left: -80px;
+  display: none !important;
 }
 
 .hero-eyebrow {
@@ -195,16 +179,16 @@ nav {
   background: var(--orange);
   color: #fff;
   border: none;
-  padding: 16px 36px;
-  border-radius: 100px;
+  padding: 14px 32px;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: background-color 0.2s, transform 0.15s;
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(232, 98, 26, 0.35);
+  background-color: var(--dark);
+  transform: translateY(-1px);
 }
 
 .btn-secondary {
@@ -213,17 +197,17 @@ nav {
   font-weight: 400;
   background: transparent;
   color: var(--dark);
-  border: 1.5px solid var(--border);
-  padding: 16px 36px;
-  border-radius: 100px;
+  border: 1px solid var(--border);
+  padding: 14px 32px;
+  border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
-  transition: border-color 0.2s, color 0.2s;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .btn-secondary:hover {
-  border-color: var(--orange);
-  color: var(--orange);
+  border-color: var(--dark);
+  background-color: rgba(26, 18, 8, 0.03);
 }
 
 /* ── SECTION ── */

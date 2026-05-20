@@ -12,6 +12,7 @@ const db = getFirestore(app);
 const DEFAULT_ADMIN_EMAILS = ["admin@gmail.com", "admindapur@gmail.com", "onel2@gmail.com"];
 let ADMIN_EMAILS = [];
 let ALL_ORDERS = [];
+let ALL_CUSTOMERS = [];
 
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
@@ -719,13 +720,13 @@ async function loadCustomers() {
 
   try {
     const querySnapshot = await getDocs(collection(db, "users"));
-    let customers = [];
+    ALL_CUSTOMERS = [];
     querySnapshot.forEach(d => {
-      customers.push({ id: d.id, ...d.data() });
+      ALL_CUSTOMERS.push({ id: d.id, ...d.data() });
     });
 
     // Sort by createdAt descending
-    customers.sort((a, b) => {
+    ALL_CUSTOMERS.sort((a, b) => {
       let timeA = 0;
       if (a.createdAt) {
         timeA = typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : new Date(a.createdAt).getTime();
@@ -737,55 +738,205 @@ async function loadCustomers() {
       return (timeB || 0) - (timeA || 0);
     });
 
-    tbody.innerHTML = "";
-    if (customers.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="4" class="text-center">Belum ada pelanggan terdaftar.</td></tr>`;
-      return;
-    }
-
-    customers.forEach(cust => {
-      const tr = document.createElement("tr");
-
-      // Format Join Date
-      let joinDate = "-";
-      if (cust.createdAt) {
-        const d = typeof cust.createdAt.toDate === 'function' ? cust.createdAt.toDate() : new Date(cust.createdAt);
-        joinDate = d.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
-      }
-
-      tr.innerHTML = `
-        <td>
-          <div style="font-weight:600; color:var(--admin-primary); font-size:1.05rem;">
-            ${cust.firstName || ""} ${cust.lastName || ""}
-          </div>
-          <div style="font-size:0.8rem; color:var(--admin-subtext); margin-top:4px;">
-            Bergabung: ${joinDate}
-          </div>
-        </td>
-        <td>
-          <div style="font-weight:500;">${cust.email || "-"}</div>
-          <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">${cust.phone || "-"}</div>
-        </td>
-        <td>
-          <div style="font-weight:500;">${cust.kota || "-"}</div>
-          <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">
-            Kec: ${cust.kecamatan || "-"}<br>Kel: ${cust.kelurahan || "-"}
-          </div>
-        </td>
-        <td>
-          <div style="font-size:0.9rem; line-height:1.4;">
-            ${cust.addressDetail || "-"}<br>
-            <span style="color:var(--admin-subtext); font-size:0.8rem;">
-              Auto: ${cust.addressAuto || "-"} | Pos: ${cust.kodepos || "-"}
-            </span>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
+    renderCustomersTable(ALL_CUSTOMERS);
 
   } catch (error) {
     console.error("Error loading customers:", error);
-    tbody.innerHTML = `<tr><td colspan="4" class="text-center" style="color:red;">Gagal memuat data pelanggan.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat data pelanggan: ${error.message}</td></tr>`;
   }
+}
+
+function renderCustomersTable(customersList) {
+  const tbody = document.getElementById("customers-tbody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+  if (customersList.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="text-center">Tidak ada data pelanggan yang cocok.</td></tr>`;
+    return;
+  }
+
+  customersList.forEach(cust => {
+    const tr = document.createElement("tr");
+
+    // Format Join Date
+    let joinDate = "-";
+    if (cust.createdAt) {
+      const d = typeof cust.createdAt.toDate === 'function' ? cust.createdAt.toDate() : new Date(cust.createdAt);
+      joinDate = d.toLocaleDateString("id-ID", { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    const fullName = `${cust.firstName || ""} ${cust.lastName || ""}`.trim() || "Tanpa Nama";
+
+    tr.innerHTML = `
+      <td>
+        <div style="font-weight:600; color:var(--admin-primary); font-size:1.05rem;">
+          ${fullName}
+        </div>
+        <div style="font-size:0.8rem; color:var(--admin-subtext); margin-top:4px;">
+          Bergabung: ${joinDate}
+        </div>
+      </td>
+      <td>
+        <div style="font-weight:500;">${cust.email || "-"}</div>
+        <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">${cust.phone || "-"}</div>
+      </td>
+      <td>
+        <div style="font-weight:500;">${cust.kota || "-"}</div>
+        <div style="color:var(--admin-subtext); font-size:0.85rem; margin-top:4px;">
+          Kec: ${cust.kecamatan || "-"}<br>Kel: ${cust.kelurahan || "-"}
+        </div>
+      </td>
+      <td>
+        <div style="font-size:0.9rem; line-height:1.4;">
+          ${cust.addressDetail || "-"}<br>
+          <span style="color:var(--admin-subtext); font-size:0.8rem;">
+            Auto: ${cust.addressAuto || "-"} | Pos: ${cust.kodepos || "-"}
+          </span>
+        </div>
+      </td>
+      <td class="td-actions">
+        <button class="btn-edit btn-edit-customer" data-id="${cust.id}">Edit</button>
+        <button class="btn-delete btn-delete-customer" data-id="${cust.id}" data-name="${fullName}">Hapus</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Attach event listener to edit buttons
+  tbody.querySelectorAll(".btn-edit-customer").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const custId = e.target.dataset.id;
+      openCustomerModal(custId);
+    });
+  });
+
+  // Attach event listener to delete buttons
+  tbody.querySelectorAll(".btn-delete-customer").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const custId = e.target.dataset.id;
+      const custName = e.target.dataset.name;
+      if (confirm(`Apakah Anda yakin ingin menghapus akun pelanggan "${custName}"? \nSemua data profil pelanggan ini akan dihapus permanen dari database.`)) {
+        e.target.textContent = "Menghapus...";
+        e.target.disabled = true;
+        try {
+          await deleteDoc(doc(db, "users", custId));
+          showToast(`Akun ${custName} berhasil dihapus!`);
+          loadCustomers(); // reload
+        } catch (err) {
+          console.error("Gagal menghapus pelanggan", err);
+          alert("Gagal menghapus data pelanggan: " + err.message);
+          e.target.textContent = "Hapus";
+          e.target.disabled = false;
+        }
+      }
+    });
+  });
+}
+
+// ── CUSTOMER MODAL HANDLERS ──
+const customerModal = document.getElementById("customer-modal");
+const customerForm = document.getElementById("customer-form");
+const btnCancelCustomer = document.getElementById("btn-cancel-customer");
+
+function openCustomerModal(id) {
+  const cust = ALL_CUSTOMERS.find(c => c.id === id);
+  if (!cust) return;
+
+  document.getElementById("customer-id").value = cust.id;
+  document.getElementById("cust-first-name").value = cust.firstName || "";
+  document.getElementById("cust-last-name").value = cust.lastName || "";
+  document.getElementById("cust-email").value = cust.email || "";
+  document.getElementById("cust-phone").value = cust.phone || "";
+  document.getElementById("cust-kota").value = cust.kota || "";
+  document.getElementById("cust-kecamatan").value = cust.kecamatan || "";
+  document.getElementById("cust-kelurahan").value = cust.kelurahan || "";
+  document.getElementById("cust-kodepos").value = cust.kodepos || "";
+  document.getElementById("cust-address-auto").value = cust.addressAuto || "";
+  document.getElementById("cust-address-detail").value = cust.addressDetail || "";
+
+  customerModal.classList.add("show");
+}
+
+if (btnCancelCustomer) {
+  btnCancelCustomer.addEventListener("click", () => {
+    customerModal.classList.remove("show");
+    customerForm.reset();
+  });
+}
+
+if (customerForm) {
+  customerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("customer-id").value;
+    const firstName = document.getElementById("cust-first-name").value.trim();
+    const lastName = document.getElementById("cust-last-name").value.trim();
+    const phone = document.getElementById("cust-phone").value.trim();
+    const kota = document.getElementById("cust-kota").value.trim();
+    const kecamatan = document.getElementById("cust-kecamatan").value.trim();
+    const kelurahan = document.getElementById("cust-kelurahan").value.trim();
+    const kodepos = document.getElementById("cust-kodepos").value.trim();
+    const addressAuto = document.getElementById("cust-address-auto").value.trim();
+    const addressDetail = document.getElementById("cust-address-detail").value.trim();
+
+    const btnSave = document.getElementById("btn-save-customer");
+    btnSave.textContent = "Menyimpan...";
+    btnSave.disabled = true;
+
+    const updateData = {
+      firstName,
+      lastName,
+      displayName: `${firstName} ${lastName}`.trim(),
+      phone,
+      kota,
+      kecamatan,
+      kelurahan,
+      kodepos,
+      addressAuto,
+      addressDetail,
+      location: {
+        kota,
+        kecamatan,
+        kelurahan,
+        kodepos,
+        addressAuto,
+        addressDetail
+      }
+    };
+
+    try {
+      await updateDoc(doc(db, "users", id), updateData);
+      showToast("Profil pelanggan berhasil diperbarui!");
+      customerModal.classList.remove("show");
+      customerForm.reset();
+      loadCustomers(); // refresh table
+    } catch (err) {
+      console.error("Gagal mengupdate pelanggan:", err);
+      alert("Gagal menyimpan perubahan: " + err.message);
+    } finally {
+      btnSave.textContent = "Simpan Perubahan";
+      btnSave.disabled = false;
+    }
+  });
+}
+
+// Event Listener Pencarian Pelanggan
+const searchCustomerEl = document.getElementById("search-customer");
+if (searchCustomerEl) {
+  searchCustomerEl.addEventListener("input", (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    if (!query) {
+      renderCustomersTable(ALL_CUSTOMERS);
+      return;
+    }
+
+    const filtered = ALL_CUSTOMERS.filter(cust => {
+      const fullName = `${cust.firstName || ""} ${cust.lastName || ""}`.toLowerCase();
+      const email = (cust.email || "").toLowerCase();
+      const phone = (cust.phone || "").toLowerCase();
+      return fullName.includes(query) || email.includes(query) || phone.includes(query);
+    });
+
+    renderCustomersTable(filtered);
+  });
 }

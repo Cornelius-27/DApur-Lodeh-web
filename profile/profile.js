@@ -157,6 +157,14 @@ onAuthStateChanged(auth, async user => {
     const userDoc = await getDoc(doc(db, "users", user.uid));
     if (userDoc.exists()) {
       userData = userDoc.data();
+    } else {
+      const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
+      if (!admins.includes(user.email)) {
+        await auth.signOut();
+        alert("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+        window.location.href = "../Login/login.html";
+        return;
+      }
     }
   } catch (err) {
     console.error("Gagal memuat profil pengguna dari Firestore:", err);

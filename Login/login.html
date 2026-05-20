@@ -96,20 +96,40 @@
     import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword,
              GoogleAuthProvider, signInWithPopup,
              onAuthStateChanged }                 from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc }          from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
     import { firebaseConfig }                     from "../firebase-config.js";
     
     const app      = initializeApp(firebaseConfig);
     const auth     = getAuth(app);
+    const db       = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
-    onAuthStateChanged(auth, user => {
+    onAuthStateChanged(auth, async user => {
       if (user) {
-        if (user.email === "admindapur@gmail.com" || user.email === "admin@gmail.com" || user.email === "onel2@gmail.com") {
+        const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
+        if (admins.includes(user.email)) {
           window.location.href = "../admin/admin.html";
-        } else {
-          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
-          sessionStorage.removeItem("authRedirect");
-          window.location.href = redirect;
+          return;
+        }
+
+        // Cek apakah akun dihapus di Firestore
+        setLoading(true);
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+            sessionStorage.removeItem("authRedirect");
+            window.location.href = redirect;
+          } else {
+            await auth.signOut();
+            showError("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+          }
+        } catch (err) {
+          console.error("Gagal memeriksa database user:", err);
+          await auth.signOut();
+          showError("Gagal memproses masuk. Silakan coba beberapa saat lagi.");
+        } finally {
+          setLoading(false);
         }
       }
     });
@@ -155,13 +175,7 @@
       setLoading(true);
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        if (email === "admindapur@gmail.com" || email === "admin@gmail.com" || email === "onel2@gmail.com") {
-          window.location.href = "../admin/admin.html";
-        } else {
-          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
-          sessionStorage.removeItem("authRedirect");
-          window.location.href = redirect;
-        }
+        // Biarkan onAuthStateChanged menangani pengecekan Firestore dan redirect secara aman
       } catch (err) {
         // Otomatis daftar jika menggunakan email admindapur@gmail.com
         if (email === "admindapur@gmail.com" && password === "admin123" && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
@@ -173,7 +187,9 @@
             showError("Gagal membuat akun admin otomatis: " + createErr.message);
           }
         } else {
-          showError(friendlyError(err.code));
+          console.error("Login error:", err);
+          const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+          showError(detailedError);
         }
         setLoading(false);
       }
@@ -181,13 +197,15 @@
 
     document.getElementById("btn-google-login").addEventListener("click", async () => {
       clearError();
+      setLoading(true);
       try {
         await signInWithPopup(auth, provider);
-        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
-        sessionStorage.removeItem("authRedirect");
-        window.location.href = redirect;
+        // Biarkan onAuthStateChanged menangani pengecekan Firestore dan redirect secara aman
       } catch (err) {
-        showError(friendlyError(err.code));
+        console.error("Google Login error:", err);
+        const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+        showError(detailedError);
+        setLoading(false);
       }
     });
 

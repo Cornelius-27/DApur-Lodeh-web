@@ -187,6 +187,15 @@
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             userData = userDoc.data();
+          } else {
+            // Check if admin
+            const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
+            if (!admins.includes(user.email)) {
+              await auth.signOut();
+              alert("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+              window.location.reload();
+              return;
+            }
           }
         } catch (err) {
           console.error("Error fetching user data:", err);

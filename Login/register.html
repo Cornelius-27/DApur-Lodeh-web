@@ -172,9 +172,11 @@
     const db   = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    let isRegistering = false;
+
     // Redirect if already logged in
     onAuthStateChanged(auth, user => {
-      if (user) {
+      if (user && !isRegistering) {
         const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
         sessionStorage.removeItem("authRedirect");
         window.location.href = redirect;
@@ -223,15 +225,24 @@
 
     // Build location object from form
     function collectLocation() {
+      const latEl = document.getElementById("lat");
+      const lngEl = document.getElementById("lng");
+      const autoEl = document.getElementById("address-auto");
+      const detailEl = document.getElementById("address-detail");
+      const kelEl = document.getElementById("kelurahan");
+      const kecEl = document.getElementById("kecamatan");
+      const kotaEl = document.getElementById("kota");
+      const posEl = document.getElementById("kodepos");
+
       return {
-        lat:          parseFloat(document.getElementById("lat").value)    || null,
-        lng:          parseFloat(document.getElementById("lng").value)    || null,
-        addressAuto:  document.getElementById("address-auto").value.trim(),
-        addressDetail:document.getElementById("address-detail").value.trim(),
-        kelurahan:    document.getElementById("kelurahan").value.trim(),
-        kecamatan:    document.getElementById("kecamatan").value.trim(),
-        kota:         document.getElementById("kota").value.trim(),
-        kodepos:      document.getElementById("kodepos").value.trim(),
+        lat:          latEl ? parseFloat(latEl.value) || null : null,
+        lng:          lngEl ? parseFloat(lngEl.value) || null : null,
+        addressAuto:  autoEl ? autoEl.value.trim() : "",
+        addressDetail:detailEl ? detailEl.value.trim() : "",
+        kelurahan:    kelEl ? kelEl.value.trim() : "",
+        kecamatan:    kecEl ? kecEl.value.trim() : "",
+        kota:         kotaEl ? kotaEl.value.trim() : "",
+        kodepos:      posEl ? posEl.value.trim() : "",
       };
     }
 
@@ -252,7 +263,7 @@
       if (!email)                  { showError("Email wajib diisi."); return false; }
       if (password.length < 8)     { showError("Password minimal 8 karakter."); return false; }
       if (password !== confirm)    { showError("Password dan konfirmasi tidak cocok."); return false; }
-      if (!kota)                   { showError("Tentukan lokasi kamu di peta terlebih dahulu."); return false; }
+      if (!kota)                   { showError("Kota / Kabupaten wajib diisi."); return false; }
       return true;
     }
 
@@ -262,6 +273,7 @@
       if (!validate()) return;
 
       setLoading(true);
+      isRegistering = true;
       const firstName = document.getElementById("first-name").value.trim();
       const lastName  = document.getElementById("last-name").value.trim();
       const phone     = document.getElementById("phone").value.trim();
@@ -284,7 +296,10 @@
           window.location.href = redirect; 
         }, 1500);
       } catch (err) {
-        showError(friendlyError(err.code));
+        isRegistering = false;
+        console.error("Signup error:", err);
+        const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+        showError(detailedError);
         setLoading(false);
       }
     });
@@ -313,6 +328,7 @@
         return;
     }
 
+    isRegistering = true;
     try {
         const cred  = await signInWithPopup(auth, provider);
         const user  = cred.user;
@@ -337,7 +353,10 @@
         }, 1500);
 
     } catch (err) {
-        showError(friendlyError(err.code));
+        isRegistering = false;
+        console.error("Google Signup error:", err);
+        const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+        showError(detailedError);
     }
     });
 
