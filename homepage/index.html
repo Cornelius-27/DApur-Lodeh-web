@@ -214,7 +214,7 @@
 
     async function loadTodayMenu() {
       const grid = document.querySelector(".cards-grid");
-      grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 3rem 0; font-size: 1.1rem;">Memuat menu hari ini... ✨</div>`;
+      grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 3rem 0; font-size: 1.1rem;">Memuat menu hari ini...</div>`;
 
       try {
         const querySnapshot = await getDocs(collection(db, "menus"));

@@ -290,9 +290,9 @@ document.getElementById("form-personal").addEventListener("submit", async (e) =>
     if (nameTrigger) nameTrigger.textContent = firstName;
     if (headerName) headerName.textContent = displayName;
 
-    showToast("Data diri Anda berhasil diperbarui! ✓");
+    showToast("Data diri Anda berhasil diperbarui!");
   } catch (err) {
-    console.error("Gagal memperbarui data diri:", err);
+    console.error("Gagal simpan data personal", err);
     showToast("Gagal menyimpan perubahan: " + err.message, false);
   } finally {
     // Reset Loading State
@@ -348,9 +348,9 @@ document.getElementById("form-address").addEventListener("submit", async (e) => 
       location: locationObj
     }, { merge: true });
 
-    showToast("Alamat pengiriman berhasil diperbarui! ✓");
+    showToast("Alamat pengiriman berhasil diperbarui!");
   } catch (err) {
-    console.error("Gagal memperbarui alamat:", err);
+    console.error("Gagal simpan alamat", err);
     showToast("Gagal menyimpan alamat: " + err.message, false);
   } finally {
     // Reset Loading State

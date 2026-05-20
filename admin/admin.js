@@ -166,8 +166,14 @@ function renderTable() {
       </td>
       <td>
         <span class="cat-badge">${item.catLabel || item.cat}</span>
-        <div style="margin-top: 6px; font-size: 0.8rem; color: var(--admin-primary); font-weight: 500;">
-          📅 ${dayLabel}
+        <div style="margin-top: 6px; font-size: 0.8rem; color: var(--admin-primary); font-weight: 500; display: flex; align-items: center; gap: 4px;">
+          <svg class="day-calendar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          ${dayLabel}
         </div>
       </td>
       <td style="font-weight: 500;">Rp ${(item.price || 0).toLocaleString('id-ID')}</td>
@@ -565,7 +571,7 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
     let actionHtml = "";
     if (isActiveSection) {
       actionHtml = `
-        <button class="btn-success btn-mark-delivered" data-id="${order.id}">Tandai Selesai ✓</button>
+        <button class="btn-success btn-mark-delivered" data-id="${order.id}">Tandai Selesai</button>
         <button class="btn-detail-order" data-id="${order.id}">Detail</button>
       `;
     } else {

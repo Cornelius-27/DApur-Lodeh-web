@@ -23,10 +23,36 @@
         Dapur Lodeh <span class="badge-admin">Admin</span>
       </div>
       <ul class="sidebar-nav">
-        <li class="nav-item active" data-tab="tab-menu">🍔 Menu (Selasa - Jumat)</li>
-        <li class="nav-item" data-tab="tab-orders">📦 Manajemen Pesanan</li>
-        <li class="nav-item" data-tab="tab-customers">👥 Akun Pelanggan</li>
-        <li class="nav-item" data-tab="tab-admins">🛡️ Akun Admin</li>
+        <li class="nav-item active" data-tab="tab-menu">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+            <path d="M6 6h10"></path>
+            <path d="M6 10h10"></path>
+          </svg>
+          Menu (Selasa - Jumat)
+        </li>
+        <li class="nav-item" data-tab="tab-orders">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          </svg>
+          Manajemen Pesanan
+        </li>
+        <li class="nav-item" data-tab="tab-customers">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Akun Pelanggan
+        </li>
+        <li class="nav-item" data-tab="tab-admins">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Akun Admin
+        </li>
       </ul>
       <div class="sidebar-footer">
         <span id="admin-email" class="admin-email"
@@ -93,7 +119,10 @@
         </header>
 
         <!-- Pesanan Sedang Dimasak -->
-        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem;">Pesanan Sedang Dimasak 🔥</h2>
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          Pesanan Sedang Dimasak
+          <span class="status-pulse-dot" title="Aktif"></span>
+        </h2>
         <div class="admin-card" style="margin-bottom: 2rem;">
           <div class="table-responsive">
             <table class="menu-table">
@@ -116,7 +145,10 @@
         </div>
 
         <!-- Histori Pesanan -->
-        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem;">Histori Pesanan (Selesai) ✅</h2>
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          Histori Pesanan (Selesai)
+          <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block;" title="Selesai"></span>
+        </h2>
         <div class="admin-card">
           <div class="table-responsive">
             <table class="menu-table">
@@ -349,7 +381,12 @@
     </div>
   </div>
 
-  <div id="toast">✅ <span id="toast-msg">Berhasil!</span></div>
+  <div id="toast">
+    <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-msg">Berhasil!</span>
+  </div>
 
   <script type="module" src="admin.js"></script>
 </body>
