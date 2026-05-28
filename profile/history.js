@@ -255,8 +255,10 @@ function renderHistoryStats(myOrders) {
 /* ══════════════════════════════════════════════════════
    LOAD RIWAYAT PESANAN DARI FIRESTORE
    ══════════════════════════════════════════════════════ */
+
 async function loadUserOrdersHistory(user) {
-  const container = document.getElementById("orders-history-list");
+  const ongoingContainer = document.getElementById("orders-ongoing-list");
+  const finishedContainer = document.getElementById("orders-finished-list");
   
   try {
     const querySnapshot = await getDocs(collection(db, "orders"));
@@ -272,12 +274,33 @@ async function loadUserOrdersHistory(user) {
     // Urutkan berdasarkan waktu transaksi terbaru (descending)
     myOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+    // Pisahkan menjadi Ongoing dan Finished
+    const ongoingOrders = [];
+    const finishedOrders = [];
+    myOrders.forEach(order => {
+      if (order.status === "Delivered") {
+        finishedOrders.push(order);
+      } else {
+        ongoingOrders.push(order);
+      }
+    });
+
     // Tampilkan rangkuman statistik belanja
     renderHistoryStats(myOrders);
 
-    // Jika belum memiliki pesanan
-    if (myOrders.length === 0) {
-      container.innerHTML = `
+    renderOrdersList(ongoingOrders, ongoingContainer, "Belum ada pesanan berjalan");
+    renderOrdersList(finishedOrders, finishedContainer, "Belum ada riwayat pesanan selesai");
+
+  } catch (err) {
+    console.error("Gagal memuat pesanan pelanggan:", err);
+    ongoingContainer.innerHTML = getErrorHtml(err.message);
+    finishedContainer.innerHTML = getErrorHtml(err.message);
+  }
+}
+
+function renderOrdersList(orders, container, emptyMsg) {
+  if (orders.length === 0) {
+    container.innerHTML = `
         <div class="orders-empty-state">
           <div style="color: var(--warm-gray); margin-bottom: 1.2rem; display: flex; justify-content: center;">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -288,7 +311,7 @@ async function loadUserOrdersHistory(user) {
               <polyline points="10 9 9 9 8 9"></polyline>
             </svg>
           </div>
-          <p>Belum ada riwayat pesanan</p>
+          <p>${emptyMsg}</p>
           <small style="color: var(--warm-gray); display: block; margin-bottom: 1.5rem;">Perut kosong? Jelajahi menu lezat kami dan buat pesanan pertamamu sekarang!</small>
           <a href="../menu/menu.html" class="btn-save-profile" style="display: inline-flex; text-decoration: none; align-self: center;">Jelajahi Menu</a>
         </div>
@@ -298,7 +321,7 @@ async function loadUserOrdersHistory(user) {
 
     container.innerHTML = "";
 
-    myOrders.forEach(order => {
+    orders.forEach(order => {
       const card = document.createElement("div");
       card.className = "order-history-card";
 
@@ -383,10 +406,10 @@ async function loadUserOrdersHistory(user) {
 
       container.appendChild(card);
     });
+}
 
-  } catch (err) {
-    console.error("Gagal memuat pesanan pelanggan:", err);
-    container.innerHTML = `
+function getErrorHtml(errMsg) {
+  return `
       <div class="orders-empty-state" style="border-color: #C2410C;">
         <div style="color: #C2410C; margin-bottom: 1.2rem; display: flex; justify-content: center;">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -396,8 +419,35 @@ async function loadUserOrdersHistory(user) {
           </svg>
         </div>
         <p style="color: #C2410C;">Gagal memuat data transaksi</p>
-        <small style="color: var(--warm-gray);">${err.message}</small>
+        <small style="color: var(--warm-gray);">${errMsg}</small>
       </div>
-    `;
-  }
+  `;
 }
+
+/* ══════════════════════════════════════════════════════
+   TAB SWITCHING LOGIC
+   ══════════════════════════════════════════════════════ */
+document.querySelectorAll(".history-tab-btn").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    document.querySelectorAll(".history-tab-btn").forEach(b => {
+      b.classList.remove("btn-primary-profile");
+      b.classList.add("btn-secondary-profile");
+    });
+    const targetBtn = e.currentTarget;
+    targetBtn.classList.remove("btn-secondary-profile");
+    targetBtn.classList.add("btn-primary-profile");
+
+    const tabType = targetBtn.dataset.tab;
+    const ongoingList = document.getElementById("orders-ongoing-list");
+    const finishedList = document.getElementById("orders-finished-list");
+
+    if (tabType === "ongoing") {
+      ongoingList.style.display = "block";
+      finishedList.style.display = "none";
+    } else {
+      ongoingList.style.display = "none";
+      finishedList.style.display = "block";
+    }
+  });
+});
+

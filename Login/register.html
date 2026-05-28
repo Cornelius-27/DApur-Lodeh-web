@@ -254,7 +254,10 @@
       const email     = document.getElementById("email").value.trim();
       const password  = document.getElementById("password").value;
       const confirm   = document.getElementById("confirm-password").value;
+      const kelurahan = document.getElementById("kelurahan").value.trim();
+      const kecamatan = document.getElementById("kecamatan").value.trim();
       const kota      = document.getElementById("kota").value.trim();
+      const kodepos   = document.getElementById("kodepos").value.trim();
 
       if (!firstName)              { showError("Nama depan wajib diisi."); return false; }
       if (!lastName)               { showError("Nama belakang wajib diisi."); return false; }
@@ -263,7 +266,10 @@
       if (!email)                  { showError("Email wajib diisi."); return false; }
       if (password.length < 8)     { showError("Password minimal 8 karakter."); return false; }
       if (password !== confirm)    { showError("Password dan konfirmasi tidak cocok."); return false; }
+      if (!kelurahan)              { showError("Kelurahan / Desa wajib diisi."); return false; }
+      if (!kecamatan)              { showError("Kecamatan wajib diisi."); return false; }
       if (!kota)                   { showError("Kota / Kabupaten wajib diisi."); return false; }
+      if (!kodepos)                { showError("Kode pos wajib diisi."); return false; }
       return true;
     }
 
@@ -323,8 +329,8 @@
     }
 
     // VALIDASI ALAMAT
-    if (!loc.kota) {
-        showError("Silakan tentukan alamat di peta terlebih dahulu.");
+    if (!loc.kelurahan || !loc.kecamatan || !loc.kota || !loc.kodepos) {
+        showError("Data lokasi pengiriman (Kelurahan, Kecamatan, Kota, Kode Pos) wajib diisi lengkap.");
         return;
     }
 

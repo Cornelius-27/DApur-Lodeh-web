@@ -11,6 +11,44 @@ const db = getFirestore(app);
 let currentUser = null;
 
 /* ══════════════════════════════════════════════════════
+   MAP STATE & FUNCTIONS
+   ══════════════════════════════════════════════════════ */
+let map = null;
+let marker = null;
+
+function initLeafletMap(lat, lng) {
+  if (map) {
+    map.setView([lat, lng], 15);
+    marker.setLatLng([lat, lng]);
+    return;
+  }
+  
+  map = L.map('map').setView([lat, lng], 15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+
+  marker.on('dragend', async function (e) {
+    const position = marker.getLatLng();
+    document.getElementById("profile-lat").value = position.lat;
+    document.getElementById("profile-lng").value = position.lng;
+    
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
+      const data = await response.json();
+      if (data && data.display_name) {
+        document.getElementById("profile-address-auto").value = data.display_name;
+      }
+    } catch(err) {
+      console.error("Geocoding failed", err);
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
    1. PROTEKSI ROUTE & TAMPILAN USER DROPDOWN
    ══════════════════════════════════════════════════════ */
 
@@ -205,7 +243,13 @@ function populateProfileData(user, userData) {
   document.getElementById("profile-kecamatan").value = loc.kecamatan || userData?.kecamatan || "";
   document.getElementById("profile-kota").value = loc.kota || userData?.kota || "";
   document.getElementById("profile-kodepos").value = loc.kodepos || userData?.kodepos || "";
-  document.getElementById("profile-address-auto").value = loc.addressAuto || userData?.addressAuto || "Tidak tersedia";
+  document.getElementById("profile-address-auto").value = loc.addressAuto || userData?.addressAuto || "";
+  
+  const lat = loc.lat || -6.200000;
+  const lng = loc.lng || 106.816666;
+  document.getElementById("profile-lat").value = lat;
+  document.getElementById("profile-lng").value = lng;
+  initLeafletMap(lat, lng);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -214,17 +258,39 @@ function populateProfileData(user, userData) {
 const tabButtons = document.querySelectorAll(".profile-menu-item");
 const tabPanes = document.querySelectorAll(".profile-pane");
 
+function activateTab(targetId) {
+  tabButtons.forEach(t => t.classList.remove("active"));
+  tabPanes.forEach(p => p.classList.remove("active"));
+
+  const btn = Array.from(tabButtons).find(t => t.dataset.tab === targetId);
+  if (btn) btn.classList.add("active");
+  
+  const pane = document.getElementById(targetId);
+  if (pane) pane.classList.add("active");
+  
+  if (targetId === "tab-address" && map) {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 150);
+  }
+}
+
 tabButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    // Nonaktifkan semua tab & pane
-    tabButtons.forEach(t => t.classList.remove("active"));
-    tabPanes.forEach(p => p.classList.remove("active"));
-
-    // Aktifkan tab yang diklik
-    btn.classList.add("active");
-    const targetId = btn.dataset.tab;
-    document.getElementById(targetId).classList.add("active");
+    if (btn.dataset.tab) {
+      activateTab(btn.dataset.tab);
+    }
   });
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get("tab");
+  if (tab === "address") {
+    activateTab("tab-address");
+  } else if (tab === "personal") {
+    activateTab("tab-personal");
+  }
 });
 
 /* ══════════════════════════════════════════════════════
@@ -327,6 +393,8 @@ document.getElementById("form-address").addEventListener("submit", async (e) => 
 
   // Ambil alamat peta lama agar tidak hilang jika tidak diganti
   const addressAuto = document.getElementById("profile-address-auto").value;
+  const lat = parseFloat(document.getElementById("profile-lat").value) || -6.200000;
+  const lng = parseFloat(document.getElementById("profile-lng").value) || 106.816666;
 
   const locationObj = {
     addressDetail,
@@ -334,7 +402,9 @@ document.getElementById("form-address").addEventListener("submit", async (e) => 
     kecamatan,
     kota,
     kodepos,
-    addressAuto: addressAuto === "Tidak tersedia" ? "" : addressAuto
+    addressAuto: addressAuto === "Tidak tersedia" ? "" : addressAuto,
+    lat,
+    lng
   };
 
   try {
@@ -345,6 +415,9 @@ document.getElementById("form-address").addEventListener("submit", async (e) => 
       kecamatan,
       kota,
       kodepos,
+      lat,
+      lng,
+      addressAuto,
       location: locationObj
     }, { merge: true });
 

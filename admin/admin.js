@@ -66,31 +66,31 @@ onAuthStateChanged(auth, async user => {
   loadOrders();
   loadCustomers();
 
-  // --- TEMPORARY AUTO SEED SCRIPT ---
-  if (localStorage.getItem("seeded_menus") !== "true") {
+  // --- TEMPORARY AUTO SEED SCRIPT KAMIS JUMAT ---
+  if (localStorage.getItem("seeded_menus_kamis_jumat") !== "true") {
     try {
-      console.log("Seeding menus...");
+      console.log("Seeding menus for Kamis & Jumat...");
       const snapshot = await getDocs(collection(db, "menus"));
-      // Delete old Selasa & Rabu
+      // Delete old Kamis & Jumat
       for (const d of snapshot.docs) {
         const cat = d.data().cat;
-        if (cat === "noodles" || cat === "salad") {
+        if (cat === "burger" || cat === "rice") {
           await deleteDoc(doc(db, "menus", d.id));
         }
       }
       
-      const selasa = ["Nasi kuning", "Perkedel kornet", "Pepes ikan kembung", "Telor balado", "Telor asin", "Bihun goreng", "Tongkol balado", "Terong balado", "Sayur lodeh", "Tumis sayur asin", "Bakwan jagung"];
-      for (const name of selasa) {
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "noodles", catLabel: "Spesial Selasa", colorClass: "card-c1", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+      const kamis = ["Nasi kuning", "Sayur lodeh", "Bihun goreng", "Telor balado", "Telor asin", "Perkedel kornet", "Tumis sawi putih", "Sop kembang tahu ayam kampung", "Ikan kembung goreng", "Cukiok"];
+      for (const name of kamis) {
+        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
       }
 
-      const rabu = ["Nasi uduk", "Sayur asem", "Tumis toge", "Perkedel kornet", "Bakwan jagung", "Telor balado", "Tahu balado", "Telor asin", "Ayam goreng"];
-      for (const name of rabu) {
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "salad", catLabel: "Spesial Rabu", colorClass: "card-c2", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+      const jumat = ["Lontong sayur", "Sayur asem", "Kari ayam", "Sop ayam kampung ham maling", "Telor asin", "Telor semur", "Tahu semur", "Sambel godog udang pete", "Perkedel kornet", "Bakwan jagung"];
+      for (const name of jumat) {
+        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
       }
       
-      localStorage.setItem("seeded_menus", "true");
-      alert("Menu Selasa & Rabu berhasil diperbarui! Halaman akan dimuat ulang.");
+      localStorage.setItem("seeded_menus_kamis_jumat", "true");
+      alert("Menu Kamis & Jumat berhasil diperbarui! Halaman akan dimuat ulang.");
       window.location.reload();
     } catch(e) { console.error("Seeding failed", e); }
   }
@@ -106,8 +106,10 @@ btnLogout.addEventListener("click", async () => {
 // ── 2. FUNGSI LOAD DATA DARI FIRESTORE ──
 async function loadMenus() {
   menuTbody.innerHTML = `<tr><td colspan="5" class="text-center">Memuat menu...</td></tr>`;
+  const filterColEl = document.getElementById("filter-collection");
+  const colName = filterColEl ? filterColEl.value : "menus";
   try {
-    const querySnapshot = await getDocs(collection(db, "menus"));
+    const querySnapshot = await getDocs(collection(db, colName));
     menuList = [];
     querySnapshot.forEach((doc) => {
       menuList.push({ id: doc.id, ...doc.data() });
@@ -201,8 +203,10 @@ function renderTable() {
     toggle.addEventListener("change", async (e) => {
       const id = e.target.dataset.id;
       const isActive = e.target.checked;
+      const filterColEl = document.getElementById("filter-collection");
+      const colName = filterColEl ? filterColEl.value : "menus";
       try {
-        await updateDoc(doc(db, "menus", id), { isActive });
+        await updateDoc(doc(db, colName, id), { isActive });
         const itemIdx = menuList.findIndex(m => m.id === id);
         if (itemIdx > -1) menuList[itemIdx].isActive = isActive;
         showToast("Status menu berhasil diubah!");
@@ -220,6 +224,24 @@ function renderTable() {
 
 // ── 3. MODAL & CRUD OPERATIONS ──
 function openModal(id = null) {
+  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
+  const catSelect = document.getElementById("menu-cat");
+  if (colName === "catering") {
+    catSelect.innerHTML = `
+      <option value="prasmanan">Prasmanan</option>
+      <option value="box">Nasi Box</option>
+      <option value="snack">Snack Box</option>
+    `;
+  } else {
+    catSelect.innerHTML = `
+      <option value="noodles">Spesial Selasa</option>
+      <option value="salad">Spesial Rabu</option>
+      <option value="burger">Spesial Kamis</option>
+      <option value="rice">Spesial Jumat</option>
+      <option value="drinks">Menu Bebas (Semua Hari)</option>
+    `;
+  }
+
   if (id) {
     modalTitle.textContent = "Edit Menu";
     const item = menuList.find(m => m.id === id);
@@ -250,18 +272,25 @@ function closeModal() {
 btnCancel.addEventListener("click", closeModal);
 btnAddMenu.addEventListener("click", () => openModal());
 
-menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
+  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
   
   const cat = document.getElementById("menu-cat").value;
-  const catLabels = {
+  let catLabels = {
     "noodles": "Spesial Selasa",
     "salad": "Spesial Rabu",
     "burger": "Spesial Kamis",
     "rice": "Spesial Jumat",
     "drinks": "Minuman"
   };
+  if (colName === "catering") {
+    catLabels = {
+      "prasmanan": "Prasmanan",
+      "box": "Nasi Box",
+      "snack": "Snack Box"
+    };
+  }
 
   const menuData = {
     name: document.getElementById("menu-name").value,
@@ -282,11 +311,11 @@ menuForm.addEventListener("submit", async (e) => {
   try {
     if (id) {
       // Update
-      await updateDoc(doc(db, "menus", id), menuData);
+      await updateDoc(doc(db, colName, id), menuData);
       showToast("Menu berhasil diperbarui!");
     } else {
       // Create
-      await addDoc(collection(db, "menus"), menuData);
+      await addDoc(collection(db, colName), menuData);
       showToast("Menu baru berhasil ditambahkan!");
     }
     closeModal();
@@ -304,8 +333,10 @@ async function deleteMenu(id) {
   const item = menuList.find(m => m.id === id);
   if (!confirm(`Apakah Anda yakin ingin menghapus menu "${item.name}"?`)) return;
 
+  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
+
   try {
-    await deleteDoc(doc(db, "menus", id));
+    await deleteDoc(doc(db, colName, id));
     showToast("Menu berhasil dihapus!");
     loadMenus();
   } catch (error) {
@@ -488,6 +519,16 @@ if (filterDayEl) {
   });
 }
 
+// Event Listener Filter Collection (Catering / Menus)
+const filterColEl = document.getElementById("filter-collection");
+if (filterColEl) {
+  filterColEl.addEventListener("change", () => {
+    // Reset day filter back to 'all'
+    if (filterDayEl) filterDayEl.value = "all";
+    loadMenus();
+  });
+}
+
 // ── 6. TAB NAVIGATION SYSTEM ──
 const tabs = document.querySelectorAll(".nav-item");
 const panes = document.querySelectorAll(".tab-pane");
@@ -567,23 +608,35 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
       itemsHtml += `<div style="margin-top:8px; font-size:0.8rem; color:#f97316;"><b>Catatan:</b> ${order.note}</div>`;
     }
 
-    // Aksi / Status kolom terakhir
+    // Status Badge di bawah total
+    const currentPaymentStatus = order.paymentStatus || "Unpaid";
+    const currentOrderStatus = order.status || "Pending";
+
     let actionHtml = "";
     if (isActiveSection) {
       actionHtml = `
-        <button class="btn-success btn-mark-delivered" data-id="${order.id}">Tandai Selesai</button>
-        <button class="btn-detail-order" data-id="${order.id}">Detail</button>
+        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+          <select class="select-payment-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
+            <option value="Unpaid" ${currentPaymentStatus === "Unpaid" ? "selected" : ""}>Belum Bayar</option>
+            <option value="Paid" ${currentPaymentStatus === "Paid" ? "selected" : ""}>Sudah Bayar</option>
+          </select>
+          <select class="select-order-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
+            <option value="Pending" ${currentOrderStatus === "Pending" ? "selected" : ""}>Pending (Dimasak)</option>
+            <option value="Processing" ${currentOrderStatus === "Processing" ? "selected" : ""}>Processing (Dikirim)</option>
+            <option value="Delivered" ${currentOrderStatus === "Delivered" ? "selected" : ""}>Delivered (Selesai)</option>
+          </select>
+        </div>
+        <button class="btn-detail-order" data-id="${order.id}" style="width:100%;">Detail</button>
       `;
     } else {
       actionHtml = `
         <span class="badge-delivered">Delivered</span>
-        <button class="btn-detail-order" style="margin-left:1rem;" data-id="${order.id}">Detail</button>
+        <button class="btn-detail-order" style="margin-top:8px; width:100%;" data-id="${order.id}">Detail</button>
       `;
     }
 
-    // Status Badge di bawah total
     const statusBadge = isActiveSection 
-      ? `<span class="badge-pending" style="display:inline-block; margin-top:6px;">Sedang Dimasak</span>` 
+      ? `<span class="badge-pending" style="display:inline-block; margin-top:6px;">${currentOrderStatus}</span>` 
       : "";
 
     tr.innerHTML = `
@@ -591,6 +644,7 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
         <div style="font-weight:600;">${dateStr}</div>
         <div style="color:#64748b; font-size:0.85rem;">${timeStr}</div>
         <div style="color:#94a3b8; font-size:0.75rem; margin-top:4px;">ID: ${order.id.substring(0,6)}...</div>
+        <div style="font-size:0.75rem; margin-top:4px; color:${currentPaymentStatus === 'Paid' ? '#047857' : '#C2410C'}; font-weight:bold;">${currentPaymentStatus}</div>
       </td>
       <td>
         <div style="font-weight:500;">${order.userEmail || order.userId || "Tamu"}</div>
@@ -600,29 +654,39 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
         <div style="font-weight:600; font-size:1.05rem;">Rp ${(order.total || 0).toLocaleString('id-ID')}</div>
         ${statusBadge}
       </td>
-      <td class="td-actions">${actionHtml}</td>
+      <td class="td-actions" style="vertical-align:top;">${actionHtml}</td>
     `;
     tbody.appendChild(tr);
   });
 
-  // Event Listener untuk tombol "Tandai Selesai"
+  // Event Listener untuk update status
   if (isActiveSection) {
-    tbody.querySelectorAll(".btn-mark-delivered").forEach(btn => {
-      btn.addEventListener("click", async (e) => {
+    tbody.querySelectorAll(".select-payment-status").forEach(sel => {
+      sel.addEventListener("change", async (e) => {
         const orderId = e.target.dataset.id;
-        const originalText = e.target.textContent;
-        e.target.textContent = "Memproses...";
-        e.target.disabled = true;
-
+        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { status: "Delivered" });
-          showToast("Pesanan berhasil ditandai selesai!");
+          await updateDoc(doc(db, "orders", orderId), { paymentStatus: newStatus });
+          showToast("Status pembayaran diperbarui!");
           loadOrders(); // Refresh table
         } catch (err) {
-          console.error("Gagal update status", err);
-          alert("Gagal menandai pesanan.");
-          e.target.textContent = originalText;
-          e.target.disabled = false;
+          console.error("Gagal update payment status", err);
+          alert("Gagal update status pembayaran.");
+        }
+      });
+    });
+
+    tbody.querySelectorAll(".select-order-status").forEach(sel => {
+      sel.addEventListener("change", async (e) => {
+        const orderId = e.target.dataset.id;
+        const newStatus = e.target.value;
+        try {
+          await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+          showToast("Status pesanan diperbarui!");
+          loadOrders(); // Refresh table
+        } catch (err) {
+          console.error("Gagal update order status", err);
+          alert("Gagal update status pesanan.");
         }
       });
     });
@@ -664,6 +728,24 @@ function openOrderDetail(orderId) {
   }
   itemsHtml += "</ul>";
 
+  const customer = ALL_CUSTOMERS.find(c => c.id === order.userId);
+  let addressHtml = "-";
+  if (customer) {
+    const { addressDetail, kelurahan, kecamatan, kota, kodepos, addressAuto } = customer;
+    let parts = [];
+    if (addressDetail) parts.push(addressDetail);
+    if (kelurahan) parts.push(`Kel. ${kelurahan}`);
+    if (kecamatan) parts.push(`Kec. ${kecamatan}`);
+    if (kota) parts.push(kota);
+    if (kodepos) parts.push(kodepos);
+    
+    if (parts.length > 0) {
+      addressHtml = parts.join(", ");
+    } else if (addressAuto) {
+      addressHtml = addressAuto;
+    }
+  }
+
   body.innerHTML = `
     <div class="detail-grid">
       <div>
@@ -682,6 +764,11 @@ function openOrderDetail(orderId) {
         <div class="detail-item-title">Metode Pembayaran</div>
         <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
       </div>
+    </div>
+
+    <div style="margin-bottom: 1.5rem;">
+      <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
+      <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
     </div>
     
     <div style="margin-bottom: 1.5rem;">

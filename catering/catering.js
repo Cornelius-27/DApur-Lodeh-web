@@ -811,6 +811,7 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
       ongkir: ONGKIR,
       total: payTotal,
       paymentMethod: activePaymentMethod,
+      orderType: "Catering", // Penanda order dari catering
       status: "Pending", // Status awal pemesanan
       createdAt: new Date().toISOString()
     };
@@ -867,31 +868,15 @@ async function init() {
   showPane("cart-view");
 
   try {
-    const querySnapshot = await getDocs(collection(db, "menus"));
+    const querySnapshot = await getDocs(collection(db, "catering"));
     MENU_DATA = [];
-    
-    const catDayMap = {
-      "noodles": 2, // Selasa
-      "salad": 3,   // Rabu
-      "burger": 4,  // Kamis
-      "rice": 5     // Jumat
-    };
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const artificialDay = catDayMap[data.cat] || 0; 
-      MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
+      MENU_DATA.push({ id: doc.id, ...data });
     });
-    
-    // Filter berdasarkan hari ini (Selasa - Jumat)
-    const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
-    if (today >= 2 && today <= 5) {
-      MENU_DATA = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
-    } else {
-      MENU_DATA = []; // Kosongkan jika akhir pekan / Senin
-      document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Menu makanan tidak tersedia di akhir pekan / Senin. Kami buka dari Selasa hingga Jumat!</div>`;
-      return;
-    }
+
+    MENU_DATA = MENU_DATA.filter(m => m.isActive !== false);
 
   } catch (error) {
     console.error("Error loading menus:", error);
