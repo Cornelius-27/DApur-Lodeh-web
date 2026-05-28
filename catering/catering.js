@@ -358,7 +358,7 @@ function renderCart() {
       CART.splice(index, 1);
       saveCart();
       renderCart();
-      toast("Menu dihapus dari keranjang!");
+      toast("Paket dihapus dari keranjang!");
     });
 
     // Qty Increment
@@ -377,7 +377,7 @@ function renderCart() {
         toast("Kuantitas keranjang diperbarui!");
       } else {
         CART.splice(index, 1);
-        toast("Menu dihapus dari keranjang!");
+        toast("Paket dihapus dari keranjang!");
       }
       saveCart();
       renderCart();
@@ -413,7 +413,7 @@ function renderGrid(cat) {
   const list = cat === "all" ? MENU_DATA : MENU_DATA.filter(m => m.cat === cat);
 
   if (list.length === 0) {
-    grid.innerHTML = `<div class="menu-empty">Belum ada menu di kategori ini</div>`;
+    grid.innerHTML = `<div class="menu-empty">Belum ada paket di kategori ini</div>`;
     return;
   }
 
@@ -487,7 +487,7 @@ function renderGrid(cat) {
           toast("Kuantitas keranjang diperbarui!");
         } else {
           CART.splice(cartItemIndex, 1);
-          toast("Menu dihapus dari keranjang!");
+          toast("Paket dihapus dari keranjang!");
         }
         saveCart();
         renderCart();
@@ -572,9 +572,9 @@ function updateHero() {
       `;
     }
   } else {
-    document.getElementById("hero-tag").textContent   = "Menu";
-    document.getElementById("hero-name").textContent  = "Pilih makananmu";
-    document.getElementById("hero-desc").textContent  = "Semua menu tersedia dan siap dipesan untuk kamu.";
+    document.getElementById("hero-tag").textContent   = "Catering";
+    document.getElementById("hero-name").textContent  = "Pilih paketmu";
+    document.getElementById("hero-desc").textContent  = "Semua paket catering tersedia dan siap dipesan untuk acara Anda.";
     document.getElementById("hero-emoji").innerHTML = `
       <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
         <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
@@ -664,7 +664,7 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
   // 1. CEK STATUS LOGIN PENGGUNA (Menggunakan SDK langsung untuk performa instan dan aman)
   const user = auth.currentUser;
   if (!user) {
-    sessionStorage.setItem("authRedirect", "../menu/menu.html");
+    sessionStorage.setItem("authRedirect", "../catering/catering.html");
     toast("Silakan Login terlebih dahulu untuk memesan!");
     setTimeout(() => {
       window.location.href = "../Login/login.html";
@@ -845,14 +845,14 @@ function showPaymentSuccess() {
       </svg>
       <h3 class="payment-success-title">Pembayaran Sukses!</h3>
       <p class="payment-success-text">
-        Hore! Pesanan Anda telah resmi diterima dan sekarang sedang diproses secepatnya oleh chef handal Dapur Lodeh. Terima kasih telah mempercayakan rasa pada kami!
+        <p style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 2rem; line-height: 1.5;">Pesanan Anda berhasil dikirim dan sedang kami proses. Mohon siapkan pembayaran sesuai metode yang dipilih.</p>
       </p>
-      <button class="btn-order" id="btn-success-close">Kembali ke Menu</button>
+      <button class="btn-order" id="btn-success-close">Kembali ke Catering</button>
     </div>
   `;
 
   document.getElementById("btn-success-close").addEventListener("click", () => {
-    // Reload halaman untuk mereset modal dan render menu awal
+    // Reload halaman untuk mereset modal dan render paket awal
     window.location.reload();
   });
 }
@@ -861,7 +861,7 @@ function showPaymentSuccess() {
    INIT — Fetch from Firebase & Load Cart
    ══════════════════════════════════════════════════════ */
 async function init() {
-  document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Memuat daftar menu...</div>`;
+  document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Memuat daftar paket...</div>`;
   
   // Render persistent cart first
   renderCart();
@@ -880,7 +880,7 @@ async function init() {
 
   } catch (error) {
     console.error("Error loading menus:", error);
-    document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="color:red;">Gagal memuat menu: ${error.message}</div>`;
+    document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="color:red;">Gagal memuat paket: ${error.message}</div>`;
     return;
   }
 
