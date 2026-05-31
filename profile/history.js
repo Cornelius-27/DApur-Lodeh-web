@@ -376,6 +376,78 @@ function renderOrdersList(orders, container, emptyMsg) {
         ? `<div class="order-card-note"><b>Catatan:</b> "${order.note}"</div>` 
         : "";
 
+      let stepperHtml = "";
+      if (container.id === "orders-ongoing-list") {
+        const pStatus = order.paymentStatus || "Unpaid";
+        const oStatus = order.status || "Pending";
+        const isCod = (order.paymentMethod || "").toLowerCase() === "cod";
+        
+        let step1Bg = "var(--orange)", step1Border = "var(--orange)", step1Color = "#fff", step1Symbol = "✓", step1TextColor = "var(--dark)";
+        let step2Bg = "#fff", step2Border = "#cbd5e1", step2Color = "#94a3b8", step2Symbol = "2", step2TextColor = "#94a3b8";
+        let step3Bg = "#fff", step3Border = "#cbd5e1", step3Color = "#94a3b8", step3Symbol = "3", step3TextColor = "#94a3b8";
+        let step4Bg = "#fff", step4Border = "#cbd5e1", step4Color = "#94a3b8", step4Symbol = "4", step4TextColor = "#94a3b8";
+        let progressPercent = 0;
+
+        // Step 2: Dibayar / Diverifikasi
+        const isPaid = pStatus === "Paid" || isCod;
+        const isPendingVerification = pStatus === "Pending Verification";
+        if (isPaid) {
+          step2Bg = "var(--orange)"; step2Border = "var(--orange)"; step2Color = "#fff"; step2Symbol = "✓"; step2TextColor = "var(--dark)";
+          progressPercent = 33;
+        } else if (isPendingVerification) {
+          step2Bg = "#fef3c7"; step2Border = "#f59e0b"; step2Color = "#d97706"; step2Symbol = "⏳"; step2TextColor = "#d97706";
+          progressPercent = 16;
+        }
+
+        // Step 3: Diproses / Dimasak
+        const isProcessing = oStatus === "Processing" || oStatus === "Delivered";
+        if (isProcessing) {
+          step3Bg = "var(--orange)"; step3Border = "var(--orange)"; step3Color = "#fff"; step3Symbol = "✓"; step3TextColor = "var(--dark)";
+          progressPercent = 66;
+        } else if (isPaid && oStatus === "Pending") {
+          step3Bg = "rgba(232, 98, 26, 0.08)"; step3Border = "var(--orange)"; step3Color = "var(--orange)"; step3Symbol = "🍳"; step3TextColor = "var(--orange)";
+          progressPercent = 50;
+        }
+
+        // Step 4: Dikirim
+        const isDelivered = oStatus === "Delivered";
+        if (isDelivered) {
+          step4Bg = "var(--orange)"; step4Border = "var(--orange)"; step4Color = "#fff"; step4Symbol = "✓"; step4TextColor = "var(--dark)";
+          progressPercent = 100;
+        } else if (oStatus === "Processing") {
+          step4Bg = "#d1fae5"; step4Border = "#10b981"; step4Color = "#059669"; step4Symbol = "🚚"; step4TextColor = "#059669";
+          progressPercent = 83;
+        }
+
+        stepperHtml = `
+          <div class="order-stepper" style="margin: 1.8rem 0 1.2rem; display: flex; justify-content: space-between; position: relative;">
+            <div class="stepper-line" style="position: absolute; top: 14px; left: 10%; right: 10%; height: 4px; background: #e2e8f0; z-index: 1; border-radius: 4px;">
+              <div class="stepper-line-progress" style="width: ${progressPercent}%; height: 100%; background: var(--orange); transition: width 0.3s ease; border-radius: 4px;"></div>
+            </div>
+            
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; z-index: 2; width: 22%; text-align: center;">
+              <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: ${step1Bg}; border: 2.5px solid ${step1Border}; color: ${step1Color}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">${step1Symbol}</div>
+              <span style="font-size: 0.72rem; font-weight: 600; margin-top: 6px; color: ${step1TextColor};">Dipesan</span>
+            </div>
+
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; z-index: 2; width: 22%; text-align: center;">
+              <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: ${step2Bg}; border: 2.5px solid ${step2Border}; color: ${step2Color}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">${step2Symbol}</div>
+              <span style="font-size: 0.72rem; font-weight: 600; margin-top: 6px; color: ${step2TextColor};">Dibayar</span>
+            </div>
+
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; z-index: 2; width: 22%; text-align: center;">
+              <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: ${step3Bg}; border: 2.5px solid ${step3Border}; color: ${step3Color}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">${step3Symbol}</div>
+              <span style="font-size: 0.72rem; font-weight: 600; margin-top: 6px; color: ${step3TextColor};">Diproses</span>
+            </div>
+
+            <div class="step-item" style="display: flex; flex-direction: column; align-items: center; z-index: 2; width: 22%; text-align: center;">
+              <div class="step-circle" style="width: 32px; height: 32px; border-radius: 50%; background: ${step4Bg}; border: 2.5px solid ${step4Border}; color: ${step4Color}; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">${step4Symbol}</div>
+              <span style="font-size: 0.72rem; font-weight: 600; margin-top: 6px; color: ${step4TextColor};">Dikirim</span>
+            </div>
+          </div>
+        `;
+      }
+
       card.innerHTML = `
         <div class="order-card-header">
           <div class="order-date-box">
@@ -389,6 +461,7 @@ function renderOrdersList(orders, container, emptyMsg) {
           ${itemsListHtml}
         </ul>
 
+        ${stepperHtml}
         ${noteHtml}
 
         <div class="order-card-footer">

@@ -272,6 +272,7 @@ function closeModal() {
 btnCancel.addEventListener("click", closeModal);
 btnAddMenu.addEventListener("click", () => openModal());
 
+menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
   const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
@@ -535,19 +536,180 @@ const panes = document.querySelectorAll(".tab-pane");
 
 tabs.forEach(tab => {
   tab.addEventListener("click", () => {
-    // Hilangkan state active dari semua tab & pane
     tabs.forEach(t => t.classList.remove("active"));
     panes.forEach(p => p.classList.remove("active"));
 
-    // Tambahkan state active ke tab yang diklik
     tab.classList.add("active");
     const targetId = tab.dataset.tab;
     const targetPane = document.getElementById(targetId);
     if (targetPane) {
       targetPane.classList.add("active");
     }
+    
+    if (targetId === "tab-reports") {
+      generateBusinessReports();
+    }
   });
 });
+
+function formatIDR(n) {
+  return "Rp " + n.toLocaleString('id-ID');
+}
+
+function generateBusinessReports() {
+  const totalRevenueEl = document.getElementById("rep-total-revenue");
+  const cateringRevenueEl = document.getElementById("rep-catering-revenue");
+  const totalOrdersEl = document.getElementById("rep-total-orders");
+  const avgOrderEl = document.getElementById("rep-avg-order");
+  const bestsellersListEl = document.getElementById("rep-bestsellers-list");
+  const recommendationsListEl = document.getElementById("rep-recommendations-list");
+
+  if (!totalRevenueEl) return;
+
+  let totalRevenue = 0;
+  let cateringRevenue = 0;
+  let totalOrdersCount = ALL_ORDERS.length;
+  let itemSalesMap = {}; 
+
+  ALL_ORDERS.forEach(order => {
+    const totalVal = Number(order.total) || 0;
+    totalRevenue += totalVal;
+
+    if (order.orderType === "Catering") {
+      cateringRevenue += totalVal;
+    }
+
+    if (order.items && order.items.length > 0) {
+      order.items.forEach(item => {
+        const qty = Number(item.qty) || 0;
+        const price = Number(item.price) || 0;
+        const total = price * qty;
+        
+        if (itemSalesMap[item.name]) {
+          itemSalesMap[item.name].qty += qty;
+          itemSalesMap[item.name].total += total;
+        } else {
+          itemSalesMap[item.name] = {
+            qty: qty,
+            total: total,
+            name: item.name
+          };
+        }
+      });
+    }
+  });
+
+  const avgOrder = totalOrdersCount > 0 ? Math.round(totalRevenue / totalOrdersCount) : 0;
+
+  totalRevenueEl.textContent = formatIDR(totalRevenue);
+  cateringRevenueEl.textContent = formatIDR(cateringRevenue);
+  totalOrdersEl.textContent = totalOrdersCount + " Pesanan";
+  avgOrderEl.textContent = formatIDR(avgOrder);
+
+  const bestsellers = Object.values(itemSalesMap).sort((a, b) => b.qty - a.qty);
+  
+  if (bestsellers.length === 0) {
+    bestsellersListEl.innerHTML = `<div style="text-align:center; color:#64748b; padding:2rem 0;">Belum ada data penjualan hidangan.</div>`;
+  } else {
+    bestsellersListEl.innerHTML = "";
+    bestsellers.slice(0, 5).forEach((item, index) => {
+      const percentage = Math.round((item.total / (totalRevenue || 1)) * 100);
+      const row = document.createElement("div");
+      row.style.background = "#f8fafc";
+      row.style.borderRadius = "12px";
+      row.style.padding = "10px 14px";
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.justifyContent = "space-between";
+      row.style.border = "1px solid #e2e8f0";
+      
+      row.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="width:28px; height:28px; border-radius:50%; background:var(--orange-light); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:0.85rem;">${index + 1}</div>
+          <div>
+            <span style="font-weight:600; color:var(--dark); font-size:0.95rem;">${item.name}</span><br>
+            <small style="color:#64748b; font-weight:500;">Terjual: ${item.qty} porsi</small>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-weight:700; color:var(--orange); font-size:1.05rem;">${formatIDR(item.total)}</span><br>
+          <small style="color:#10b981; font-weight:600;">${percentage}% Kontribusi</small>
+        </div>
+      `;
+      bestsellersListEl.appendChild(row);
+    });
+  }
+
+  const recommendations = [];
+
+  if (totalOrdersCount === 0) {
+    recommendations.push({
+      title: "Mulai Pemasaran Awal",
+      desc: "Belum ada pesanan yang tercatat di sistem. Rekomendasi: Tawarkan diskon pembukaan 15% pada menu utama di media sosial WhatsApp/Instagram.",
+      color: "#6366f1",
+      icon: "📣"
+    });
+  } else {
+    if (bestsellers.length > 0) {
+      const topProduct = bestsellers[0];
+      recommendations.push({
+        title: `Optimalkan Stok Bahan ${topProduct.name}`,
+        desc: `Menu <b>${topProduct.name}</b> merupakan produk paling laris Anda dengan total ${topProduct.qty} porsi terjual. Rekomendasi: Naikkan ketersediaan bahan baku sebesar 20-30% pada hari operasionalnya untuk menghindari kehabisan stok.`,
+        color: "#e8621a",
+        icon: "📈"
+      });
+    }
+
+    const cateringPercentage = Math.round((cateringRevenue / (totalRevenue || 1)) * 100);
+    if (cateringPercentage > 30) {
+      recommendations.push({
+        title: "Perluas Paket Catering Event",
+        desc: `Catering memberikan kontribusi tinggi sebesar <b>${cateringPercentage}%</b> dari omzet Anda. Rekomendasi: Susun paket prasmanan baru bertema 'Pernikahan' atau 'Ulang Tahun' dan berikan bundling gratis es jeruk peras untuk minimal pemesanan 50 porsi.`,
+        color: "#10b981",
+        icon: "🍱"
+      });
+    } else {
+      recommendations.push({
+        title: "Dorong Promosi Paket Catering",
+        desc: `Kontribusi catering saat ini baru <b>${cateringPercentage}%</b> dari total omzet. Rekomendasi: Berikan potongan harga 5% untuk pemesanan Nasi Box perkantoran/syukuran dengan MOQ 20 kotak.`,
+        color: "#f59e0b",
+        icon: "💡"
+      });
+    }
+
+    recommendations.push({
+      title: "Promo 'Lodeh Mid-Week' Hari Rabu",
+      desc: "Penjualan pertengahan minggu cenderung stabil namun bisa dimaksimalkan. Rekomendasi: Buat kupon promo diskon Rp 5.000 khusus pemesanan hari Rabu via WhatsApp Dapur Lodeh.",
+      color: "#3b82f6",
+      icon: "🎉"
+    });
+  }
+
+  recommendationsListEl.innerHTML = "";
+  recommendations.forEach(rec => {
+    const card = document.createElement("div");
+    card.style.background = "#fff";
+    card.style.borderLeft = `5px solid ${rec.color}`;
+    card.style.borderRadius = "12px";
+    card.style.padding = "14px 18px";
+    card.style.boxShadow = "0 2px 8px rgba(0,0,0,0.02)";
+    card.style.borderTop = "1px solid #f1f5f9";
+    card.style.borderRight = "1px solid #f1f5f9";
+    card.style.borderBottom = "1px solid #f1f5f9";
+    card.style.display = "flex";
+    card.style.gap = "14px";
+    card.style.alignItems = "start";
+
+    card.innerHTML = `
+      <div style="font-size:1.8rem; line-height:1; user-select:none;">${rec.icon}</div>
+      <div>
+        <h4 style="margin:0 0 6px 0; font-size:1rem; font-weight:700; color:var(--dark);">${rec.title}</h4>
+        <p style="margin:0; font-size:0.85rem; color:#64748b; line-height:1.5;">${rec.desc}</p>
+      </div>
+    `;
+    recommendationsListEl.appendChild(card);
+  });
+}
 
 // ── 6. MANAJEMEN PESANAN ──
 async function loadOrders() {
@@ -730,23 +892,53 @@ function openOrderDetail(orderId) {
 
   const customer = ALL_CUSTOMERS.find(c => c.id === order.userId);
   let addressHtml = "-";
-  if (customer) {
-    const { addressDetail, kelurahan, kecamatan, kota, kodepos, addressAuto } = customer;
-    let parts = [];
-    if (addressDetail) parts.push(addressDetail);
-    if (kelurahan) parts.push(`Kel. ${kelurahan}`);
-    if (kecamatan) parts.push(`Kec. ${kecamatan}`);
-    if (kota) parts.push(kota);
-    if (kodepos) parts.push(kodepos);
-    
-    if (parts.length > 0) {
-      addressHtml = parts.join(", ");
-    } else if (addressAuto) {
-      addressHtml = addressAuto;
+  const { addressDetail, addressAuto } = order;
+  let parts = [];
+  if (addressDetail) parts.push(addressDetail);
+  if (addressAuto) parts.push(addressAuto);
+  
+  if (parts.length > 0) {
+    addressHtml = parts.join(", ");
+  } else if (customer) {
+    const { addressDetail: cDetail, kelurahan, kecamatan, kota, kodepos, addressAuto: cAuto } = customer;
+    let cParts = [];
+    if (cDetail) cParts.push(cDetail);
+    if (kelurahan) cParts.push(`Kel. ${kelurahan}`);
+    if (kecamatan) cParts.push(`Kec. ${kecamatan}`);
+    if (kota) cParts.push(kota);
+    if (kodepos) cParts.push(kodepos);
+    if (cParts.length > 0) {
+      addressHtml = cParts.join(", ");
+    } else if (cAuto) {
+      addressHtml = cAuto;
     }
   }
 
+  let receiptHtml = "";
+  if (order.paymentReceipt) {
+    receiptHtml = `
+      <div style="margin-bottom: 1.5rem; border-top: 1.5px dashed #e2e8f0; padding-top: 1.2rem;">
+        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--admin-subtext); margin-bottom: 8px; font-weight:600;">Bukti Pembayaran</div>
+        <div style="border-radius:12px; overflow:hidden; border: 1.5px solid #e2e8f0; max-width:220px; cursor:pointer; position:relative; background:#f8fafc;" id="btn-zoom-receipt" title="Klik untuk perbesar">
+          <img src="${order.paymentReceipt}" style="width:100%; max-height:160px; object-fit:cover;" alt="Bukti Transfer" />
+        </div>
+        <small style="color:#64748b; display:block; margin-top:6px;">💡 Klik gambar untuk melihat ukuran penuh</small>
+      </div>
+    `;
+  }
+
+  let quickVerifyHtml = "";
+  if (order.paymentStatus === "Pending Verification") {
+    quickVerifyHtml = `
+      <button class="btn-primary" id="btn-quick-verify-payment" style="width:100%; margin-bottom:1.5rem; background:#10b981; border:none; padding:12px; border-radius:8px; color:#fff; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif;">
+        ✓ Konfirmasi Pembayaran Lunas
+      </button>
+    `;
+  }
+
   body.innerHTML = `
+    ${quickVerifyHtml}
+    
     <div class="detail-grid">
       <div>
         <div class="detail-item-title">ID Pesanan</div>
@@ -770,6 +962,13 @@ function openOrderDetail(orderId) {
       <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
       <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
     </div>
+    
+    <div style="margin-bottom: 1.5rem;">
+      <div class="detail-item-title" style="margin-bottom:6px;">Peta Rute Pengiriman</div>
+      <div id="admin-order-map" style="height: 200px; border-radius: 12px; border:1px solid #cbd5e1; z-index:1; background:#f8fafc;"></div>
+    </div>
+
+    ${receiptHtml}
     
     <div style="margin-bottom: 1.5rem;">
       <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
@@ -800,6 +999,77 @@ function openOrderDetail(orderId) {
   `;
 
   modal.classList.add("show");
+
+  const RESTO_LAT = -6.200000;
+  const RESTO_LNG = 106.816666;
+  
+  setTimeout(() => {
+    const lat = parseFloat(order.lat);
+    const lng = parseFloat(order.lng);
+    const mapContainer = document.getElementById("admin-order-map");
+    
+    if (mapContainer && !isNaN(lat) && !isNaN(lng)) {
+      const orderMap = L.map('admin-order-map').setView([lat, lng], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap'
+      }).addTo(orderMap);
+      
+      L.marker([lat, lng]).addTo(orderMap)
+        .bindPopup(`<b>Lokasi Pengiriman</b><br>${order.addressDetail || "Customer"}`)
+        .openPopup();
+        
+      L.marker([RESTO_LAT, RESTO_LNG], {
+        icon: L.icon({
+          iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.1/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowSize: [41, 41]
+        })
+      }).addTo(orderMap).bindPopup("<b>Dapur Lodeh Resto</b>");
+      
+      const polyline = L.polyline([
+        [RESTO_LAT, RESTO_LNG],
+        [lat, lng]
+      ], { color: '#E8621A', weight: 3, dashArray: '6, 12' }).addTo(orderMap);
+      
+      orderMap.fitBounds(polyline.getBounds(), { padding: [30, 30] });
+    } else if (mapContainer) {
+      mapContainer.innerHTML = `<div style="text-align:center; padding:3rem 0; color:#94a3b8; font-size:0.85rem; background:#f8fafc; border-radius:12px;">Customer tidak mem-pinpoint alamat kiriman di peta.</div>`;
+    }
+
+    const verifyBtn = document.getElementById("btn-quick-verify-payment");
+    if (verifyBtn) {
+      verifyBtn.addEventListener("click", async () => {
+        verifyBtn.disabled = true;
+        verifyBtn.textContent = "Memverifikasi...";
+        try {
+          await updateDoc(doc(db, "orders", order.id), { 
+            paymentStatus: "Paid",
+            status: "Processing"
+          });
+          showToast("Pembayaran berhasil dikonfirmasi!");
+          document.getElementById("order-detail-modal").classList.remove("show");
+          loadOrders(); 
+        } catch (err) {
+          console.error(err);
+          alert("Gagal mengonfirmasi pembayaran.");
+          verifyBtn.disabled = false;
+          verifyBtn.textContent = "✓ Konfirmasi Pembayaran Lunas";
+        }
+      });
+    }
+
+    const zoomReceiptBtn = document.getElementById("btn-zoom-receipt");
+    if (zoomReceiptBtn) {
+      zoomReceiptBtn.addEventListener("click", () => {
+        const zoomWin = window.open();
+        zoomWin.document.write(`<img src="${order.paymentReceipt}" style="max-width:100%; height:auto;" alt="Bukti Pembayaran" />`);
+      });
+    }
+  }, 300);
 }
 
 document.getElementById("btn-close-order-detail").addEventListener("click", () => {

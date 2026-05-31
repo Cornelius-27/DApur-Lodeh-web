@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, getDocs, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, addDoc, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { firebaseConfig } from "../firebase-config.js";
 
@@ -151,19 +151,20 @@ function initUserDropdown(user, userData) {
   });
 }
 
+let USER_FAVORITES = [];
+
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   
   if (user) {
-    // Fetch user data from Firestore
     let userData = null;
     try {
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (userDoc.exists()) {
         userData = userDoc.data();
+        USER_FAVORITES = userData.favorites || [];
         if (userData.location && userData.location.lat && userData.location.lng) {
           const distance = getDistanceFromLatLonInKm(RESTO_LAT, RESTO_LNG, userData.location.lat, userData.location.lng);
-          // Base 10000 + 2500 per km
           ONGKIR = 10000 + Math.ceil(distance) * 2500;
           renderCart();
         }
@@ -181,6 +182,7 @@ onAuthStateChanged(auth, async user => {
     }
     initUserDropdown(user, userData);
   } else {
+    USER_FAVORITES = [];
     initUserDropdown(null, null);
   }
 });
@@ -200,12 +202,46 @@ function fmt(n) {
   return "Rp " + (n / 1000).toFixed(0) + "k";
 }
 
-function toast(msg) {
-  const el  = document.getElementById("toast");
-  const txt = document.getElementById("toast-msg");
-  txt.textContent = msg;
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2400);
+function toast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  
+  // Set type classes
+  el.className = ""; // clear all
+  el.classList.add("show", type);
+  
+  // Icons mapping
+  let iconHtml = "";
+  if (type === "success") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+  } else if (type === "warning") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></svg>
+      </svg>
+    `;
+  } else if (type === "error") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+    `;
+  }
+  
+  el.innerHTML = `
+    ${iconHtml}
+    <div class="toast-content-wrapper">${msg}</div>
+  `;
+  
+  setTimeout(() => el.classList.remove("show"), 3200);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -395,6 +431,7 @@ function renderCart() {
   const activeTab = document.querySelector(".cat-tab.active");
   if (activeTab && MENU_DATA && MENU_DATA.length > 0) {
     renderGrid(activeTab.dataset.cat);
+    renderFavoritesSection();
   }
 }
 
@@ -404,127 +441,201 @@ function saveCart() {
 }
 
 /* ══════════════════════════════════════════════════════
-   MENU GRID — render berdasarkan kategori aktif
+   MENU GRID & FAVORITE SECTION — render berdasarkan kategori aktif
    ══════════════════════════════════════════════════════ */
+async function toggleFavorite(menuId) {
+  if (!currentUser) {
+    toast("Silakan Login terlebih dahulu untuk menandai menu favorit!", "warning");
+    return;
+  }
+  
+  const idx = USER_FAVORITES.indexOf(menuId);
+  if (idx > -1) {
+    USER_FAVORITES.splice(idx, 1);
+    toast("Dihapus dari favorit", "success");
+  } else {
+    USER_FAVORITES.push(menuId);
+    toast("Ditambahkan ke favorit!", "success");
+  }
+  
+  try {
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      favorites: USER_FAVORITES
+    });
+  } catch (err) {
+    console.error("Gagal memperbarui favorit:", err);
+  }
+  
+  const activeTab = document.querySelector(".cat-tab.active");
+  renderGrid(activeTab ? activeTab.dataset.cat : "all");
+  renderFavoritesSection();
+}
+
+function createFoodCard(item) {
+  const isSelected = selectedItem && selectedItem.id === item.id;
+  const card = document.createElement("div");
+  card.className = "food-card" + (isSelected ? " selected-menu" : "");
+
+  // Cari apakah item dasar (tanpa addons) dari menuId ini ada di keranjang
+  const cartItemIndex = CART.findIndex(c => c.menuId === item.id && (!c.addons || c.addons.length === 0));
+  const cartItem = cartItemIndex !== -1 ? CART[cartItemIndex] : null;
+
+  let footerActionHtml = "";
+  if (cartItem) {
+    footerActionHtml = `
+      <div class="card-qty-counter">
+        <button class="qty-btn dec-card-shortcut-qty" data-index="${cartItemIndex}">−</button>
+        <span class="qty-num">${cartItem.qty}</span>
+        <button class="qty-btn inc-card-shortcut-qty" data-index="${cartItemIndex}">+</button>
+      </div>
+    `;
+  } else {
+    footerActionHtml = `
+      <button class="card-order-btn btn-add-cart-shortcut">+ Tambah</button>
+    `;
+  }
+
+  const isFav = USER_FAVORITES.includes(item.id);
+
+  card.innerHTML = `
+    <div class="card-img ${item.colorClass || 'card-c1'}" style="position:relative; display:flex; align-items:center; justify-content:center;">
+      ${isSelected ? '<span class="card-badge" style="background:var(--orange)">Dipilih</span>' : '<span class="card-badge">Hari Ini</span>'}
+      ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity: 0.25;">
+          <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+          <path d="M7 2v20"></path>
+          <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+        </svg>
+      `}
+      <button class="card-fav-btn" data-id="${item.id}" style="position: absolute; top: 14px; right: 14px; background: rgba(255,255,255,0.85); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; z-index: 2; box-shadow: 0 2px 8px rgba(0,0,0,0.12);" title="Tandai Favorit">
+        <svg class="heart-icon" width="14" height="14" viewBox="0 0 24 24" fill="${isFav ? '#EF4444' : 'none'}" stroke="${isFav ? '#EF4444' : '#64748b'}" stroke-width="2.5" style="transition: all 0.2s;">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+        </svg>
+      </button>
+      <button class="card-hover-customize-btn" style="display: flex; align-items: center; gap: 4px;">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Kustomisasi
+      </button>
+    </div>
+    <div class="card-body">
+      <p class="card-tag">${item.catLabel}</p>
+      <h3 class="card-name">${item.name}</h3>
+      <p class="card-desc">${item.desc}</p>
+      <div class="card-footer">
+        <span class="card-price">${fmt(item.price)}</span>
+        ${footerActionHtml}
+      </div>
+    </div>
+  `;
+
+  const favBtn = card.querySelector(".card-fav-btn");
+  favBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleFavorite(item.id);
+  });
+
+  const customizeBtn = card.querySelector(".card-hover-customize-btn");
+  customizeBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    selectItem(item);
+  });
+
+  if (cartItem) {
+    const decBtn = card.querySelector(".dec-card-shortcut-qty");
+    decBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (CART[cartItemIndex].qty > 1) {
+        CART[cartItemIndex].qty--;
+        toast("Kuantitas keranjang diperbarui!");
+      } else {
+        CART.splice(cartItemIndex, 1);
+        toast("Menu dihapus dari keranjang!");
+      }
+      saveCart();
+      renderCart();
+    });
+
+    const incBtn = card.querySelector(".inc-card-shortcut-qty");
+    incBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      CART[cartItemIndex].qty++;
+      saveCart();
+      renderCart();
+      toast("Kuantitas keranjang diperbarui!");
+    });
+  } else {
+    const addBtn = card.querySelector(".btn-add-cart-shortcut");
+    addBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      CART.push({
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
+        menuId: item.id,
+        name: item.name,
+        imageUrl: item.imageUrl,
+        price: item.price,
+        qty: 1,
+        addons: []
+      });
+      saveCart();
+      renderCart();
+      toast(`${item.name} dimasukkan keranjang!`);
+    });
+  }
+
+  return card;
+}
+
 function renderGrid(cat) {
   const grid = document.getElementById("menu-grid");
   grid.innerHTML = "";
 
-  const list = cat === "all" ? MENU_DATA : MENU_DATA.filter(m => m.cat === cat);
+  let list = [];
+  if (cat === "all") {
+    list = MENU_DATA;
+  } else {
+    list = MENU_DATA.filter(m => m.cat === cat);
+  }
 
   if (list.length === 0) {
-    grid.innerHTML = `<div class="menu-empty">Belum ada menu di kategori ini</div>`;
+    grid.innerHTML = `<div class="menu-empty" style="grid-column: 1/-1;">Belum ada menu di kategori ini</div>`;
     return;
   }
 
   list.forEach(item => {
-    const isSelected = selectedItem && selectedItem.id === item.id;
-    const card = document.createElement("div");
-    card.className = "food-card" + (isSelected ? " selected-menu" : "");
-
-    // Cari apakah item dasar (tanpa addons) dari menuId ini ada di keranjang
-    const cartItemIndex = CART.findIndex(c => c.menuId === item.id && (!c.addons || c.addons.length === 0));
-    const cartItem = cartItemIndex !== -1 ? CART[cartItemIndex] : null;
-
-    let footerActionHtml = "";
-    if (cartItem) {
-      footerActionHtml = `
-        <div class="card-qty-counter">
-          <button class="qty-btn dec-card-shortcut-qty" data-index="${cartItemIndex}">−</button>
-          <span class="qty-num">${cartItem.qty}</span>
-          <button class="qty-btn inc-card-shortcut-qty" data-index="${cartItemIndex}">+</button>
-        </div>
-      `;
-    } else {
-      footerActionHtml = `
-        <button class="card-order-btn btn-add-cart-shortcut">+ Tambah</button>
-      `;
-    }
-
-    card.innerHTML = `
-      <div class="card-img ${item.colorClass || 'card-c1'}" style="position:relative; display:flex; align-items:center; justify-content:center;">
-        ${isSelected ? '<span class="card-badge" style="background:var(--orange)">Dipilih</span>' : '<span class="card-badge">Hari Ini</span>'}
-        ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity: 0.25;">
-            <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
-            <path d="M7 2v20"></path>
-            <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
-          </svg>
-        `}
-        <button class="card-hover-customize-btn" style="display: flex; align-items: center; gap: 4px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-          </svg>
-          Kustomisasi
-        </button>
-      </div>
-      <div class="card-body">
-        <p class="card-tag">${item.catLabel}</p>
-        <h3 class="card-name">${item.name}</h3>
-        <p class="card-desc">${item.desc}</p>
-        <div class="card-footer">
-          <span class="card-price">${fmt(item.price)}</span>
-          ${footerActionHtml}
-        </div>
-      </div>
-    `;
-
-    // Click customize button inside card image opens customization view
-    const customizeBtn = card.querySelector(".card-hover-customize-btn");
-    customizeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      selectItem(item);
-    });
-
-    if (cartItem) {
-      // Qty Decrement on Card
-      const decBtn = card.querySelector(".dec-card-shortcut-qty");
-      decBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        if (CART[cartItemIndex].qty > 1) {
-          CART[cartItemIndex].qty--;
-          toast("Kuantitas keranjang diperbarui!");
-        } else {
-          CART.splice(cartItemIndex, 1);
-          toast("Menu dihapus dari keranjang!");
-        }
-        saveCart();
-        renderCart();
-      });
-
-      // Qty Increment on Card
-      const incBtn = card.querySelector(".inc-card-shortcut-qty");
-      incBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        CART[cartItemIndex].qty++;
-        saveCart();
-        renderCart();
-        toast("Kuantitas keranjang diperbarui!");
-      });
-    } else {
-      // Direct add shortcut on "+ Tambah" button click
-      const addBtn = card.querySelector(".btn-add-cart-shortcut");
-      addBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        
-        CART.push({
-          id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
-          menuId: item.id,
-          name: item.name,
-          imageUrl: item.imageUrl,
-          price: item.price,
-          qty: 1,
-          addons: []
-        });
-
-        saveCart();
-        renderCart();
-        toast(`${item.name} dimasukkan keranjang!`);
-      });
-    }
-
+    const card = createFoodCard(item);
     grid.appendChild(card);
+  });
+}
+
+function renderFavoritesSection() {
+  const favSection = document.getElementById("fav-section");
+  const favGrid = document.getElementById("fav-grid");
+  if (!favSection || !favGrid) return;
+
+  if (!currentUser || USER_FAVORITES.length === 0) {
+    favSection.style.display = "none";
+    favGrid.innerHTML = "";
+    return;
+  }
+
+  // Filter ONLY active/available menu items that are inside the favorites array
+  const favItems = MENU_DATA.filter(m => USER_FAVORITES.includes(m.id));
+
+  if (favItems.length === 0) {
+    favSection.style.display = "none";
+    favGrid.innerHTML = "";
+    return;
+  }
+
+  favSection.style.display = "block";
+  favGrid.innerHTML = "";
+
+  favItems.forEach(item => {
+    const card = createFoodCard(item);
+    favGrid.appendChild(card);
   });
 }
 
@@ -676,10 +787,69 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
   openPaymentModal();
 });
 
-function openPaymentModal() {
+let checkoutMap = null;
+let checkoutMarker = null;
+let uploadedReceiptBase64 = "";
+
+function initCheckoutMap(lat, lng) {
+  setTimeout(() => {
+    const mapContainer = document.getElementById("checkout-map");
+    if (!mapContainer) return;
+    
+    if (checkoutMap) {
+      checkoutMap.setView([lat, lng], 15);
+      checkoutMarker.setLatLng([lat, lng]);
+      checkoutMap.invalidateSize();
+      return;
+    }
+    
+    checkoutMap = L.map('checkout-map').setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(checkoutMap);
+    
+    checkoutMarker = L.marker([lat, lng], { draggable: true }).addTo(checkoutMap);
+    
+    updateShippingFromCoords(lat, lng);
+    
+    checkoutMarker.on('dragend', async function () {
+      const position = checkoutMarker.getLatLng();
+      document.getElementById("checkout-lat").value = position.lat;
+      document.getElementById("checkout-lng").value = position.lng;
+      
+      updateShippingFromCoords(position.lat, position.lng);
+      
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
+        const data = await response.json();
+        if (data && data.display_name) {
+          document.getElementById("checkout-address-auto").value = data.display_name;
+        }
+      } catch(err) {
+        console.error("Geocoding failed", err);
+      }
+    });
+  }, 300);
+}
+
+function updateShippingFromCoords(lat, lng) {
+  const distance = getDistanceFromLatLonInKm(RESTO_LAT, RESTO_LNG, lat, lng);
+  ONGKIR = 10000 + Math.ceil(distance) * 2500;
+  
+  const cartSubtotal = CART.reduce((sum, item) => {
+    const addonsPrice = item.addons.reduce((s, a) => s + a.price, 0);
+    return sum + (item.price + addonsPrice) * item.qty;
+  }, 0);
+  const payTotal = cartSubtotal + ONGKIR;
+  
+  document.getElementById("pay-modal-total").textContent = fmt(payTotal);
+  document.getElementById("cart-grand").textContent = fmt(payTotal);
+}
+
+async function openPaymentModal() {
   const payModal = document.getElementById("payment-modal");
   
-  // Hitung total harga keranjang
   const cartSubtotal = CART.reduce((sum, item) => {
     const addonsPrice = item.addons.reduce((s, a) => s + a.price, 0);
     return sum + (item.price + addonsPrice) * item.qty;
@@ -687,11 +857,39 @@ function openPaymentModal() {
   const payTotal = cartSubtotal + ONGKIR;
 
   document.getElementById("pay-modal-total").textContent = fmt(payTotal);
-
-  // Set default method QRIS
   setPaymentDetails("qris");
-
   payModal.classList.add("show");
+
+  let lat = -6.200000;
+  let lng = 106.816666;
+  
+  if (currentUser) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.location && userData.location.lat && userData.location.lng) {
+          lat = userData.location.lat;
+          lng = userData.location.lng;
+        } else if (userData.lat && userData.lng) {
+          lat = userData.lat;
+          lng = userData.lng;
+        }
+        
+        const addressAutoEl = document.getElementById("checkout-address-auto");
+        const addressDetailEl = document.getElementById("checkout-address-detail");
+        if (addressAutoEl) addressAutoEl.value = userData.addressAuto || userData.location?.addressAuto || "";
+        if (addressDetailEl) addressDetailEl.value = userData.addressDetail || userData.location?.addressDetail || "";
+      }
+    } catch (err) {
+      console.error("Error pre-filling location:", err);
+    }
+  }
+  
+  document.getElementById("checkout-lat").value = lat;
+  document.getElementById("checkout-lng").value = lng;
+  
+  initCheckoutMap(lat, lng);
 }
 
 function closePaymentModal() {
@@ -715,6 +913,7 @@ document.querySelectorAll(".payment-option-btn").forEach(btn => {
 function setPaymentDetails(method) {
   const detailsBox = document.getElementById("payment-details-content");
   detailsBox.innerHTML = "";
+  uploadedReceiptBase64 = ""; 
 
   if (method === "qris") {
     detailsBox.innerHTML = `
@@ -725,9 +924,13 @@ function setPaymentDetails(method) {
         <div class="qr-placeholder">
           <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DapurLodehOrderPay" alt="QRIS Dapur Lodeh">
         </div>
-        <p style="font-size: 0.75rem; color: var(--orange-light); margin-top: 0.4rem; font-weight: 500;">
-          ⚡ Pembayaran akan otomatis terverifikasi instan
-        </p>
+        <div style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.8rem; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#fff; font-weight:600; margin-bottom:6px;">Unggah Bukti Pembayaran:</label>
+          <input type="file" id="receipt-upload" accept="image/*" style="font-size:0.75rem; color:var(--cream);" required />
+          <div id="receipt-preview-box" style="margin-top:8px; display:none; max-height:100px; border-radius:8px; overflow:hidden;">
+            <img id="receipt-preview" style="max-height:100px; max-width:100%; object-fit:contain;" />
+          </div>
+        </div>
       </div>
     `;
   } else if (method === "tf") {
@@ -748,6 +951,13 @@ function setPaymentDetails(method) {
           </div>
           <button class="btn-copy-acc" data-target="acc-mandiri">Salin</button>
         </div>
+        <div style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.8rem; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#fff; font-weight:600; margin-bottom:6px;">Unggah Bukti Pembayaran:</label>
+          <input type="file" id="receipt-upload" accept="image/*" style="font-size:0.75rem; color:var(--cream);" required />
+          <div id="receipt-preview-box" style="margin-top:8px; display:none; max-height:100px; border-radius:8px; overflow:hidden;">
+            <img id="receipt-preview" style="max-height:100px; max-width:100%; object-fit:contain;" />
+          </div>
+        </div>
       </div>
     `;
   } else if (method === "cod") {
@@ -761,6 +971,27 @@ function setPaymentDetails(method) {
         </p>
       </div>
     `;
+  }
+
+  const fileInput = document.getElementById("receipt-upload");
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        uploadedReceiptBase64 = evt.target.result;
+        
+        const previewBox = document.getElementById("receipt-preview-box");
+        const previewImg = document.getElementById("receipt-preview");
+        if (previewBox && previewImg) {
+          previewImg.src = evt.target.result;
+          previewBox.style.display = "block";
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 }
 
@@ -784,6 +1015,22 @@ document.addEventListener("click", e => {
    ══════════════════════════════════════════════════════ */
 document.getElementById("btn-confirm-pay").addEventListener("click", async () => {
   const btn = document.getElementById("btn-confirm-pay");
+  
+  const addressDetail = document.getElementById("checkout-address-detail").value.trim();
+  const addressAuto = document.getElementById("checkout-address-auto").value.trim();
+  const lat = parseFloat(document.getElementById("checkout-lat").value);
+  const lng = parseFloat(document.getElementById("checkout-lng").value);
+
+  if (!addressDetail) {
+    toast("Silakan isi detail alamat lengkap pengiriman kurir!", "warning");
+    return;
+  }
+
+  if (activePaymentMethod !== "cod" && !uploadedReceiptBase64) {
+    toast("Silakan unggah foto bukti transfer/pembayaran QRIS Anda!", "warning");
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = `<span>Memproses Pesanan...</span> <span class="btn-spinner" style="display:inline-block;"></span>`;
 
@@ -794,7 +1041,6 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
     }, 0);
     const payTotal = cartSubtotal + ONGKIR;
 
-    // Persiapkan data order lengkap
     const orderData = {
       userId: currentUser.uid,
       userEmail: currentUser.email,
@@ -811,26 +1057,28 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
       ongkir: ONGKIR,
       total: payTotal,
       paymentMethod: activePaymentMethod,
-      status: "Pending", // Status awal pemesanan
+      addressDetail: addressDetail,
+      addressAuto: addressAuto,
+      lat: lat,
+      lng: lng,
+      paymentReceipt: uploadedReceiptBase64 || "",
+      paymentStatus: activePaymentMethod === "cod" ? "Unpaid" : "Pending Verification",
+      status: "Pending", 
       createdAt: new Date().toISOString()
     };
 
-    // Simpan ke Firestore collection "orders"
     await addDoc(collection(db, "orders"), orderData);
 
-    // KOSONGKAN KERANJANG BELANJA
     CART = [];
     saveCart();
     renderCart();
-
-    // Tampilkan Layar Sukses Pembayaran
     showPaymentSuccess();
 
   } catch (error) {
     console.error("Error checkout:", error);
-    alert("Gagal melakukan pemesanan: " + error.message);
+    toast("Gagal melakukan pemesanan: " + error.message, "error");
     btn.disabled = false;
-    btn.innerHTML = `<span>Konfirmasi & Bayar</span> <span style="font-size:1.1rem">💳</span>`;
+    btn.innerHTML = `<span>Konfirmasi & Bayar</span>`;
   }
 });
 

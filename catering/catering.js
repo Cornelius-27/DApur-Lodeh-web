@@ -200,12 +200,46 @@ function fmt(n) {
   return "Rp " + (n / 1000).toFixed(0) + "k";
 }
 
-function toast(msg) {
-  const el  = document.getElementById("toast");
-  const txt = document.getElementById("toast-msg");
-  txt.textContent = msg;
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2400);
+function toast(msg, type = "success") {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  
+  // Set type classes
+  el.className = ""; // clear all
+  el.classList.add("show", type);
+  
+  // Icons mapping
+  let iconHtml = "";
+  if (type === "success") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    `;
+  } else if (type === "warning") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></svg>
+      </svg>
+    `;
+  } else if (type === "error") {
+    iconHtml = `
+      <svg class="toast-icon-svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      </svg>
+    `;
+  }
+  
+  el.innerHTML = `
+    ${iconHtml}
+    <div class="toast-content-wrapper">${msg}</div>
+  `;
+  
+  setTimeout(() => el.classList.remove("show"), 3200);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -534,7 +568,14 @@ function renderGrid(cat) {
    ══════════════════════════════════════════════════════ */
 function selectItem(item) {
   selectedItem = item;
-  qty = 1;
+  
+  // Enforce Minimum Order Quantity (MOQ)
+  if (item.cat === "prasmanan") {
+    qty = 30; // Buffet MOQ is 30 pax
+  } else {
+    qty = 10; // Box or Snack box MOQ is 10 boxes
+  }
+  
   checkedAddons.clear();
 
   // update hero banner
@@ -633,7 +674,13 @@ document.getElementById("btn-back-to-cart").addEventListener("click", () => {
    QTY CONTROLS (Kustomisasi)
    ══════════════════════════════════════════════════════ */
 document.getElementById("qty-minus").addEventListener("click", () => {
-  if (qty > 1) { qty--; renderSidebar(); }
+  const minQty = selectedItem.cat === "prasmanan" ? 30 : 10;
+  if (qty > minQty) { 
+    qty--; 
+    renderSidebar(); 
+  } else {
+    toast(`Minimal pemesanan paket ${selectedItem.catLabel} adalah ${minQty} porsi!`, "warning");
+  }
 });
 
 document.getElementById("qty-plus").addEventListener("click", () => {
@@ -676,10 +723,69 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
   openPaymentModal();
 });
 
-function openPaymentModal() {
+let checkoutMap = null;
+let checkoutMarker = null;
+let uploadedReceiptBase64 = "";
+
+function initCheckoutMap(lat, lng) {
+  setTimeout(() => {
+    const mapContainer = document.getElementById("checkout-map");
+    if (!mapContainer) return;
+    
+    if (checkoutMap) {
+      checkoutMap.setView([lat, lng], 15);
+      checkoutMarker.setLatLng([lat, lng]);
+      checkoutMap.invalidateSize();
+      return;
+    }
+    
+    checkoutMap = L.map('checkout-map').setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(checkoutMap);
+    
+    checkoutMarker = L.marker([lat, lng], { draggable: true }).addTo(checkoutMap);
+    
+    updateShippingFromCoords(lat, lng);
+    
+    checkoutMarker.on('dragend', async function () {
+      const position = checkoutMarker.getLatLng();
+      document.getElementById("checkout-lat").value = position.lat;
+      document.getElementById("checkout-lng").value = position.lng;
+      
+      updateShippingFromCoords(position.lat, position.lng);
+      
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
+        const data = await response.json();
+        if (data && data.display_name) {
+          document.getElementById("checkout-address-auto").value = data.display_name;
+        }
+      } catch(err) {
+        console.error("Geocoding failed", err);
+      }
+    });
+  }, 300);
+}
+
+function updateShippingFromCoords(lat, lng) {
+  const distance = getDistanceFromLatLonInKm(RESTO_LAT, RESTO_LNG, lat, lng);
+  ONGKIR = 10000 + Math.ceil(distance) * 2500;
+  
+  const cartSubtotal = CART.reduce((sum, item) => {
+    const addonsPrice = item.addons.reduce((s, a) => s + a.price, 0);
+    return sum + (item.price + addonsPrice) * item.qty;
+  }, 0);
+  const payTotal = cartSubtotal + ONGKIR;
+  
+  document.getElementById("pay-modal-total").textContent = fmt(payTotal);
+  document.getElementById("cart-grand").textContent = fmt(payTotal);
+}
+
+async function openPaymentModal() {
   const payModal = document.getElementById("payment-modal");
   
-  // Hitung total harga keranjang
   const cartSubtotal = CART.reduce((sum, item) => {
     const addonsPrice = item.addons.reduce((s, a) => s + a.price, 0);
     return sum + (item.price + addonsPrice) * item.qty;
@@ -687,11 +793,39 @@ function openPaymentModal() {
   const payTotal = cartSubtotal + ONGKIR;
 
   document.getElementById("pay-modal-total").textContent = fmt(payTotal);
-
-  // Set default method QRIS
   setPaymentDetails("qris");
-
   payModal.classList.add("show");
+
+  let lat = -6.200000;
+  let lng = 106.816666;
+  
+  if (currentUser) {
+    try {
+      const userDoc = await getDoc(doc(db, "users", currentUser.uid));
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        if (userData.location && userData.location.lat && userData.location.lng) {
+          lat = userData.location.lat;
+          lng = userData.location.lng;
+        } else if (userData.lat && userData.lng) {
+          lat = userData.lat;
+          lng = userData.lng;
+        }
+        
+        const addressAutoEl = document.getElementById("checkout-address-auto");
+        const addressDetailEl = document.getElementById("checkout-address-detail");
+        if (addressAutoEl) addressAutoEl.value = userData.addressAuto || userData.location?.addressAuto || "";
+        if (addressDetailEl) addressDetailEl.value = userData.addressDetail || userData.location?.addressDetail || "";
+      }
+    } catch (err) {
+      console.error("Error pre-filling location:", err);
+    }
+  }
+  
+  document.getElementById("checkout-lat").value = lat;
+  document.getElementById("checkout-lng").value = lng;
+  
+  initCheckoutMap(lat, lng);
 }
 
 function closePaymentModal() {
@@ -715,6 +849,7 @@ document.querySelectorAll(".payment-option-btn").forEach(btn => {
 function setPaymentDetails(method) {
   const detailsBox = document.getElementById("payment-details-content");
   detailsBox.innerHTML = "";
+  uploadedReceiptBase64 = ""; 
 
   if (method === "qris") {
     detailsBox.innerHTML = `
@@ -725,9 +860,13 @@ function setPaymentDetails(method) {
         <div class="qr-placeholder">
           <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DapurLodehOrderPay" alt="QRIS Dapur Lodeh">
         </div>
-        <p style="font-size: 0.75rem; color: var(--orange-light); margin-top: 0.4rem; font-weight: 500;">
-          ⚡ Pembayaran akan otomatis terverifikasi instan
-        </p>
+        <div style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.8rem; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#fff; font-weight:600; margin-bottom:6px;">Unggah Bukti Pembayaran:</label>
+          <input type="file" id="receipt-upload" accept="image/*" style="font-size:0.75rem; color:var(--cream);" required />
+          <div id="receipt-preview-box" style="margin-top:8px; display:none; max-height:100px; border-radius:8px; overflow:hidden;">
+            <img id="receipt-preview" style="max-height:100px; max-width:100%; object-fit:contain;" />
+          </div>
+        </div>
       </div>
     `;
   } else if (method === "tf") {
@@ -748,6 +887,13 @@ function setPaymentDetails(method) {
           </div>
           <button class="btn-copy-acc" data-target="acc-mandiri">Salin</button>
         </div>
+        <div style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 0.8rem; text-align: left;">
+          <label style="display:block; font-size:0.8rem; color:#fff; font-weight:600; margin-bottom:6px;">Unggah Bukti Pembayaran:</label>
+          <input type="file" id="receipt-upload" accept="image/*" style="font-size:0.75rem; color:var(--cream);" required />
+          <div id="receipt-preview-box" style="margin-top:8px; display:none; max-height:100px; border-radius:8px; overflow:hidden;">
+            <img id="receipt-preview" style="max-height:100px; max-width:100%; object-fit:contain;" />
+          </div>
+        </div>
       </div>
     `;
   } else if (method === "cod") {
@@ -761,6 +907,27 @@ function setPaymentDetails(method) {
         </p>
       </div>
     `;
+  }
+
+  const fileInput = document.getElementById("receipt-upload");
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        uploadedReceiptBase64 = evt.target.result;
+        
+        const previewBox = document.getElementById("receipt-preview-box");
+        const previewImg = document.getElementById("receipt-preview");
+        if (previewBox && previewImg) {
+          previewImg.src = evt.target.result;
+          previewBox.style.display = "block";
+        }
+      };
+      reader.readAsDataURL(file);
+    });
   }
 }
 
@@ -784,6 +951,39 @@ document.addEventListener("click", e => {
    ══════════════════════════════════════════════════════ */
 document.getElementById("btn-confirm-pay").addEventListener("click", async () => {
   const btn = document.getElementById("btn-confirm-pay");
+  
+  const deliveryDateVal = document.getElementById("catering-delivery-date").value;
+  const addressDetail = document.getElementById("checkout-address-detail").value.trim();
+  const addressAuto = document.getElementById("checkout-address-auto").value.trim();
+  const lat = parseFloat(document.getElementById("checkout-lat").value);
+  const lng = parseFloat(document.getElementById("checkout-lng").value);
+
+  if (!deliveryDateVal) {
+    toast("Silakan tentukan tanggal pengiriman catering Anda!", "warning");
+    return;
+  }
+
+  const deliveryDateObj = new Date(deliveryDateVal);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const minDate = new Date(today);
+  minDate.setDate(today.getDate() + 3); 
+
+  if (deliveryDateObj < minDate) {
+    toast("Persiapan catering minimal membutuhkan waktu 3 hari!", "warning");
+    return;
+  }
+
+  if (!addressDetail) {
+    toast("Silakan isi detail alamat lengkap pengiriman catering!", "warning");
+    return;
+  }
+
+  if (activePaymentMethod !== "cod" && !uploadedReceiptBase64) {
+    toast("Silakan unggah foto bukti transfer/pembayaran QRIS Anda!", "warning");
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = `<span>Memproses Pesanan...</span> <span class="btn-spinner" style="display:inline-block;"></span>`;
 
@@ -794,7 +994,6 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
     }, 0);
     const payTotal = cartSubtotal + ONGKIR;
 
-    // Persiapkan data order lengkap
     const orderData = {
       userId: currentUser.uid,
       userEmail: currentUser.email,
@@ -811,27 +1010,30 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
       ongkir: ONGKIR,
       total: payTotal,
       paymentMethod: activePaymentMethod,
-      orderType: "Catering", // Penanda order dari catering
-      status: "Pending", // Status awal pemesanan
+      addressDetail: addressDetail,
+      addressAuto: addressAuto,
+      lat: lat,
+      lng: lng,
+      paymentReceipt: uploadedReceiptBase64 || "",
+      paymentStatus: activePaymentMethod === "cod" ? "Unpaid" : "Pending Verification",
+      orderType: "Catering", 
+      deliveryDate: deliveryDateVal,
+      status: "Pending", 
       createdAt: new Date().toISOString()
     };
 
-    // Simpan ke Firestore collection "orders"
     await addDoc(collection(db, "orders"), orderData);
 
-    // KOSONGKAN KERANJANG BELANJA
     CART = [];
     saveCart();
     renderCart();
-
-    // Tampilkan Layar Sukses Pembayaran
     showPaymentSuccess();
 
   } catch (error) {
     console.error("Error checkout:", error);
-    alert("Gagal melakukan pemesanan: " + error.message);
+    toast("Gagal melakukan pemesanan catering: " + error.message, "error");
     btn.disabled = false;
-    btn.innerHTML = `<span>Konfirmasi & Bayar</span> <span style="font-size:1.1rem">💳</span>`;
+    btn.innerHTML = `<span>Konfirmasi & Bayar</span>`;
   }
 });
 

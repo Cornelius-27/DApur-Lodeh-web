@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="menu.css" />
 </head>
@@ -39,6 +41,24 @@
           <p class="menu-hero-desc" id="hero-desc">Semua menu tersedia dan siap dipesan untuk kamu.</p>
         </div>
         <div class="menu-hero-emoji" id="hero-emoji"></div>
+      </div>
+
+      <!-- ── SECTION FAVORIT (BEDA) ── -->
+      <div class="fav-section" id="fav-section" style="display: none; margin-bottom: 2.5rem; background: rgba(232, 98, 26, 0.03); border: 1.5px dashed var(--border); padding: 1.5rem; border-radius: 20px; animation: fadeIn 0.4s ease-out;">
+        <div class="menu-content-header" style="margin-bottom: 1.2rem; border-bottom: 1px dashed var(--border); padding-bottom: 0.8rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; width: 100%;">
+          <h2 class="menu-content-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.35rem; color: var(--dark); margin: 0;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#EF4444" stroke="#EF4444" stroke-width="1">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path>
+            </svg>
+            Menu Favorit Kamu
+          </h2>
+          <span style="font-size: 0.72rem; background: rgba(239, 68, 68, 0.1); color: #EF4444; font-weight: 600; padding: 4px 12px; border-radius: 100px; text-transform: uppercase; letter-spacing: 0.05em;">
+            Terfavorit
+          </span>
+        </div>
+        <div class="menu-grid" id="fav-grid">
+          <!-- filled by JS with favorite cards -->
+        </div>
       </div>
 
       <div class="menu-content-header">
@@ -160,6 +180,22 @@
       <div style="margin-bottom: 1.5rem; background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem;">
         <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); margin-bottom: 0.5rem; font-weight: 600;">Total Tagihan</p>
         <p style="font-size: 1.6rem; font-weight: 700; color: var(--orange); margin: 0;" id="pay-modal-total">Rp 0</p>
+      </div>
+
+      <!-- Lokasi Pengiriman Peta -->
+      <div style="margin-bottom: 1.5rem; background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1.2rem;">
+        <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); margin-bottom: 0.6rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Alamat & Lokasi Pengiriman
+        </p>
+        <div id="checkout-map" style="height: 180px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 8px; z-index: 1;"></div>
+        <input class="note-input" type="text" id="checkout-address-auto" readonly disabled placeholder="Geser marker peta untuk mengambil koordinat alamat otomatis..." style="font-size: 0.78rem; background: #f8fafc; height: auto; margin-bottom: 8px; text-overflow: ellipsis; padding: 8px 12px;" />
+        <textarea class="note-input" id="checkout-address-detail" placeholder="Detail alamat lengkap kurir (No. Rumah, RT/RW, Patokan)..." style="height: 58px; font-size: 0.82rem; padding: 8px 12px;" required></textarea>
+        <input type="hidden" id="checkout-lat" />
+        <input type="hidden" id="checkout-lng" />
       </div>
 
       <p class="addons-title" style="margin-bottom: 0.8rem;">Pilih Cara Bayar</p>
