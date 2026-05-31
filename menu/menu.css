@@ -26,7 +26,34 @@
 }
 
 .menu-hero-blob {
-  display: none !important;
+  position: absolute;
+  filter: blur(50px);
+  z-index: 0;
+  opacity: 0.35;
+  border-radius: 50%;
+  animation: floatMenuBlob 6s ease-in-out infinite alternate;
+}
+
+.menu-hero-blob.a {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  top: -50px;
+  left: -50px;
+}
+
+.menu-hero-blob.b {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, var(--yellow-light), var(--orange-light));
+  bottom: -50px;
+  right: 150px;
+  animation-delay: -3s;
+}
+
+@keyframes floatMenuBlob {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(20px, -20px) scale(1.1); }
 }
 
 .menu-hero-emoji {

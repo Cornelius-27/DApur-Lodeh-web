@@ -11,6 +11,8 @@
   --dark:         #1A1208;
   --orange:       #E8621A;
   --orange-light: #F7A96B;
+  --yellow:       #FFC107;
+  --yellow-light: #FFE066;
   --brown:        #5C3317;
   --warm-gray:    #8A7968;
   --card-bg:      #FFFBF5;
@@ -121,7 +123,34 @@ nav {
 }
 
 .hero-blob {
-  display: none !important;
+  position: absolute;
+  filter: blur(80px);
+  z-index: -1;
+  opacity: 0.5;
+  border-radius: 50%;
+  animation: floatBlob 8s ease-in-out infinite alternate;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
+  top: -100px;
+  right: -150px;
+}
+
+.blob-2 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, var(--yellow-light), var(--orange-light));
+  bottom: -100px;
+  left: -150px;
+  animation-delay: -4s;
+}
+
+@keyframes floatBlob {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-30px, 30px) scale(1.05); }
 }
 
 .hero-eyebrow {
@@ -175,20 +204,23 @@ nav {
 .btn-primary {
   font-family: 'DM Sans', sans-serif;
   font-size: 1rem;
-  font-weight: 500;
-  background: var(--orange);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--orange), var(--yellow));
   color: #fff;
   border: none;
   padding: 14px 32px;
   border-radius: 8px;
   cursor: pointer;
   text-decoration: none;
-  transition: background-color 0.2s, transform 0.15s;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(232, 98, 26, 0.3);
 }
 
 .btn-primary:hover {
-  background-color: var(--dark);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--yellow), var(--orange));
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(232, 98, 26, 0.4);
+  color: var(--dark);
 }
 
 .btn-secondary {
