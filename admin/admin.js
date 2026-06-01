@@ -14,6 +14,11 @@ let ADMIN_EMAILS = [];
 let ALL_ORDERS = [];
 let ALL_CUSTOMERS = [];
 
+// Variabel referensi Chart.js
+let chartOrdersTrend = null;
+let chartRevenueTrend = null;
+let chartTopItems = null;
+
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
 const btnLogout = document.getElementById("btn-logout");
@@ -574,6 +579,9 @@ async function loadOrders() {
 
     renderOrdersTable(activeOrders, activeTbody, true);
     renderOrdersTable(historyOrders, historyTbody, false);
+    
+    // Render grafik pertumbuhan
+    renderGrowthCharts(ALL_ORDERS);
   } catch (error) {
     console.error("Error loading orders:", error);
     activeTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat pesanan</td></tr>`;
@@ -610,7 +618,7 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
     }
 
     // Status Badge di bawah total
-    const currentPaymentStatus = order.paymentStatus || "Unpaid";
+    const currentPaymentStatus = !isActiveSection ? "Paid" : (order.paymentStatus || "Unpaid");
     const currentOrderStatus = order.status || "Pending";
 
     let actionHtml = "";
@@ -1061,5 +1069,230 @@ if (searchCustomerEl) {
     });
 
     renderCustomersTable(filtered);
+  });
+}
+
+// ── 9. GROWTH ANALYTICS (CHART.JS) ──
+function renderGrowthCharts(orders) {
+  // Hanya proses order yang valid (bisa juga difilter hanya yg Delivered/Selesai)
+  // Untuk tren, kita gunakan semua riwayat pesanan (termasuk yg aktif)
+  const orderCountsPerDay = {};
+  const revenuePerDay = {};
+  const itemCounts = {};
+
+  // Agregasi Data
+  let minDateObj = null;
+  let maxDateObj = null;
+
+  orders.forEach(order => {
+    if (!order.createdAt) return;
+    
+    const dateObj = new Date(order.createdAt);
+    // Format YYYY-MM-DD
+    const dateStr = dateObj.toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD format reliably in local time zone
+
+    // Tentukan rentang tanggal
+    if (!minDateObj || dateObj < minDateObj) minDateObj = new Date(dateObj);
+    if (!maxDateObj || dateObj > maxDateObj) maxDateObj = new Date(dateObj);
+
+    // 1 & 2. Hitung jumlah pesanan harian & pendapatan
+    if (!orderCountsPerDay[dateStr]) orderCountsPerDay[dateStr] = 0;
+    if (!revenuePerDay[dateStr]) revenuePerDay[dateStr] = 0;
+    
+    orderCountsPerDay[dateStr] += 1;
+    
+    // Hanya tambahkan ke total pendapatan jika sudah "Paid" atau "Delivered" (selesai)
+    const isPaid = (order.status === "Delivered") || (order.paymentStatus === "Paid");
+    if (isPaid) {
+      revenuePerDay[dateStr] += Number(order.total) || 0;
+    }
+
+    // 3. Hitung item terlaris
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        const itemName = item.name || "Unknown";
+        const qty = Number(item.qty) || 1;
+        if (!itemCounts[itemName]) itemCounts[itemName] = 0;
+        itemCounts[itemName] += qty;
+      });
+    }
+  });
+
+  // Isi tanggal yang kosong (0 pesanan) di antara min dan max
+  if (minDateObj && maxDateObj) {
+    let curr = new Date(minDateObj);
+    const end = new Date(maxDateObj);
+    
+    while (curr <= end) {
+      const dStr = curr.toLocaleDateString('en-CA');
+      if (orderCountsPerDay[dStr] === undefined) {
+        orderCountsPerDay[dStr] = 0;
+        revenuePerDay[dStr] = 0;
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+  }
+
+  // Hitung Grand Total Pendapatan
+  let grandTotal = 0;
+  Object.values(revenuePerDay).forEach(val => grandTotal += val);
+  
+  const totalRevenueEl = document.getElementById("grand-total-revenue");
+  if (totalRevenueEl) {
+    totalRevenueEl.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+  }
+
+  // Siapkan label (urutkan tanggal dari lama ke baru)
+  const sortedDates = Object.keys(orderCountsPerDay).sort();
+  
+  // Data array berdasarkan urutan tanggal
+  const ordersData = sortedDates.map(date => orderCountsPerDay[date]);
+
+  // Siapkan data item terlaris (sort descending by qty)
+  const sortedItems = Object.keys(itemCounts).sort((a, b) => itemCounts[b] - itemCounts[a]);
+  // Ambil top 5 atau top 10 saja
+  const topItemsNames = sortedItems.slice(0, 7);
+  const topItemsData = topItemsNames.map(name => itemCounts[name]);
+
+  // Warna-warna Chart
+  const primaryColor = '#E8621A'; // Orange khas
+  const secondaryColor = '#25D366'; // Hijau
+  const bgColors = [
+    'rgba(232, 98, 26, 0.7)',
+    'rgba(34, 197, 94, 0.7)',
+    'rgba(59, 130, 246, 0.7)',
+    'rgba(234, 179, 8, 0.7)',
+    'rgba(168, 85, 247, 0.7)',
+    'rgba(236, 72, 153, 0.7)',
+    'rgba(14, 165, 233, 0.7)'
+  ];
+
+  // Hancurkan chart lama jika ada sebelum render ulang
+  if (chartOrdersTrend) chartOrdersTrend.destroy();
+  if (chartTopItems) chartTopItems.destroy();
+
+  // 1. Chart Tren Pesanan (Line Chart)
+  const ctxOrders = document.getElementById("chart-orders-trend");
+  if (ctxOrders) {
+    chartOrdersTrend = new Chart(ctxOrders, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [{
+          label: 'Jumlah Pesanan',
+          data: ordersData,
+          borderColor: primaryColor,
+          backgroundColor: 'rgba(232, 98, 26, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: primaryColor
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // 2. Daftar Pendapatan Harian (List/Table)
+  const tbodyRevenue = document.getElementById("revenue-list-tbody");
+  if (tbodyRevenue) {
+    tbodyRevenue.innerHTML = "";
+    
+    // Urutkan dari terbaru ke terlama untuk ditambilkan di list
+    const datesDesc = [...sortedDates].reverse();
+    
+    datesDesc.forEach(dateStr => {
+      const dateObj = new Date(dateStr);
+      const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+      const fullDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      const revVal = revenuePerDay[dateStr] || 0;
+      
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${dayName}</strong>, ${fullDate}</td>
+        <td style="text-align: right; color: ${revVal > 0 ? '#25D366' : 'var(--warm-gray)'}; font-weight: 500;">
+          Rp ${revVal.toLocaleString('id-ID')}
+        </td>
+      `;
+      tbodyRevenue.appendChild(tr);
+    });
+  }
+
+  // 3. Chart Menu Terlaris (Doughnut)
+  const ctxTopItems = document.getElementById("chart-top-items");
+  if (ctxTopItems) {
+    chartTopItems = new Chart(ctxTopItems, {
+      type: 'doughnut',
+      data: {
+        labels: topItemsNames,
+        datasets: [{
+          data: topItemsData,
+          backgroundColor: bgColors,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'right',
+            labels: {
+              usePointStyle: true,
+              padding: 20
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ── 10. EXPORT KE EXCEL / CSV ──
+const btnExport = document.getElementById("btn-export-revenue");
+if (btnExport) {
+  btnExport.addEventListener("click", () => {
+    const table = document.querySelector("#tab-growth table");
+    if (!table) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Hari dan Tanggal,Pendapatan\n"; // Header kolom
+
+    const rows = table.querySelectorAll("tbody tr");
+    let hasData = false;
+    rows.forEach(row => {
+      const cols = row.querySelectorAll("td");
+      if (cols.length === 2) {
+        hasData = true;
+        // Hapus koma pada tanggal agar tidak merusak kolom CSV
+        let dateText = cols[0].innerText.replace(/,/g, '');
+        // Hapus "Rp" dan tanda titik pada angka pendapatan agar menjadi format numerik asli
+        let revText = cols[1].innerText.replace(/Rp/g, '').replace(/\./g, '').trim();
+        csvContent += `"${dateText}",${revText}\n`;
+      }
+    });
+
+    if (!hasData) {
+      alert("Belum ada data pendapatan untuk di-ekspor.");
+      return;
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Laporan_Pendapatan_DapurLodeh.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }
