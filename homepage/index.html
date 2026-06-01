@@ -15,10 +15,9 @@
   <nav>
     <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
     <ul class="nav-links">
-      <li><a href="#menu">Menu</a></li>
-      <li><a href="#offers">Offers</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#contact">Contact</a></li>
+      <li><a href="../menu/menu.html">Menu</a></li>
+      <li><a href="../catering/catering.html">Catering</a></li>
+      <li><a href="../contact/contact.html">Contact</a></li>
     </ul>
     <a href="../Login/login.html" class="nav-login">Log in</a>
   </nav>
@@ -27,93 +26,335 @@
   <section class="hero">
     <div class="hero-blob blob-1"></div>
     <div class="hero-blob blob-2"></div>
-    <p class="hero-eyebrow">🍽 Fresh. Fast. Delicious.</p>
-    <h1>Good food<br />is always<br /><em>a click away</em></h1>
+    <p class="hero-eyebrow">🍽 Hometaste</p>
+    <h1>DapurLodeh</h1>
     <p class="hero-sub">Discover today's best dishes, hand-picked by our chefs — delivered hot to your door.</p>
     <div class="hero-cta">
-      <a href="#menu" class="btn-primary">Browse Menu</a>
+      <a href="../menu/menu.html" class="btn-primary">Browse Menu</a>
       <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
     </div>
   </section>
 
   <!-- ── TODAY'S TOP 3 ── -->
   <section class="section" id="recommended">
-    <p class="section-label reveal">Chef's picks — today only</p>
+    <p class="section-label reveal">Today's Menu</p>
     <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
 
     <div class="cards-grid">
-
-      <!-- Card 1 -->
-      <article class="food-card reveal reveal-delay-1">
-        <div class="card-img card-c1">
-          <span class="card-badge">#1 Today</span>
-          <span class="card-emoji">🍜</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Noodles</p>
-          <h3 class="card-name">Spicy Ramen Bowl</h3>
-          <p class="card-desc">Rich tonkotsu broth, chashu pork, soft egg, and hand-pulled noodles — the crowd's top pick.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 65k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 2 -->
-      <article class="food-card reveal reveal-delay-2">
-        <div class="card-img card-c2">
-          <span class="card-badge">#2 Today</span>
-          <span class="card-emoji">🥗</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Salad</p>
-          <h3 class="card-name">Garden Harvest Bowl</h3>
-          <p class="card-desc">Crisp romaine, roasted chickpeas, avocado, tahini dressing — light, fresh, and filling.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 52k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
-      <!-- Card 3 -->
-      <article class="food-card reveal reveal-delay-3">
-        <div class="card-img card-c3">
-          <span class="card-badge">#3 Today</span>
-          <span class="card-emoji">🍔</span>
-        </div>
-        <div class="card-body">
-          <p class="card-tag">Burger</p>
-          <h3 class="card-name">Double Smash Burger</h3>
-          <p class="card-desc">Two crispy smashed patties, American cheese, pickles, and house sauce on a brioche bun.</p>
-          <div class="card-footer">
-            <span class="card-price">Rp 78k</span>
-            <button class="card-order-btn">Order Now</button>
-          </div>
-        </div>
-      </article>
-
+      <!-- Cards will be dynamically loaded here by script -->
     </div>
   </section>
 
   <footer>
-    <span class="foot-logo">Cravings</span>
-    <p>© 2026 Cravings. All rights reserved.</p>
+    <span class="foot-logo">Dapur Lodeh</span>
+    <p>© 2026 Dapur Lodeh. All rights reserved.</p>
   </footer>
 
-  <script>
-    // Scroll reveal
-    const revealEls = document.querySelectorAll('.reveal');
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in');
-          io.unobserve(e.target);
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { firebaseConfig } from "../firebase-config.js";
+
+    // Inisialisasi Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    let currentUser = null;
+
+    // Helper to toggle user dropdown menu & Tombol Riwayat
+    function initUserDropdown(user, userData) {
+      const nav = document.querySelector("nav");
+      const existingArea = document.querySelector(".nav-user-area");
+      const navLogin = document.querySelector(".nav-login");
+      
+      if (existingArea) {
+        existingArea.remove();
+      }
+
+      if (!user) {
+        if (navLogin) {
+          navLogin.style.display = "inline-block";
+          navLogin.textContent = "Log in";
+          navLogin.href = "../Login/login.html";
+        }
+        return;
+      }
+
+      if (navLogin) {
+        navLogin.style.display = "none";
+      }
+
+      // Prepare display name and initial
+      const fullName = userData?.displayName || user.displayName || user.email.split("@")[0];
+      const firstName = userData?.firstName || fullName.split(" ")[0];
+      const initial = firstName.charAt(0).toUpperCase();
+      const email = user.email;
+
+      // Construct user area wrapper
+      const userArea = document.createElement("div");
+      userArea.className = "nav-user-area";
+      userArea.innerHTML = `
+        <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 8v4l3 3"></path>
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
+          </svg>
+        </a>
+        <div class="nav-user-dropdown-container">
+          <button class="nav-user-trigger" id="userDropdownTrigger">
+            <div class="nav-user-avatar">${initial}</div>
+            <span class="nav-user-name">${firstName}</span>
+            <svg class="nav-user-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          <div class="nav-dropdown-menu" id="navDropdownMenu">
+            <div class="nav-dropdown-header">
+              <div class="nav-dropdown-header-name">${fullName}</div>
+              <div class="nav-dropdown-header-email">${email}</div>
+            </div>
+            <div class="nav-dropdown-divider"></div>
+            <a href="../profile/profile.html" class="nav-dropdown-item">
+              <span class="nav-dropdown-item-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </span>
+              <span>Pengaturan Profil</span>
+            </a>
+            <div class="nav-dropdown-divider"></div>
+            <button class="nav-dropdown-item logout-btn" id="btnLogoutDropdown">
+              <span class="nav-dropdown-item-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                  <polyline points="16 17 21 12 16 7"></polyline>
+                  <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+              </span>
+              <span>Keluar</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      nav.appendChild(userArea);
+
+      const trigger = userArea.querySelector("#userDropdownTrigger");
+      const menu = userArea.querySelector("#navDropdownMenu");
+      const logoutBtn = userArea.querySelector("#btnLogoutDropdown");
+
+      // Toggle dropdown
+      trigger.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = menu.classList.contains("show");
+        if (isOpen) {
+          menu.classList.remove("show");
+          trigger.classList.remove("active");
+        } else {
+          menu.classList.add("show");
+          trigger.classList.add("active");
         }
       });
-    }, { threshold: 0.15 });
-    revealEls.forEach(el => io.observe(el));
+
+      // Prevent closing dropdown when clicking inside the menu content
+      menu.addEventListener("click", (e) => {
+        e.stopPropagation();
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener("click", () => {
+        menu.classList.remove("show");
+        trigger.classList.remove("active");
+      });
+
+      // Handle logout
+      logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        auth.signOut().then(() => {
+          window.location.reload();
+        });
+      });
+    }
+
+    onAuthStateChanged(auth, async user => {
+      currentUser = user;
+      if (user) {
+        // Fetch user data from Firestore
+        let userData = null;
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            userData = userDoc.data();
+          } else {
+            // Check if admin
+            const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
+            if (!admins.includes(user.email)) {
+              await auth.signOut();
+              alert("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+              window.location.reload();
+              return;
+            }
+          }
+        } catch (err) {
+          console.error("Error fetching user data:", err);
+        }
+        initUserDropdown(user, userData);
+      } else {
+        initUserDropdown(null, null);
+      }
+    });
+
+
+    // Format harga
+    function fmt(n) {
+      return "Rp " + (n / 1000).toFixed(0) + "k";
+    }
+
+    async function loadTodayMenu() {
+      const grid = document.querySelector(".cards-grid");
+      grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 3rem 0; font-size: 1.1rem;">Memuat menu hari ini...</div>`;
+
+      try {
+        const querySnapshot = await getDocs(collection(db, "menus"));
+        let MENU_DATA = [];
+
+        const catDayMap = {
+          "noodles": 2, // Selasa
+          "salad": 3,   // Rabu
+          "burger": 4,  // Kamis
+          "rice": 5     // Jumat
+        };
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const artificialDay = catDayMap[data.cat] || 0;
+          MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
+        });
+
+        // Filter berdasarkan hari ini (Selasa - Jumat)
+        const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
+        
+        let filteredMenu = [];
+        if (today >= 2 && today <= 5) {
+          filteredMenu = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
+        }
+
+        if (today < 2 || today > 5) {
+          // Weekend / Monday empty state
+          grid.innerHTML = `
+            <div style="grid-column: span 3; background: var(--card-bg); border: 1px dashed var(--border); border-radius: 24px; padding: 4rem 2rem; text-align: center; max-width: 600px; margin: 2rem auto 0;">
+              <span style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">☕</span>
+              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--dark); margin-bottom: 0.8rem;">Dapur Lodeh Sedang Tutup</h3>
+              <p style="color: var(--warm-gray); line-height: 1.6; margin-bottom: 2rem; font-size: 0.95rem;">
+                Kami buka dari hari <strong>Selasa hingga Jumat</strong>. Menu makanan spesial kami berganti setiap harinya! Silakan jelajahi menu lengkap kami untuk memesan di hari kerja.
+              </p>
+              <a href="../menu/menu.html" class="btn-primary" style="display: inline-block;">Jelajahi Menu Lengkap</a>
+            </div>
+          `;
+          // Update title to be informative
+          const sectionTitle = document.querySelector(".section-title");
+          if (sectionTitle) {
+            sectionTitle.innerHTML = "Sampai Jumpa<br />Hari Selasa!";
+          }
+          return;
+        }
+
+        if (filteredMenu.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 4rem 0;">
+              <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">😢</span>
+              <p style="font-size: 1.1rem; font-weight: 500;">Belum ada menu yang aktif untuk hari ini.</p>
+            </div>
+          `;
+          return;
+        }
+
+        // Acak dan ambil maksimal 3 menu
+        if (filteredMenu.length > 3) {
+          filteredMenu = filteredMenu.sort(() => 0.5 - Math.random()).slice(0, 3);
+        }
+
+        // Render menu cards
+        grid.innerHTML = "";
+        filteredMenu.forEach((item, index) => {
+          const card = document.createElement("article");
+          card.className = `food-card reveal reveal-delay-${(index % 3) + 1}`;
+          card.innerHTML = `
+            <div class="card-img ${item.colorClass || 'card-c1'}">
+              <span class="card-badge">Pilihan Hari Ini</span>
+              ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `<span class="card-emoji">🍽</span>`}
+            </div>
+            <div class="card-body">
+              <p class="card-tag">${item.catLabel}</p>
+              <h3 class="card-name">${item.name}</h3>
+              <p class="card-desc">${item.desc}</p>
+              <div class="card-footer">
+                <span class="card-price">${fmt(item.price)}</span>
+                <button class="card-order-btn">Pesan Sekarang</button>
+              </div>
+            </div>
+          `;
+
+          const goToOrder = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (currentUser) {
+              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
+              window.location.href = "../menu/menu.html";
+            } else {
+              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
+              sessionStorage.setItem("authRedirect", "../menu/menu.html");
+              alert("⚠️ Silakan Login terlebih dahulu untuk melakukan pemesanan!");
+              window.location.href = "../Login/login.html";
+            }
+          };
+
+
+          card.addEventListener("click", goToOrder);
+          grid.appendChild(card);
+        });
+
+        // Initialize Scroll Reveal after cards are rendered
+        initScrollReveal();
+
+      } catch (error) {
+        console.error("Error loading today's menu:", error);
+        grid.innerHTML = `
+          <div style="grid-column: span 3; text-align: center; color: red; padding: 3rem 0;">
+            Gagal memuat menu hari ini: ${error.message}
+          </div>
+        `;
+      }
+    }
+
+    // Scroll reveal registration
+    let activeObserver = null;
+    function initScrollReveal() {
+      const revealEls = document.querySelectorAll('.reveal');
+      if (activeObserver) {
+        revealEls.forEach(el => activeObserver.observe(el));
+        return;
+      }
+      activeObserver = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            e.target.classList.add('in');
+            activeObserver.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      revealEls.forEach(el => activeObserver.observe(el));
+    }
+
+    // Initial call to reveal static text elements immediately
+    initScrollReveal();
+
+    // Run onload
+    loadTodayMenu();
   </script>
 
 </body>
