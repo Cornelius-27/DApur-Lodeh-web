@@ -272,6 +272,7 @@ function closeModal() {
 btnCancel.addEventListener("click", closeModal);
 btnAddMenu.addEventListener("click", () => openModal());
 
+menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
   const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
@@ -614,24 +615,25 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
 
     let actionHtml = "";
     if (isActiveSection) {
+      let workflowButton = "";
+      if (currentPaymentStatus === "Unpaid") {
+        workflowButton = `<button class="btn-confirm-payment" data-id="${order.id}" style="background-color: #f59e0b; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Konfirmasi Pembayaran</button>`;
+      } else if (currentOrderStatus !== "Delivered") {
+        workflowButton = `<button class="btn-ready-deliver" data-id="${order.id}" style="background-color: #3b82f6; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Siap Diantar</button>`;
+      }
+
       actionHtml = `
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
-          <select class="select-payment-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Unpaid" ${currentPaymentStatus === "Unpaid" ? "selected" : ""}>Belum Bayar</option>
-            <option value="Paid" ${currentPaymentStatus === "Paid" ? "selected" : ""}>Sudah Bayar</option>
-          </select>
-          <select class="select-order-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Pending" ${currentOrderStatus === "Pending" ? "selected" : ""}>Pending (Dimasak)</option>
-            <option value="Processing" ${currentOrderStatus === "Processing" ? "selected" : ""}>Processing (Dikirim)</option>
-            <option value="Delivered" ${currentOrderStatus === "Delivered" ? "selected" : ""}>Delivered (Selesai)</option>
-          </select>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+          ${workflowButton}
+          <button class="btn-detail-order" data-id="${order.id}" style="width:100%; margin: 0;">Detail</button>
         </div>
-        <button class="btn-detail-order" data-id="${order.id}" style="width:100%;">Detail</button>
       `;
     } else {
       actionHtml = `
-        <span class="badge-delivered">Delivered</span>
-        <button class="btn-detail-order" style="margin-top:8px; width:100%;" data-id="${order.id}">Detail</button>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: flex-start;">
+          <span class="badge-delivered">Delivered</span>
+          <button class="btn-detail-order" style="width:100%; margin: 0;" data-id="${order.id}">Detail</button>
+        </div>
       `;
     }
 
@@ -657,36 +659,42 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
       <td class="td-actions" style="vertical-align:top;">${actionHtml}</td>
     `;
     tbody.appendChild(tr);
+
+    const trDetail = document.createElement("tr");
+    trDetail.id = `detail-row-${order.id}`;
+    trDetail.style.display = "none";
+    trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;"><div id="detail-content-${order.id}" class="slide-detail-container"></div></td>`;
+    tbody.appendChild(trDetail);
   });
 
   // Event Listener untuk update status
   if (isActiveSection) {
-    tbody.querySelectorAll(".select-payment-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-confirm-payment").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { paymentStatus: newStatus });
-          showToast("Status pembayaran diperbarui!");
+          // Update status pembayaran jadi Paid dan status pesanan jadi Processing
+          await updateDoc(doc(db, "orders", orderId), { paymentStatus: "Paid", status: "Processing" });
+          showToast("Pembayaran dikonfirmasi!");
           loadOrders(); // Refresh table
         } catch (err) {
-          console.error("Gagal update payment status", err);
-          alert("Gagal update status pembayaran.");
+          console.error("Gagal konfirmasi pembayaran", err);
+          alert("Gagal mengonfirmasi pembayaran.");
         }
       });
     });
 
-    tbody.querySelectorAll(".select-order-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-ready-deliver").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-          showToast("Status pesanan diperbarui!");
+          // Update status pesanan jadi Delivered
+          await updateDoc(doc(db, "orders", orderId), { status: "Delivered" });
+          showToast("Pesanan selesai (Delivered)!");
           loadOrders(); // Refresh table
         } catch (err) {
           console.error("Gagal update order status", err);
-          alert("Gagal update status pesanan.");
+          alert("Gagal menyelesaikan pesanan.");
         }
       });
     });
@@ -696,17 +704,43 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
 // Event Listener global untuk tombol "Detail"
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-detail-order")) {
-    openOrderDetail(e.target.dataset.id);
+    const orderId = e.target.dataset.id;
+    const detailRow = document.getElementById(`detail-row-${orderId}`);
+    const contentContainer = document.getElementById(`detail-content-${orderId}`);
+
+    const isCurrentlyClosed = detailRow.style.display === "none";
+
+    // 1. Tutup semua detail yang sedang terbuka
+    document.querySelectorAll(".slide-detail-container.open").forEach(openContainer => {
+      openContainer.classList.remove("open");
+      const row = openContainer.closest("tr");
+      if (row) {
+        setTimeout(() => { row.style.display = "none"; }, 300);
+      }
+    });
+
+    // 2. Kembalikan semua teks tombol menjadi "Detail"
+    document.querySelectorAll(".btn-detail-order").forEach(btn => {
+      if (btn.textContent === "Tutup Detail") {
+        btn.textContent = "Detail";
+      }
+    });
+
+    // 3. Jika sebelumnya tertutup, maka buka
+    if (isCurrentlyClosed) {
+      contentContainer.innerHTML = generateOrderDetailHtml(orderId);
+      detailRow.style.display = "table-row";
+      // Memberi jeda sedikit agar display berubah ke table-row sebelum transisi CSS berjalan
+      setTimeout(() => contentContainer.classList.add("open"), 10);
+      e.target.textContent = "Tutup Detail";
+    }
   }
 });
 
-function openOrderDetail(orderId) {
+function generateOrderDetailHtml(orderId) {
   const order = ALL_ORDERS.find(o => o.id === orderId);
-  if (!order) return;
+  if (!order) return "";
 
-  const modal = document.getElementById("order-detail-modal");
-  const body = document.getElementById("order-detail-body");
-  
   const dateObj = new Date(order.createdAt);
   const fullDate = dateObj.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const fullTime = dateObj.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
@@ -746,65 +780,61 @@ function openOrderDetail(orderId) {
     }
   }
 
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div>
-        <div class="detail-item-title">ID Pesanan</div>
-        <div class="detail-item-value">${order.id}</div>
+  return `
+    <div style="padding: 1rem 0;">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-item-title">ID Pesanan</div>
+          <div class="detail-item-value">${order.id}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Waktu Transaksi</div>
+          <div class="detail-item-value">${fullDate} - ${fullTime}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Email Pemesan</div>
+          <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Metode Pembayaran</div>
+          <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
+        </div>
       </div>
-      <div>
-        <div class="detail-item-title">Waktu Transaksi</div>
-        <div class="detail-item-value">${fullDate} - ${fullTime}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Email Pemesan</div>
-        <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Metode Pembayaran</div>
-        <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
-      </div>
-    </div>
 
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
-      <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
-    </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
-      ${itemsHtml}
-    </div>
-
-    ${order.note ? `
-    <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
-      <div style="color:#9a3412;">${order.note}</div>
-    </div>
-    ` : ""}
-
-    <div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div class="detail-summary">
-        <span>Subtotal</span>
-        <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
+        <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
       </div>
-      <div class="detail-summary">
-        <span>Ongkos Kirim</span>
-        <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
+        ${itemsHtml}
       </div>
-      <div class="detail-summary total">
-        <span>Total Bayar</span>
-        <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+
+      ${order.note ? `
+      <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
+        <div style="color:#9a3412;">${order.note}</div>
+      </div>
+      ` : ""}
+
+      <div style="background:white; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+        <div class="detail-summary">
+          <span>Subtotal</span>
+          <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary">
+          <span>Ongkos Kirim</span>
+          <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary total">
+          <span>Total Bayar</span>
+          <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+        </div>
       </div>
     </div>
   `;
-
-  modal.classList.add("show");
 }
-
-document.getElementById("btn-close-order-detail").addEventListener("click", () => {
-  document.getElementById("order-detail-modal").classList.remove("show");
-});
 
 // ── 7. MANAJEMEN AKUN PELANGGAN ──
 async function loadCustomers() {
