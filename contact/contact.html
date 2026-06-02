@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dapur Lodeh — Order Food Online</title>
+  <title>Dapur Lodeh — Hubungi Kami</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../homepage/style.css" />
+  <link rel="stylesheet" href="contact.css" />
 </head>
-<body>
+<body class="contact-page">
 
   <!-- ── NAVBAR ── -->
   <nav>
@@ -17,53 +18,115 @@
     <ul class="nav-links">
       <li><a href="../menu/menu.html">Menu</a></li>
       <li><a href="../catering/catering.html">Menu Spesial</a></li>
-      <li><a href="../contact/contact.html">Contact</a></li>
+      <li><a href="contact.html" style="color:var(--orange)">Contact</a></li>
     </ul>
     <a href="../Login/login.html" class="nav-login">Log in</a>
   </nav>
 
-  <!-- ── HERO ── -->
-  <section class="hero">
-    <div class="hero-blob blob-1"></div>
-    <div class="hero-blob blob-2"></div>
-    <p class="hero-eyebrow">🍽 Hometaste</p>
-    <h1>DapurLodeh</h1>
-    <p class="hero-sub">Discover today's best dishes, hand-picked by our chefs — delivered hot to your door.</p>
-    <div class="hero-cta">
-      <a href="../menu/menu.html" class="btn-primary">Browse Menu</a>
-      <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
+  <!-- ── MAIN CONTENT ── -->
+  <main class="contact-container">
+    
+    <!-- Header Halaman -->
+    <header class="contact-header">
+      <h1 class="contact-title">Hubungi Kami</h1>
+      <p class="contact-subtitle">Punya pertanyaan seputar menu, katering, atau ingin berkunjung langsung?.</p>
+    </header>
+
+    <!-- Simple Centered Contact Layout -->
+    <div class="simple-contact-wrapper">
+      <div class="contact-card simple-card">
+        <h2 class="card-title-sub">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Informasi Hubungi Kami
+        </h2>
+        
+        <ul class="contact-info-list">
+          <li class="info-item">
+            <div class="info-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+            <div class="info-text">
+              <span class="info-label">Alamat Utama</span>
+              <span class="info-value">Jl. Kebon Jeruk No. 27, RT.05/RW.02, Jakarta Barat, DKI Jakarta, Indonesia</span>
+            </div>
+          </li>
+          
+          <li class="info-item">
+            <div class="info-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <div class="info-text">
+              <span class="info-label">Jam Operasional</span>
+              <span class="info-value">Selasa – Jumat (07.00 – 14.00 WIB)<br><small style="color: var(--warm-gray);">* Tutup pada hari Sabtu, Minggu & Senin</small></span>
+            </div>
+          </li>
+
+          <li class="info-item">
+            <div class="info-icon" style="background: rgba(37, 211, 102, 0.08); color: #25D366;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+            </div>
+            <div class="info-text">
+              <span class="info-label">Whatsapp</span>
+              <span class="info-value" style="font-weight: 700; color: #128C7E;">Cornelius <span style="font-weight: normal; color: var(--dark);">— Customer Care & Orders</span></span>
+            </div>
+          </li>
+        </ul>
+
+        <!-- Action Buttons -->
+        <div class="simple-card-actions">
+          <a href="https://wa.me/6285156641008" target="_blank" class="btn-wa-simple" id="btn-whatsapp-chat">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            <span>Chat WhatsApp</span>
+          </a>
+          <a href="https://share.google/zxam7WpCF1KuQiy88" target="_blank" class="btn-maps-simple" id="btn-google-maps">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+              <line x1="9" y1="3" x2="9" y2="18"></line>
+              <line x1="15" y1="6" x2="15" y2="21"></line>
+            </svg>
+            <span>Buka Google Maps</span>
+          </a>
+        </div>
+
+      </div>
     </div>
-  </section>
+  </main>
 
-  <!-- ── TODAY'S TOP 3 ── -->
-  <section class="section" id="recommended">
-    <p class="section-label reveal">Today's Menu</p>
-    <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
-
-    <div class="cards-grid">
-      <!-- Cards will be dynamically loaded here by script -->
-    </div>
-  </section>
-
+  <!-- ── FOOTER ── -->
   <footer>
     <span class="foot-logo">Dapur Lodeh</span>
     <p>© 2026 Dapur Lodeh. All rights reserved.</p>
   </footer>
 
+  <!-- Firebase & Dropdown Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
     import { firebaseConfig } from "../firebase-config.js";
 
     // Inisialisasi Firebase
     const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
     let currentUser = null;
 
-    // Helper to toggle user dropdown menu & Tombol Riwayat
+    // Helper untuk menampilkan Dropdown Navigasi User
     function initUserDropdown(user, userData) {
       const nav = document.querySelector("nav");
       const existingArea = document.querySelector(".nav-user-area");
@@ -86,14 +149,13 @@
         navLogin.style.display = "none";
       }
 
-      // Prepare display name and initial
       const fullName = userData?.displayName || user.displayName || user.email.split("@")[0];
       const firstName = userData?.firstName || fullName.split(" ")[0];
       const initial = firstName.charAt(0).toUpperCase();
       const email = user.email;
       const isAdmin = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"].includes(email);
 
-      // Construct user area wrapper
+      // Render Dropdown area
       const userArea = document.createElement("div");
       userArea.className = "nav-user-area";
       userArea.innerHTML = `
@@ -191,17 +253,16 @@
       });
     }
 
+    // Listener status login
     onAuthStateChanged(auth, async user => {
       currentUser = user;
       if (user) {
-        // Fetch user data from Firestore
         let userData = null;
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             userData = userDoc.data();
           } else {
-            // Check if admin
             const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
             if (!admins.includes(user.email)) {
               await auth.signOut();
@@ -211,163 +272,15 @@
             }
           }
         } catch (err) {
-          console.error("Error fetching user data:", err);
+          console.error("Gagal mengambil data user:", err);
         }
+        
         initUserDropdown(user, userData);
       } else {
         initUserDropdown(null, null);
       }
     });
 
-
-    // Format harga
-    function fmt(n) {
-      return "Rp " + (n / 1000).toFixed(0) + "k";
-    }
-
-    async function loadTodayMenu() {
-      const grid = document.querySelector(".cards-grid");
-      grid.innerHTML = `<div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 3rem 0; font-size: 1.1rem;">Memuat menu hari ini...</div>`;
-
-      try {
-        const querySnapshot = await getDocs(collection(db, "menus"));
-        let MENU_DATA = [];
-
-        const catDayMap = {
-          "noodles": 2, // Selasa
-          "salad": 3,   // Rabu
-          "burger": 4,  // Kamis
-          "rice": 5     // Jumat
-        };
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const artificialDay = catDayMap[data.cat] || 0;
-          MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
-        });
-
-        // Filter berdasarkan hari ini (Selasa - Jumat)
-        const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
-        
-        let filteredMenu = [];
-        if (today >= 2 && today <= 5) {
-          filteredMenu = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
-        }
-
-        if (today < 2 || today > 5) {
-          // Weekend / Monday empty state
-          grid.innerHTML = `
-            <div style="grid-column: span 3; background: var(--card-bg); border: 1px dashed var(--border); border-radius: 24px; padding: 4rem 2rem; text-align: center; max-width: 600px; margin: 2rem auto 0;">
-              <span style="font-size: 4rem; display: block; margin-bottom: 1.5rem;">☕</span>
-              <h3 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--dark); margin-bottom: 0.8rem;">Dapur Lodeh Sedang Tutup</h3>
-              <p style="color: var(--warm-gray); line-height: 1.6; margin-bottom: 2rem; font-size: 0.95rem;">
-                Kami buka dari hari <strong>Selasa hingga Jumat</strong>. Menu makanan spesial kami berganti setiap harinya! Silakan jelajahi menu lengkap kami untuk memesan di hari kerja.
-              </p>
-              <a href="../menu/menu.html" class="btn-primary" style="display: inline-block;">Jelajahi Menu Lengkap</a>
-            </div>
-          `;
-          // Update title to be informative
-          const sectionTitle = document.querySelector(".section-title");
-          if (sectionTitle) {
-            sectionTitle.innerHTML = "Sampai Jumpa<br />Hari Selasa!";
-          }
-          return;
-        }
-
-        if (filteredMenu.length === 0) {
-          grid.innerHTML = `
-            <div style="grid-column: span 3; text-align: center; color: var(--warm-gray); padding: 4rem 0;">
-              <span style="font-size: 3rem; display: block; margin-bottom: 1rem;">😢</span>
-              <p style="font-size: 1.1rem; font-weight: 500;">Belum ada menu yang aktif untuk hari ini.</p>
-            </div>
-          `;
-          return;
-        }
-
-        // Acak dan ambil maksimal 3 menu
-        if (filteredMenu.length > 3) {
-          filteredMenu = filteredMenu.sort(() => 0.5 - Math.random()).slice(0, 3);
-        }
-
-        // Render menu cards
-        grid.innerHTML = "";
-        filteredMenu.forEach((item, index) => {
-          const card = document.createElement("article");
-          card.className = `food-card reveal reveal-delay-${(index % 3) + 1}`;
-          card.innerHTML = `
-            <div class="card-img ${item.colorClass || 'card-c1'}">
-              <span class="card-badge">Pilihan Hari Ini</span>
-              ${item.imageUrl ? `<img src="${item.imageUrl}" class="card-image" alt="${item.name}">` : `<span class="card-emoji">🍽</span>`}
-            </div>
-            <div class="card-body">
-              <p class="card-tag">${item.catLabel}</p>
-              <h3 class="card-name">${item.name}</h3>
-              <p class="card-desc">${item.desc}</p>
-              <div class="card-footer">
-                <span class="card-price">${fmt(item.price)}</span>
-                <button class="card-order-btn">Pesan Sekarang</button>
-              </div>
-            </div>
-          `;
-
-          const goToOrder = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
-            if (currentUser) {
-              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
-              window.location.href = "../menu/menu.html";
-            } else {
-              sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
-              sessionStorage.setItem("authRedirect", "../menu/menu.html");
-              alert("⚠️ Silakan Login terlebih dahulu untuk melakukan pemesanan!");
-              window.location.href = "../Login/login.html";
-            }
-          };
-
-
-          card.addEventListener("click", goToOrder);
-          grid.appendChild(card);
-        });
-
-        // Initialize Scroll Reveal after cards are rendered
-        initScrollReveal();
-
-      } catch (error) {
-        console.error("Error loading today's menu:", error);
-        grid.innerHTML = `
-          <div style="grid-column: span 3; text-align: center; color: red; padding: 3rem 0;">
-            Gagal memuat menu hari ini: ${error.message}
-          </div>
-        `;
-      }
-    }
-
-    // Scroll reveal registration
-    let activeObserver = null;
-    function initScrollReveal() {
-      const revealEls = document.querySelectorAll('.reveal');
-      if (activeObserver) {
-        revealEls.forEach(el => activeObserver.observe(el));
-        return;
-      }
-      activeObserver = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) {
-            e.target.classList.add('in');
-            activeObserver.unobserve(e.target);
-          }
-        });
-      }, { threshold: 0.15 });
-      revealEls.forEach(el => activeObserver.observe(el));
-    }
-
-    // Initial call to reveal static text elements immediately
-    initScrollReveal();
-
-    // Run onload
-    loadTodayMenu();
   </script>
-
 </body>
 </html>

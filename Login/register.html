@@ -10,10 +10,6 @@
   <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="login.css" />
 
-  <!-- Google Maps JavaScript API -->
-  <!-- 🔧 GANTI YOUR_MAPS_API_KEY dengan API key kamu dari Google Cloud Console -->
-  <!-- Aktifkan: Maps JavaScript API + Geocoding API + Places API             -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_MAPS_API_KEY&libraries=places&callback=initMap" async defer></script>
 </head>
 <body class="auth-page">
 
@@ -30,14 +26,13 @@
       <div class="auth-panel-blob blob-a"></div>
       <div class="auth-panel-blob blob-b"></div>
       <div class="auth-panel-content">
-        <p class="panel-eyebrow">🍽 Bergabung sekarang</p>
+        <p class="panel-eyebrow">Bergabung sekarang</p>
         <h2 class="panel-title">Daftar &amp;<br /><em>nikmati makanan</em><br />favoritmu.</h2>
         <ul class="panel-perks">
-          <li>⚡ Checkout lebih cepat</li>
-          <li>📦 Pantau pesanan real time</li>
-          <li>❤️ Simpan menu favorit</li>
-          <li>🎁 Promo khusus member</li>
-          <li>📍 Pengiriman ke lokasi tepat</li>
+          <li><svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle; color: #f97316;"><path d="M20 6 9 17l-5-5"/></svg> Checkout lebih cepat</li>
+          <li><svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle; color: #f97316;"><path d="M20 6 9 17l-5-5"/></svg> Pantau pesanan real time</li>
+          <li><svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle; color: #f97316;"><path d="M20 6 9 17l-5-5"/></svg> Simpan menu favorit</li>
+          <li><svg class="perk-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 14px; height: 14px; margin-right: 8px; vertical-align: middle; color: #f97316;"><path d="M20 6 9 17l-5-5"/></svg> Pengiriman ke lokasi tepat</li>
         </ul>
       </div>
     </div>
@@ -116,31 +111,9 @@
           <!-- SECTION 2: Lokasi -->
           <p class="form-section-label">📍 Lokasi pengiriman</p>
 
-          <!-- Google Maps pinpoint -->
-          <div class="form-group">
-            <label class="form-label">Pinpoint lokasi kamu di peta</label>
-            <div class="map-container">
-              <div id="map"></div>
-              <div class="map-pin-overlay">📍</div>
-            </div>
-            <p class="map-hint">Seret peta untuk memindahkan titik, atau klik lokasi yang tepat.</p>
-          </div>
 
-          <!-- Koordinat tersimpan (hidden, diisi JS) -->
-          <input type="hidden" id="lat" />
-          <input type="hidden" id="lng" />
 
-          <!-- Alamat hasil geocoding (auto-fill) -->
-          <div class="form-group">
-            <label class="form-label" for="address-auto">Alamat terdeteksi</label>
-            <input class="form-input" type="text" id="address-auto" placeholder="Otomatis terisi dari peta..." readonly style="background:#f5f0ea; cursor:default;" />
-          </div>
 
-          <!-- Detail alamat manual -->
-          <div class="form-group">
-            <label class="form-label" for="address-detail">Detail alamat</label>
-            <input class="form-input" type="text" id="address-detail" placeholder="Contoh: No. 12, RT 03/RW 05, lantai 2" />
-          </div>
 
           <div class="form-row">
             <div class="form-group">
@@ -180,84 +153,6 @@
     </div>
 
   </main>
-
-  <!-- ══════════════════════════════════════════
-       GOOGLE MAPS INIT
-  ══════════════════════════════════════════ -->
-  <script>
-    let map, geocoder, selectedLat, selectedLng;
-
-    function initMap() {
-      // Default center: Jakarta
-      const defaultCenter = { lat: -6.2088, lng: 106.8456 };
-
-      geocoder = new google.maps.Geocoder();
-
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 15,
-        center: defaultCenter,
-        disableDefaultUI: true,
-        zoomControl: true,
-        gestureHandling: "greedy",
-        styles: [
-          { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-        ]
-      });
-
-      // Try to get user's real location
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-            map.setCenter(userPos);
-            updateLocationFromLatLng(userPos);
-          },
-          () => {} // silently fail, stay at default
-        );
-      }
-
-      // When user moves map → update pin position & reverse geocode
-      map.addListener("center_changed", () => {
-        const center = map.getCenter();
-        selectedLat = center.lat();
-        selectedLng = center.lng();
-        document.getElementById("lat").value = selectedLat;
-        document.getElementById("lng").value = selectedLng;
-      });
-
-      // Debounce reverse geocode on idle (after drag stops)
-      map.addListener("idle", () => {
-        const center = map.getCenter();
-        updateLocationFromLatLng({ lat: center.lat(), lng: center.lng() });
-      });
-    }
-
-    // Reverse geocode → fill address fields
-    function updateLocationFromLatLng(latlng) {
-      geocoder.geocode({ location: latlng }, (results, status) => {
-        if (status !== "OK" || !results[0]) return;
-
-        const result = results[0];
-        document.getElementById("address-auto").value = result.formatted_address;
-
-        // Parse address components
-        const get = type => {
-          const comp = result.address_components.find(c => c.types.includes(type));
-          return comp ? comp.long_name : "";
-        };
-
-        const sub1   = get("sublocality_level_1");   // kelurahan / village
-        const sub2   = get("sublocality_level_2");
-        const admin3 = get("administrative_area_level_3"); // kecamatan
-        const admin2 = get("administrative_area_level_2"); // kota / kabupaten
-        const postal = get("postal_code");
-
-        document.getElementById("kelurahan").value  = sub1 || sub2 || "";
-        document.getElementById("kecamatan").value  = admin3 || "";
-        document.getElementById("kota").value       = admin2 || "";
-        document.getElementById("kodepos").value    = postal || "";
-      });
-    }
   </script>
 
   <!-- ══════════════════════════════════════════
@@ -270,26 +165,22 @@
              updateProfile, onAuthStateChanged }      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, serverTimestamp }
                                                       from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-    // 🔧 PASTE YOUR FIREBASE CONFIG HERE
-    const firebaseConfig = {
-      apiKey: "AIzaSyAFfr-jN2EhtPWguLuVX6j7tBM-5AHSFpM",
-      authDomain: "dapur-lodeh.firebaseapp.com",
-      projectId: "dapur-lodeh",
-      storageBucket: "dapur-lodeh.firebasestorage.app",
-      messagingSenderId: "583455630184",
-      appId: "1:583455630184:web:c4ae09e2d2bdc3cf54acdd",
-      measurementId: "G-DFP52PRLLT"
-    };
+    import { firebaseConfig }                         from "../firebase-config.js";
 
     const app  = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db   = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    let isRegistering = false;
+
     // Redirect if already logged in
     onAuthStateChanged(auth, user => {
-      if (user) window.location.href = "../homepage/index.html";
+      if (user && !isRegistering) {
+        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+        sessionStorage.removeItem("authRedirect");
+        window.location.href = redirect;
+      }
     });
 
     // ── Helpers ──────────────────────────────────────────────
@@ -334,15 +225,24 @@
 
     // Build location object from form
     function collectLocation() {
+      const latEl = document.getElementById("lat");
+      const lngEl = document.getElementById("lng");
+      const autoEl = document.getElementById("address-auto");
+      const detailEl = document.getElementById("address-detail");
+      const kelEl = document.getElementById("kelurahan");
+      const kecEl = document.getElementById("kecamatan");
+      const kotaEl = document.getElementById("kota");
+      const posEl = document.getElementById("kodepos");
+
       return {
-        lat:          parseFloat(document.getElementById("lat").value)    || null,
-        lng:          parseFloat(document.getElementById("lng").value)    || null,
-        addressAuto:  document.getElementById("address-auto").value.trim(),
-        addressDetail:document.getElementById("address-detail").value.trim(),
-        kelurahan:    document.getElementById("kelurahan").value.trim(),
-        kecamatan:    document.getElementById("kecamatan").value.trim(),
-        kota:         document.getElementById("kota").value.trim(),
-        kodepos:      document.getElementById("kodepos").value.trim(),
+        lat:          latEl ? parseFloat(latEl.value) || null : null,
+        lng:          lngEl ? parseFloat(lngEl.value) || null : null,
+        addressAuto:  autoEl ? autoEl.value.trim() : "",
+        addressDetail:detailEl ? detailEl.value.trim() : "",
+        kelurahan:    kelEl ? kelEl.value.trim() : "",
+        kecamatan:    kecEl ? kecEl.value.trim() : "",
+        kota:         kotaEl ? kotaEl.value.trim() : "",
+        kodepos:      posEl ? posEl.value.trim() : "",
       };
     }
 
@@ -354,7 +254,10 @@
       const email     = document.getElementById("email").value.trim();
       const password  = document.getElementById("password").value;
       const confirm   = document.getElementById("confirm-password").value;
+      const kelurahan = document.getElementById("kelurahan").value.trim();
+      const kecamatan = document.getElementById("kecamatan").value.trim();
       const kota      = document.getElementById("kota").value.trim();
+      const kodepos   = document.getElementById("kodepos").value.trim();
 
       if (!firstName)              { showError("Nama depan wajib diisi."); return false; }
       if (!lastName)               { showError("Nama belakang wajib diisi."); return false; }
@@ -363,7 +266,10 @@
       if (!email)                  { showError("Email wajib diisi."); return false; }
       if (password.length < 8)     { showError("Password minimal 8 karakter."); return false; }
       if (password !== confirm)    { showError("Password dan konfirmasi tidak cocok."); return false; }
-      if (!kota)                   { showError("Tentukan lokasi kamu di peta terlebih dahulu."); return false; }
+      if (!kelurahan)              { showError("Kelurahan / Desa wajib diisi."); return false; }
+      if (!kecamatan)              { showError("Kecamatan wajib diisi."); return false; }
+      if (!kota)                   { showError("Kota / Kabupaten wajib diisi."); return false; }
+      if (!kodepos)                { showError("Kode pos wajib diisi."); return false; }
       return true;
     }
 
@@ -373,6 +279,7 @@
       if (!validate()) return;
 
       setLoading(true);
+      isRegistering = true;
       const firstName = document.getElementById("first-name").value.trim();
       const lastName  = document.getElementById("last-name").value.trim();
       const phone     = document.getElementById("phone").value.trim();
@@ -388,10 +295,17 @@
           phone, email,
           location: collectLocation(),
         });
-        showSuccess("Akun berhasil dibuat! Mengarahkan ke halaman utama…");
-        setTimeout(() => { window.location.href = "../homepage/index.html"; }, 1500);
+        showSuccess("Akun berhasil dibuat! Mengarahkan ke tujuan Anda…");
+        setTimeout(() => { 
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect; 
+        }, 1500);
       } catch (err) {
-        showError(friendlyError(err.code));
+        isRegistering = false;
+        console.error("Signup error:", err);
+        const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+        showError(detailedError);
         setLoading(false);
       }
     });
@@ -415,11 +329,12 @@
     }
 
     // VALIDASI ALAMAT
-    if (!loc.kota) {
-        showError("Silakan tentukan alamat di peta terlebih dahulu.");
+    if (!loc.kelurahan || !loc.kecamatan || !loc.kota || !loc.kodepos) {
+        showError("Data lokasi pengiriman (Kelurahan, Kecamatan, Kota, Kode Pos) wajib diisi lengkap.");
         return;
     }
 
+    isRegistering = true;
     try {
         const cred  = await signInWithPopup(auth, provider);
         const user  = cred.user;
@@ -435,14 +350,19 @@
         location:    loc,
         });
 
-        showSuccess("Pendaftaran berhasil! Mengarahkan ke homepage...");
+        showSuccess("Pendaftaran berhasil! Mengarahkan ke tujuan Anda...");
 
         setTimeout(() => {
-        window.location.href = "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         }, 1500);
 
     } catch (err) {
-        showError(friendlyError(err.code));
+        isRegistering = false;
+        console.error("Google Signup error:", err);
+        const detailedError = friendlyError(err.code) + (err.code ? ` (${err.code})` : ` (${err.message || err})`);
+        showError(detailedError);
     }
     });
 

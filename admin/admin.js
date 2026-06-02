@@ -14,36 +14,121 @@ let ADMIN_EMAILS = [];
 let ALL_ORDERS = [];
 let ALL_CUSTOMERS = [];
 
-const MENU_DESCRIPTIONS = {
-  "Perkedel kornet": "Perkedel kentang lembut khas Dapur Lodeh, dipadukan dengan kornet sapi gurih berkualitas dan rempah pilihan, digoreng keemasan dengan balutan telur tipis yang renyah.",
-  "Tumis sayur asin": "Sayur asin segar pilihan yang ditumis dengan bawang putih harum, potongan cabai merah, dan bumbu gurih yang meresap sempurna, memberikan sensasi asam-asin-gurih yang menyegarkan.",
-  "Bihun goreng": "Bihun jagung lembut yang digoreng dengan kecap manis legendaris, telur orak-arik, sayuran segar, bawang merah goreng, dan racikan bumbu khas Dapur Lodeh yang aromatik.",
-  "Pepes ikan kembung": "Ikan kembung segar yang dibalur dengan bumbu kuning kaya rempah (kunyit, kemiri, serai, daun kemangi), dibungkus daun pisang lalu dikukus dan dipanggang hingga harum merebak.",
-  "Bakwan jagung": "Jagung manis pipil renyah dalam adonan tepung bumbu ketumbar dan daun bawang segar, digoreng garing hingga berwarna cokelat keemasan yang menggoda selera.",
-  "Sayur lodeh": "Kuah santan gurih beraroma ketumbar dan daun salam, berisi aneka sayuran segar (labu siam, kacang panjang, nangka muda, melinjo) yang dimasak perlahan hingga bumbu meresap sempurna.",
-  "Nasi kuning": "Nasi aromatik yang dimasak dengan kunyit segar, santan kental, serai, dan daun jeruk, menghasilkan nasi kuning pulen yang wangi, gurih, dan lezat.",
-  "Tongkol balado": "Potongan ikan tongkol goreng gurih yang diselimuti sambal balado merah pedas-manis buatan rumah, dimasak dengan perasan jeruk nipis and daun jeruk aromatik.",
-  "Telor asin": "Telur bebek pilihan yang diasinkan dengan metode tradisional abu gosok dan garam mineral, menghasilkan kuning telur masir berminyak yang gurih dan tekstur putih telur yang pas.",
-  "Terong balado": "Terong ungu lembut yang digoreng cepat dan disajikan dengan siraman sambal balado merah khas Minang yang melimpah, pedas, manis, dan menggugah selera.",
-  "Telor balado": "Telur ayam rebus yang digoreng sebentar hingga berkulit, lalu dibalur dengan sambal balado pedas manis yang meresap hingga ke dalam.",
-  "Es Jeruk Peras": "Minuman dingin penyegar dahaga dari jeruk peras asli berkualitas tinggi, dipadukan dengan sedikit sirup gula murni dan es batu melimpah.",
-  "Cukiok": "Cukiok (kaki babi) yang dimasak perlahan (slow-cooked) dengan kecap asin premium, pekak, kayu manis, dan bumbu rempah tradisional Cina hingga dagingnya empuk, lembut, dan kaya rasa.",
-  "Lontong sayur": "Kombinasi lontong pulen berbalut kuah lodeh santan gurih yang sedikit pedas, disajikan dengan sayur labu siam, tahu, dan kerupuk renyah.",
-  "Sayur asem": "Sayur sup asam khas Sunda dengan kuah asam-segar dari asam jawa asli, berisi jagung manis, kacang tanah, labu siam, daun melinjo, dan kacang panjang.",
-  "Kari ayam": "Potongan ayam lembut dalam kuah kari kuning kental kaya rempah (kapulaga, jintan, kunyit) yang gurih, harum, dan sedikit pedas hangat.",
-  "Sop ayam kampung ham maling": "Sup kaldu ayam kampung premium yang hangat dan gurih, dimasak bersama potongan daging ayam empuk, wortel, kentang, dan luncheon meat berkualitas tinggi.",
-  "Tahu semur": "Tahu sutra lembut yang menyerap kuah semur manis gurih legendaris dengan aroma rempah tradisional pala dan cengkeh yang khas.",
-  "Telor semur": "Telur rebus yang dimasak perlahan dalam kuah semur kecap manis kental yang kaya akan bumbu rempah pala, cengkeh, dan bawang merah goreng.",
-  "Sambel godog udang pete": "Udang segar bertekstur kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
-  "Nasi uduk": "Nasi gurih khas Betawi yang ditanak dengan santan melimpah, daun salam, cengkeh, serai, dan jahe, disajikan hangat dengan taburan bawang goreng harum.",
-  "Tumis sawi putih": "Sawi putih segar bertekstur renyah ditumis cepat dengan irisan bawang merah, bawang putih, cabai, dan kaldu jamur gurih yang ringan namun lezat.",
-  "Sop kembang tahu ayam kampung": "Sup kaldu ayam kampung murni yang hangat dan gurih, dilengkapi dengan lembaran kembang tahu lembut, wortel manis, dan taburan daun seledri segar.",
-  "Ikan kembung goreng": "Ikan kembung segar dibumbui ketumbar dan kunyit, digoreng garing di luar namun tetap lembut dan manis dagingnya di dalam.",
-  "Tumis toge": "Toge segar renyah ditumis singkat (high heat) bersama irisan tahu kuning, kucai, bawang putih, dan sedikit kecap asin untuk mempertahankan kesegarannya.",
-  "Tahu balado": "Tahu putih goreng berkulit lembut disiram dengan sambal balado merah pedas gurih buatan rumah yang harum aroma daun jeruknya.",
-  "Ayam goreng": "Ayam ungkep bumbu kuning tradisional yang digoreng garing keemasan dengan taburan serundeng lengkuas gurih yang melimpah."
+const MENU_METADATA = {
+  "Perkedel kornet": {
+    desc: "Perkedel kentang lembut khas Dapur Lodeh, dipadukan dengan kornet sapi gurih berkualitas dan rempah pilihan, digoreng keemasan dengan balutan telur tipis yang renyah.",
+    imageUrl: "../assets/Perkedel kornet.jpg"
+  },
+  "Tumis sayur asin": {
+    desc: "Sayur asin segar pilihan yang ditumis dengan bawang putih harum, potongan cabai merah, dan bumbu gurih yang meresap sempurna, memberikan sensasi asam-asin-gurih yang menyegarkan.",
+    imageUrl: "../assets/Tumis sayur asin.jpg"
+  },
+  "Bihun goreng": {
+    desc: "Bihun jagung lembut yang digoreng dengan kecap manis legendaris, telur orak-arik, sayuran segar, bawang merah goreng, dan racikan bumbu khas Dapur Lodeh yang aromatik.",
+    imageUrl: "../assets/Bihun goreng.jpg"
+  },
+  "Pepes ikan kembung": {
+    desc: "Ikan kembung segar yang dibalur dengan bumbu kuning kaya rempah (kunyit, kemiri, serai, daun kemangi), dibungkus daun pisang lalu dikukus dan dipanggang hingga harum merebak.",
+    imageUrl: "../assets/Pepes ikan kembung.jpg"
+  },
+  "Bakwan jagung": {
+    desc: "Jagung manis pipil renyah dalam adonan tepung bumbu ketumbar dan daun bawang segar, digoreng garing hingga berwarna cokelat keemasan yang menggoda selera.",
+    imageUrl: "../assets/Bakwan jagung.jpg"
+  },
+  "Sayur lodeh": {
+    desc: "Kuah santan gurih beraroma ketumbar dan daun salam, berisi aneka sayuran segar (labu siam, kacang panjang, nangka muda, melinjo) yang dimasak perlahan hingga bumbu meresap sempurna.",
+    imageUrl: "../assets/Sayur lodeh.jpg"
+  },
+  "Nasi kuning": {
+    desc: "Nasi aromatik yang dimasak dengan kunyit segar, santan kental, serai, dan daun jeruk, menghasilkan nasi kuning pulen yang wangi, gurih, dan lezat.",
+    imageUrl: "../assets/Nasi kuning.jpg"
+  },
+  "Tongkol balado": {
+    desc: "Potongan ikan tongkol goreng gurih yang diselimuti sambal balado merah pedas-manis buatan rumah, dimasak dengan perasan jeruk nipis dan daun jeruk aromatik.",
+    imageUrl: "../assets/Tongkol balado.jpg"
+  },
+  "Telor asin": {
+    desc: "Telur bebek pilihan yang diasinkan dengan metode tradisional abu gosok dan garam mineral, menghasilkan kuning telur masir berminyak yang gurih dan tekstur putih telur yang pas.",
+    imageUrl: "../assets/Telor asin.jpg"
+  },
+  "Terong balado": {
+    desc: "Terong ungu lembut yang digoreng cepat dan disajikan dengan siraman sambal balado merah khas Minang yang melimpah, pedas, manis, dan menggugah selera.",
+    imageUrl: "../assets/Terong balado.jpg"
+  },
+  "Telor balado": {
+    desc: "Telur ayam rebus yang digoreng sebentar hingga berkulit, lalu dibalur dengan sambal balado pedas manis yang meresap hingga ke dalam.",
+    imageUrl: "../assets/Telor balado.jpg"
+  },
+  "Es Jeruk Peras": {
+    desc: "Minuman dingin penyegar dahaga dari jeruk peras asli berkualitas tinggi, dipadukan dengan sedikit sirup gula murni dan es batu melimpah.",
+    imageUrl: "../assets/Es jeruk peras.jpg"
+  },
+  "Cukiok": {
+    desc: "Cukiok (kaki babi) yang dimasak perlahan (slow-cooked) dengan kecap asin premium, pekak, kayu manis, dan bumbu rempah tradisional Cina hingga dagingnya empuk, lembut, dan kaya rasa.",
+    imageUrl: "../assets/Cukiok.jpg"
+  },
+  "Lontong sayur": {
+    desc: "Kombinasi lontong pulen berbalut kuah lodeh santan gurih yang sedikit pedas, disajikan dengan sayur labu siam, tahu, dan kerupuk renyah.",
+    imageUrl: "../assets/Lontong sayur.jpeg"
+  },
+  "Sayur asem": {
+    desc: "Sayur sup asam khas Sunda dengan kuah asam-segar dari asam jawa asli, berisi jagung manis, kacang tanah, labu siam, daun melinjo, dan kacang panjang.",
+    imageUrl: "../assets/Sayur asem.jpg"
+  },
+  "Kari ayam": {
+    desc: "Potongan ayam lembut dalam kuah kari kuning kental kaya rempah (kapulaga, jintan, kunyit) yang gurih, harum, dan sedikit pedas hangat.",
+    imageUrl: "../assets/Kari ayam.jpg"
+  },
+  "Sop ayam kampung ham maling": {
+    desc: "Sup kaldu ayam kampung premium yang hangat dan gurih, dimasak bersama potongan daging ayam empuk, wortel, kentang, dan luncheon meat berkualitas tinggi.",
+    imageUrl: "../assets/Sop ayam kampung ham maling.jpg"
+  },
+  "Tahu semur": {
+    desc: "Tahu sutra lembut yang menyerap kuah semur manis gurih legendaris dengan aroma rempah tradisional pala dan cengkeh yang khas.",
+    imageUrl: "../assets/Tahu semur.jpg"
+  },
+  "Telor semur": {
+    desc: "Telur rebus yang dimasak perlahan dalam kuah semur kecap manis kental yang kaya akan bumbu rempah pala, cengkeh, dan bawang merah goreng.",
+    imageUrl: "../assets/Telor semur.jpg"
+  },
+  "Sambel godog udang pete": {
+    desc: "Udang segar bertekak kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
+    imageUrl: "../assets/Sambel godog udang pete.jpg"
+  },
+  "Nasi uduk": {
+    desc: "Nasi gurih khas Betawi yang ditanak dengan santan melimpah, daun salam, cengkeh, serai, dan jahe, disajikan hangat dengan taburan bawang goreng harum.",
+    imageUrl: "../assets/Nasi uduk.jpg"
+  },
+  "Tumis sawi putih": {
+    desc: "Sawi putih segar bertekstur renyah ditumis cepat dengan irisan bawang merah, bawang putih, cabai, dan kaldu jamur gurih yang ringan namun lezat.",
+    imageUrl: "../assets/Tumis sawi putih.jpg"
+  },
+  "Sop kembang tahu ayam kampung": {
+    desc: "Sup kaldu ayam kampung murni yang hangat dan gurih, dilengkapi dengan lembaran kembang tahu lembut, wortel manis, dan taburan daun seledri segar.",
+    imageUrl: "../assets/Sop kembang tahu ayam kampung.jpeg"
+  },
+  "Ikan kembung goreng": {
+    desc: "Ikan kembung segar dibumbui ketumbar dan kunyit, digoreng garing di luar namun tetap lembut dan manis dagingnya di dalam.",
+    imageUrl: "../assets/Ikan kembung goreng.jpg"
+  },
+  "Tumis toge": {
+    desc: "Toge segar renyah ditumis singkat (high heat) bersama irisan tahu kuning, kucai, bawang putih, dan sedikit kecap asin untuk mempertahankan kesegarannya.",
+    imageUrl: "../assets/Tumis toge.jpg"
+  },
+  "Tahu balado": {
+    desc: "Tahu putih goreng berkulit lembut disiram dengan sambal balado merah pedas gurih buatan rumah yang harum aroma daun jeruknya.",
+    imageUrl: "../assets/Tahu balado.jpg"
+  },
+  "Ayam goreng": {
+    desc: "Ayam ungkep bumbu kuning tradisional yang digoreng garing keemasan dengan taburan serundeng lengkuas gurih yang melimpah.",
+    imageUrl: "../assets/Ayam goreng.jpg"
+  }
 };
 
+// Variabel referensi Chart.js
+let chartOrdersTrend = null;
+let chartRevenueTrend = null;
+let chartTopItems = null;
 
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
@@ -112,14 +197,14 @@ onAuthStateChanged(auth, async user => {
       
       const kamis = ["Nasi kuning", "Sayur lodeh", "Bihun goreng", "Telor balado", "Telor asin", "Perkedel kornet", "Tumis sawi putih", "Sop kembang tahu ayam kampung", "Ikan kembung goreng", "Cukiok"];
       for (const name of kamis) {
-        const desc = MENU_DESCRIPTIONS[name] || "Menu lezat Dapur Lodeh";
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc, isActive: true, addons: [] });
+        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
+        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: meta.desc, isActive: true, addons: [] });
       }
 
       const jumat = ["Lontong sayur", "Sayur asem", "Kari ayam", "Sop ayam kampung ham maling", "Telor asin", "Telor semur", "Tahu semur", "Sambel godog udang pete", "Perkedel kornet", "Bakwan jagung"];
       for (const name of jumat) {
-        const desc = MENU_DESCRIPTIONS[name] || "Menu lezat Dapur Lodeh";
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc, isActive: true, addons: [] });
+        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
+        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: meta.desc, isActive: true, addons: [] });
       }
       
       localStorage.setItem("seeded_menus_kamis_jumat", "true");
@@ -305,6 +390,7 @@ function closeModal() {
 btnCancel.addEventListener("click", closeModal);
 btnAddMenu.addEventListener("click", () => openModal());
 
+menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
   const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
@@ -395,31 +481,31 @@ btnInitDb.addEventListener("click", async () => {
 
   const MENU_DATA = [
     // Selasa (noodles / Mie)
-    { name: "Perkedel kornet", cat: "noodles", catLabel: "Mie", emoji: "🥔", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Perkedel kornet"], imageUrl: "", addons: [] },
-    { name: "Tumis sayur asin", cat: "noodles", catLabel: "Mie", emoji: "🥬", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Tumis sayur asin"], imageUrl: "", addons: [] },
-    { name: "Bihun goreng", cat: "noodles", catLabel: "Mie", emoji: "🍜", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Bihun goreng"], imageUrl: "", addons: [] },
-    { name: "Pepes ikan kembung", cat: "noodles", catLabel: "Mie", emoji: "🐟", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Pepes ikan kembung"], imageUrl: "", addons: [] },
-    { name: "Bakwan jagung", cat: "noodles", catLabel: "Mie", emoji: "🌽", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Bakwan jagung"], imageUrl: "", addons: [] },
-    { name: "Sayur lodeh", cat: "noodles", catLabel: "Mie", emoji: "🥣", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Sayur lodeh"], imageUrl: "", addons: [] },
-    { name: "Nasi kuning", cat: "noodles", catLabel: "Mie", emoji: "🍚", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Nasi kuning"], imageUrl: "", addons: [] },
-    { name: "Tongkol balado", cat: "noodles", catLabel: "Mie", emoji: "🌶️", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Tongkol balado"], imageUrl: "", addons: [] },
-    { name: "Telor asin", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Telor asin"], imageUrl: "", addons: [] },
-    { name: "Terong balado", cat: "noodles", catLabel: "Mie", emoji: "🍆", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Terong balado"], imageUrl: "", addons: [] },
-    { name: "Telor balado", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_DESCRIPTIONS["Telor balado"], imageUrl: "", addons: [] },
+    { name: "Perkedel kornet", cat: "noodles", catLabel: "Mie", emoji: "🥔", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
+    { name: "Tumis sayur asin", cat: "noodles", catLabel: "Mie", emoji: "🥬", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tumis sayur asin"].desc, imageUrl: MENU_METADATA["Tumis sayur asin"].imageUrl, addons: [] },
+    { name: "Bihun goreng", cat: "noodles", catLabel: "Mie", emoji: "🍜", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bihun goreng"].desc, imageUrl: MENU_METADATA["Bihun goreng"].imageUrl, addons: [] },
+    { name: "Pepes ikan kembung", cat: "noodles", catLabel: "Mie", emoji: "🐟", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Pepes ikan kembung"].desc, imageUrl: MENU_METADATA["Pepes ikan kembung"].imageUrl, addons: [] },
+    { name: "Bakwan jagung", cat: "noodles", catLabel: "Mie", emoji: "🌽", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
+    { name: "Sayur lodeh", cat: "noodles", catLabel: "Mie", emoji: "🥣", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Sayur lodeh"].desc, imageUrl: MENU_METADATA["Sayur lodeh"].imageUrl, addons: [] },
+    { name: "Nasi kuning", cat: "noodles", catLabel: "Mie", emoji: "🍚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Nasi kuning"].desc, imageUrl: MENU_METADATA["Nasi kuning"].imageUrl, addons: [] },
+    { name: "Tongkol balado", cat: "noodles", catLabel: "Mie", emoji: "🌶️", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tongkol balado"].desc, imageUrl: MENU_METADATA["Tongkol balado"].imageUrl, addons: [] },
+    { name: "Telor asin", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
+    { name: "Terong balado", cat: "noodles", catLabel: "Mie", emoji: "🍆", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Terong balado"].desc, imageUrl: MENU_METADATA["Terong balado"].imageUrl, addons: [] },
+    { name: "Telor balado", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
 
     // Rabu (salad / Salad)
-    { name: "Bakwan jagung", cat: "salad", catLabel: "Salad", emoji: "🌽", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Bakwan jagung"], imageUrl: "", addons: [] },
-    { name: "Tumis toge", cat: "salad", catLabel: "Salad", emoji: "🌱", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Tumis toge"], imageUrl: "", addons: [] },
-    { name: "Telor balado", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Telor balado"], imageUrl: "", addons: [] },
-    { name: "Perkedel kornet", cat: "salad", catLabel: "Salad", emoji: "🥔", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Perkedel kornet"], imageUrl: "", addons: [] },
-    { name: "Telor asin", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Telor asin"], imageUrl: "", addons: [] },
-    { name: "Tahu balado", cat: "salad", catLabel: "Salad", emoji: "⬜", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Tahu balado"], imageUrl: "", addons: [] },
-    { name: "Sayur asem", cat: "salad", catLabel: "Salad", emoji: "🥣", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Sayur asem"], imageUrl: "", addons: [] },
-    { name: "Ayam goreng", cat: "salad", catLabel: "Salad", emoji: "🍗", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Ayam goreng"], imageUrl: "", addons: [] },
-    { name: "Nasi uduk", cat: "salad", catLabel: "Salad", emoji: "🍚", colorClass: "card-c2", price: 15000, desc: MENU_DESCRIPTIONS["Nasi uduk"], imageUrl: "", addons: [] },
+    { name: "Bakwan jagung", cat: "salad", catLabel: "Salad", emoji: "🌽", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
+    { name: "Tumis toge", cat: "salad", catLabel: "Salad", emoji: "🌱", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tumis toge"].desc, imageUrl: MENU_METADATA["Tumis toge"].imageUrl, addons: [] },
+    { name: "Telor balado", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
+    { name: "Perkedel kornet", cat: "salad", catLabel: "Salad", emoji: "🥔", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
+    { name: "Telor asin", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
+    { name: "Tahu balado", cat: "salad", catLabel: "Salad", emoji: "⬜", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tahu balado"].desc, imageUrl: MENU_METADATA["Tahu balado"].imageUrl, addons: [] },
+    { name: "Sayur asem", cat: "salad", catLabel: "Salad", emoji: "🥣", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Sayur asem"].desc, imageUrl: MENU_METADATA["Sayur asem"].imageUrl, addons: [] },
+    { name: "Ayam goreng", cat: "salad", catLabel: "Salad", emoji: "🍗", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Ayam goreng"].desc, imageUrl: MENU_METADATA["Ayam goreng"].imageUrl, addons: [] },
+    { name: "Nasi uduk", cat: "salad", catLabel: "Salad", emoji: "🍚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Nasi uduk"].desc, imageUrl: MENU_METADATA["Nasi uduk"].imageUrl, addons: [] },
 
     // Minuman (drinks)
-    { name: "Es Jeruk Peras", cat: "drinks", catLabel: "Minuman", emoji: "🍊", colorClass: "card-c3", price: 18000, desc: MENU_DESCRIPTIONS["Es Jeruk Peras"], imageUrl: "", addons: [] }
+    { name: "Es Jeruk Peras", cat: "drinks", catLabel: "Minuman", emoji: "🍊", colorClass: "card-c3", price: 18000, desc: MENU_METADATA["Es Jeruk Peras"].desc, imageUrl: MENU_METADATA["Es Jeruk Peras"].imageUrl, addons: [] }
   ];
 
   try {
@@ -572,6 +658,9 @@ async function loadOrders() {
 
     renderOrdersTable(activeOrders, activeTbody, true);
     renderOrdersTable(historyOrders, historyTbody, false);
+    
+    // Render grafik pertumbuhan
+    renderGrowthCharts(ALL_ORDERS);
   } catch (error) {
     console.error("Error loading orders:", error);
     activeTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat pesanan</td></tr>`;
@@ -608,29 +697,30 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
     }
 
     // Status Badge di bawah total
-    const currentPaymentStatus = order.paymentStatus || "Unpaid";
+    const currentPaymentStatus = !isActiveSection ? "Paid" : (order.paymentStatus || "Unpaid");
     const currentOrderStatus = order.status || "Pending";
 
     let actionHtml = "";
     if (isActiveSection) {
+      let workflowButton = "";
+      if (currentPaymentStatus === "Unpaid") {
+        workflowButton = `<button class="btn-confirm-payment" data-id="${order.id}" style="background-color: #f59e0b; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Konfirmasi Pembayaran</button>`;
+      } else if (currentOrderStatus !== "Delivered") {
+        workflowButton = `<button class="btn-ready-deliver" data-id="${order.id}" style="background-color: #3b82f6; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Siap Diantar</button>`;
+      }
+
       actionHtml = `
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
-          <select class="select-payment-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Unpaid" ${currentPaymentStatus === "Unpaid" ? "selected" : ""}>Belum Bayar</option>
-            <option value="Paid" ${currentPaymentStatus === "Paid" ? "selected" : ""}>Sudah Bayar</option>
-          </select>
-          <select class="select-order-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Pending" ${currentOrderStatus === "Pending" ? "selected" : ""}>Pending (Dimasak)</option>
-            <option value="Processing" ${currentOrderStatus === "Processing" ? "selected" : ""}>Processing (Dikirim)</option>
-            <option value="Delivered" ${currentOrderStatus === "Delivered" ? "selected" : ""}>Delivered (Selesai)</option>
-          </select>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+          ${workflowButton}
+          <button class="btn-detail-order" data-id="${order.id}" style="width:100%; margin: 0;">Detail</button>
         </div>
-        <button class="btn-detail-order" data-id="${order.id}" style="width:100%;">Detail</button>
       `;
     } else {
       actionHtml = `
-        <span class="badge-delivered">Delivered</span>
-        <button class="btn-detail-order" style="margin-top:8px; width:100%;" data-id="${order.id}">Detail</button>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: flex-start;">
+          <span class="badge-delivered">Delivered</span>
+          <button class="btn-detail-order" style="width:100%; margin: 0;" data-id="${order.id}">Detail</button>
+        </div>
       `;
     }
 
@@ -656,36 +746,42 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
       <td class="td-actions" style="vertical-align:top;">${actionHtml}</td>
     `;
     tbody.appendChild(tr);
+
+    const trDetail = document.createElement("tr");
+    trDetail.id = `detail-row-${order.id}`;
+    trDetail.style.display = "none";
+    trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;"><div id="detail-content-${order.id}" class="slide-detail-container"></div></td>`;
+    tbody.appendChild(trDetail);
   });
 
   // Event Listener untuk update status
   if (isActiveSection) {
-    tbody.querySelectorAll(".select-payment-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-confirm-payment").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { paymentStatus: newStatus });
-          showToast("Status pembayaran diperbarui!");
+          // Update status pembayaran jadi Paid dan status pesanan jadi Processing
+          await updateDoc(doc(db, "orders", orderId), { paymentStatus: "Paid", status: "Processing" });
+          showToast("Pembayaran dikonfirmasi!");
           loadOrders(); // Refresh table
         } catch (err) {
-          console.error("Gagal update payment status", err);
-          alert("Gagal update status pembayaran.");
+          console.error("Gagal konfirmasi pembayaran", err);
+          alert("Gagal mengonfirmasi pembayaran.");
         }
       });
     });
 
-    tbody.querySelectorAll(".select-order-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-ready-deliver").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-          showToast("Status pesanan diperbarui!");
+          // Update status pesanan jadi Delivered
+          await updateDoc(doc(db, "orders", orderId), { status: "Delivered" });
+          showToast("Pesanan selesai (Delivered)!");
           loadOrders(); // Refresh table
         } catch (err) {
           console.error("Gagal update order status", err);
-          alert("Gagal update status pesanan.");
+          alert("Gagal menyelesaikan pesanan.");
         }
       });
     });
@@ -695,17 +791,43 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
 // Event Listener global untuk tombol "Detail"
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-detail-order")) {
-    openOrderDetail(e.target.dataset.id);
+    const orderId = e.target.dataset.id;
+    const detailRow = document.getElementById(`detail-row-${orderId}`);
+    const contentContainer = document.getElementById(`detail-content-${orderId}`);
+
+    const isCurrentlyClosed = detailRow.style.display === "none";
+
+    // 1. Tutup semua detail yang sedang terbuka
+    document.querySelectorAll(".slide-detail-container.open").forEach(openContainer => {
+      openContainer.classList.remove("open");
+      const row = openContainer.closest("tr");
+      if (row) {
+        setTimeout(() => { row.style.display = "none"; }, 300);
+      }
+    });
+
+    // 2. Kembalikan semua teks tombol menjadi "Detail"
+    document.querySelectorAll(".btn-detail-order").forEach(btn => {
+      if (btn.textContent === "Tutup Detail") {
+        btn.textContent = "Detail";
+      }
+    });
+
+    // 3. Jika sebelumnya tertutup, maka buka
+    if (isCurrentlyClosed) {
+      contentContainer.innerHTML = generateOrderDetailHtml(orderId);
+      detailRow.style.display = "table-row";
+      // Memberi jeda sedikit agar display berubah ke table-row sebelum transisi CSS berjalan
+      setTimeout(() => contentContainer.classList.add("open"), 10);
+      e.target.textContent = "Tutup Detail";
+    }
   }
 });
 
-function openOrderDetail(orderId) {
+function generateOrderDetailHtml(orderId) {
   const order = ALL_ORDERS.find(o => o.id === orderId);
-  if (!order) return;
+  if (!order) return "";
 
-  const modal = document.getElementById("order-detail-modal");
-  const body = document.getElementById("order-detail-body");
-  
   const dateObj = new Date(order.createdAt);
   const fullDate = dateObj.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const fullTime = dateObj.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
@@ -745,65 +867,61 @@ function openOrderDetail(orderId) {
     }
   }
 
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div>
-        <div class="detail-item-title">ID Pesanan</div>
-        <div class="detail-item-value">${order.id}</div>
+  return `
+    <div style="padding: 1rem 0;">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-item-title">ID Pesanan</div>
+          <div class="detail-item-value">${order.id}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Waktu Transaksi</div>
+          <div class="detail-item-value">${fullDate} - ${fullTime}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Email Pemesan</div>
+          <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Metode Pembayaran</div>
+          <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
+        </div>
       </div>
-      <div>
-        <div class="detail-item-title">Waktu Transaksi</div>
-        <div class="detail-item-value">${fullDate} - ${fullTime}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Email Pemesan</div>
-        <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Metode Pembayaran</div>
-        <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
-      </div>
-    </div>
 
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
-      <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
-    </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
-      ${itemsHtml}
-    </div>
-
-    ${order.note ? `
-    <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
-      <div style="color:#9a3412;">${order.note}</div>
-    </div>
-    ` : ""}
-
-    <div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div class="detail-summary">
-        <span>Subtotal</span>
-        <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
+        <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
       </div>
-      <div class="detail-summary">
-        <span>Ongkos Kirim</span>
-        <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
+        ${itemsHtml}
       </div>
-      <div class="detail-summary total">
-        <span>Total Bayar</span>
-        <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+
+      ${order.note ? `
+      <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
+        <div style="color:#9a3412;">${order.note}</div>
+      </div>
+      ` : ""}
+
+      <div style="background:white; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+        <div class="detail-summary">
+          <span>Subtotal</span>
+          <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary">
+          <span>Ongkos Kirim</span>
+          <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary total">
+          <span>Total Bayar</span>
+          <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+        </div>
       </div>
     </div>
   `;
-
-  modal.classList.add("show");
 }
-
-document.getElementById("btn-close-order-detail").addEventListener("click", () => {
-  document.getElementById("order-detail-modal").classList.remove("show");
-});
 
 // ── 7. MANAJEMEN AKUN PELANGGAN ──
 async function loadCustomers() {
@@ -1030,5 +1148,230 @@ if (searchCustomerEl) {
     });
 
     renderCustomersTable(filtered);
+  });
+}
+
+// ── 9. GROWTH ANALYTICS (CHART.JS) ──
+function renderGrowthCharts(orders) {
+  // Hanya proses order yang valid (bisa juga difilter hanya yg Delivered/Selesai)
+  // Untuk tren, kita gunakan semua riwayat pesanan (termasuk yg aktif)
+  const orderCountsPerDay = {};
+  const revenuePerDay = {};
+  const itemCounts = {};
+
+  // Agregasi Data
+  let minDateObj = null;
+  let maxDateObj = null;
+
+  orders.forEach(order => {
+    if (!order.createdAt) return;
+    
+    const dateObj = new Date(order.createdAt);
+    // Format YYYY-MM-DD
+    const dateStr = dateObj.toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD format reliably in local time zone
+
+    // Tentukan rentang tanggal
+    if (!minDateObj || dateObj < minDateObj) minDateObj = new Date(dateObj);
+    if (!maxDateObj || dateObj > maxDateObj) maxDateObj = new Date(dateObj);
+
+    // 1 & 2. Hitung jumlah pesanan harian & pendapatan
+    if (!orderCountsPerDay[dateStr]) orderCountsPerDay[dateStr] = 0;
+    if (!revenuePerDay[dateStr]) revenuePerDay[dateStr] = 0;
+    
+    orderCountsPerDay[dateStr] += 1;
+    
+    // Hanya tambahkan ke total pendapatan jika sudah "Paid" atau "Delivered" (selesai)
+    const isPaid = (order.status === "Delivered") || (order.paymentStatus === "Paid");
+    if (isPaid) {
+      revenuePerDay[dateStr] += Number(order.total) || 0;
+    }
+
+    // 3. Hitung item terlaris
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        const itemName = item.name || "Unknown";
+        const qty = Number(item.qty) || 1;
+        if (!itemCounts[itemName]) itemCounts[itemName] = 0;
+        itemCounts[itemName] += qty;
+      });
+    }
+  });
+
+  // Isi tanggal yang kosong (0 pesanan) di antara min dan max
+  if (minDateObj && maxDateObj) {
+    let curr = new Date(minDateObj);
+    const end = new Date(maxDateObj);
+    
+    while (curr <= end) {
+      const dStr = curr.toLocaleDateString('en-CA');
+      if (orderCountsPerDay[dStr] === undefined) {
+        orderCountsPerDay[dStr] = 0;
+        revenuePerDay[dStr] = 0;
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+  }
+
+  // Hitung Grand Total Pendapatan
+  let grandTotal = 0;
+  Object.values(revenuePerDay).forEach(val => grandTotal += val);
+  
+  const totalRevenueEl = document.getElementById("grand-total-revenue");
+  if (totalRevenueEl) {
+    totalRevenueEl.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+  }
+
+  // Siapkan label (urutkan tanggal dari lama ke baru)
+  const sortedDates = Object.keys(orderCountsPerDay).sort();
+  
+  // Data array berdasarkan urutan tanggal
+  const ordersData = sortedDates.map(date => orderCountsPerDay[date]);
+
+  // Siapkan data item terlaris (sort descending by qty)
+  const sortedItems = Object.keys(itemCounts).sort((a, b) => itemCounts[b] - itemCounts[a]);
+  // Ambil top 5 atau top 10 saja
+  const topItemsNames = sortedItems.slice(0, 7);
+  const topItemsData = topItemsNames.map(name => itemCounts[name]);
+
+  // Warna-warna Chart
+  const primaryColor = '#E8621A'; // Orange khas
+  const secondaryColor = '#25D366'; // Hijau
+  const bgColors = [
+    'rgba(232, 98, 26, 0.7)',
+    'rgba(34, 197, 94, 0.7)',
+    'rgba(59, 130, 246, 0.7)',
+    'rgba(234, 179, 8, 0.7)',
+    'rgba(168, 85, 247, 0.7)',
+    'rgba(236, 72, 153, 0.7)',
+    'rgba(14, 165, 233, 0.7)'
+  ];
+
+  // Hancurkan chart lama jika ada sebelum render ulang
+  if (chartOrdersTrend) chartOrdersTrend.destroy();
+  if (chartTopItems) chartTopItems.destroy();
+
+  // 1. Chart Tren Pesanan (Line Chart)
+  const ctxOrders = document.getElementById("chart-orders-trend");
+  if (ctxOrders) {
+    chartOrdersTrend = new Chart(ctxOrders, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [{
+          label: 'Jumlah Pesanan',
+          data: ordersData,
+          borderColor: primaryColor,
+          backgroundColor: 'rgba(232, 98, 26, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: primaryColor
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // 2. Daftar Pendapatan Harian (List/Table)
+  const tbodyRevenue = document.getElementById("revenue-list-tbody");
+  if (tbodyRevenue) {
+    tbodyRevenue.innerHTML = "";
+    
+    // Urutkan dari terbaru ke terlama untuk ditambilkan di list
+    const datesDesc = [...sortedDates].reverse();
+    
+    datesDesc.forEach(dateStr => {
+      const dateObj = new Date(dateStr);
+      const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+      const fullDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      const revVal = revenuePerDay[dateStr] || 0;
+      
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${dayName}</strong>, ${fullDate}</td>
+        <td style="text-align: right; color: ${revVal > 0 ? '#25D366' : 'var(--warm-gray)'}; font-weight: 500;">
+          Rp ${revVal.toLocaleString('id-ID')}
+        </td>
+      `;
+      tbodyRevenue.appendChild(tr);
+    });
+  }
+
+  // 3. Chart Menu Terlaris (Doughnut)
+  const ctxTopItems = document.getElementById("chart-top-items");
+  if (ctxTopItems) {
+    chartTopItems = new Chart(ctxTopItems, {
+      type: 'doughnut',
+      data: {
+        labels: topItemsNames,
+        datasets: [{
+          data: topItemsData,
+          backgroundColor: bgColors,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'right',
+            labels: {
+              usePointStyle: true,
+              padding: 20
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ── 10. EXPORT KE EXCEL / CSV ──
+const btnExport = document.getElementById("btn-export-revenue");
+if (btnExport) {
+  btnExport.addEventListener("click", () => {
+    const table = document.querySelector("#tab-growth table");
+    if (!table) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Hari dan Tanggal,Pendapatan\n"; // Header kolom
+
+    const rows = table.querySelectorAll("tbody tr");
+    let hasData = false;
+    rows.forEach(row => {
+      const cols = row.querySelectorAll("td");
+      if (cols.length === 2) {
+        hasData = true;
+        // Hapus koma pada tanggal agar tidak merusak kolom CSV
+        let dateText = cols[0].innerText.replace(/,/g, '');
+        // Hapus "Rp" dan tanda titik pada angka pendapatan agar menjadi format numerik asli
+        let revText = cols[1].innerText.replace(/Rp/g, '').replace(/\./g, '').trim();
+        csvContent += `"${dateText}",${revText}\n`;
+      }
+    });
+
+    if (!hasData) {
+      alert("Belum ada data pendapatan untuk di-ekspor.");
+      return;
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Laporan_Pendapatan_DapurLodeh.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }

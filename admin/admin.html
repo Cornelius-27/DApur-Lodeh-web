@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Dapur Lodeh</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../homepage/style.css" />
+  <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="admin-page">
+
+  <div class="admin-wrapper">
+    <!-- ── SIDEBAR ── -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-brand">
+        Dapur Lodeh <span class="badge-admin">Admin</span>
+      </div>
+      <ul class="sidebar-nav">
+        <li class="nav-item active" data-tab="tab-menu">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+            <path d="M6 6h10"></path>
+            <path d="M6 10h10"></path>
+          </svg>
+          Menu (Selasa - Jumat)
+        </li>
+        <li class="nav-item" data-tab="tab-orders">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+          </svg>
+          Manajemen Pesanan
+        </li>
+        <li class="nav-item" data-tab="tab-customers">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          Akun Pelanggan
+        </li>
+        <li class="nav-item" data-tab="tab-admins">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          </svg>
+          Akun Admin
+        </li>
+        <li class="nav-item" data-tab="tab-growth">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Growth Analytics
+        </li>
+      </ul>
+      <div class="sidebar-footer">
+        <span id="admin-email" class="admin-email"
+          style="display:block; margin-bottom:10px; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis;">Loading...</span>
+        <button id="btn-logout" class="btn-logout" style="width:100%;">Logout</button>
+      </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="admin-main">
+
+      <!-- TAB: MANAJEMEN MENU -->
+      <div id="tab-menu" class="tab-pane active">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Manajemen Menu</h1>
+            <p class="admin-sub">Daftar menu harian (Selasa - Jumat) di aplikasi.</p>
+          </div>
+          <div class="header-actions">
+            <select id="filter-collection" class="btn-secondary" style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem; margin-right: 8px;">
+              <option value="menus">Menu Reguler</option>
+              <option value="catering">Catering</option>
+            </select>
+            <select id="filter-day" class="btn-secondary"
+              style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem;">
+              <option value="all">Semua Hari / Kategori</option>
+              <option value="Selasa">Selasa</option>
+              <option value="Rabu">Rabu</option>
+              <option value="Kamis">Kamis</option>
+              <option value="Jumat">Jumat</option>
+            </select>
+            <button id="btn-init-db" class="btn-secondary" style="display:none;"
+              title="Migrasi data awal ke Firebase">Init DB (Sekali saja)</button>
+            <button id="btn-add-menu" class="btn-primary">+ Tambah Menu</button>
+          </div>
+        </header>
+
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Gambar</th>
+                  <th>Nama Menu</th>
+                  <th>Kategori (Hari)</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="menu-tbody">
+                <tr>
+                  <td colspan="6" class="text-center">Loading data dari server...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: MANAJEMEN PESANAN -->
+      <div id="tab-orders" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Manajemen Pesanan</h1>
+            <p class="admin-sub">Pantau pesanan yang masuk dan tandai jika sudah selesai.</p>
+          </div>
+        </header>
+
+        <!-- Pesanan Sedang Dimasak -->
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          Pesanan Sedang Dimasak
+          <span class="status-pulse-dot" title="Aktif"></span>
+        </h2>
+        <div class="admin-card" style="margin-bottom: 2rem;">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Waktu Pemesanan</th>
+                  <th>Pemesan</th>
+                  <th>Rincian Pesanan</th>
+                  <th>Total Tagihan</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="orders-active-tbody">
+                <tr>
+                  <td colspan="5" class="text-center">Memuat pesanan aktif...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Histori Pesanan -->
+        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+          Histori Pesanan (Selesai)
+          <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block;" title="Selesai"></span>
+        </h2>
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Waktu Pemesanan</th>
+                  <th>Pemesan</th>
+                  <th>Rincian Pesanan</th>
+                  <th>Total Tagihan</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="orders-history-tbody">
+                <tr>
+                  <td colspan="5" class="text-center">Memuat histori pesanan...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AKUN PELANGGAN -->
+      <div id="tab-customers" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Akun Pelanggan</h1>
+            <p class="admin-sub">Kelola data pelanggan yang terdaftar.</p>
+          </div>
+          <div class="header-actions">
+            <input type="text" id="search-customer" placeholder="Cari nama atau email..." class="btn-secondary" style="border:1px solid var(--admin-border); padding: 8px 16px; border-radius: 8px; width: 250px;" />
+          </div>
+        </header>
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Profil Pelanggan</th>
+                  <th>Kontak</th>
+                  <th>Lokasi / Alamat Otomatis</th>
+                  <th>Detail Alamat</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="customers-tbody">
+                <tr>
+                  <td colspan="5" class="text-center" style="padding: 3rem;">Memuat data pelanggan...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AKUN ADMIN -->
+      <div id="tab-admins" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Daftar Akun Admin</h1>
+            <p class="admin-sub">Kelola email yang diizinkan untuk mengakses dashboard ini.</p>
+          </div>
+          <div class="header-actions">
+            <button id="btn-add-admin" class="btn-primary" style="background:var(--dark);">+ Tambah Admin</button>
+          </div>
+        </header>
+
+        <div class="admin-card">
+          <div class="table-responsive">
+            <table class="menu-table">
+              <thead>
+                <tr>
+                  <th>Email Admin</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="admin-tbody">
+                <tr>
+                  <td colspan="2" class="text-center">Loading data admin...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: GROWTH -->
+      <div id="tab-growth" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Growth Analytics</h1>
+            <p class="admin-sub">Pantau grafik pertumbuhan pesanan, pendapatan, dan item terlaris.</p>
+          </div>
+          <div class="header-actions">
+            <button id="btn-export-revenue" class="btn-primary" style="padding: 8px 16px; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px; background: #10B981;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export ke Excel
+            </button>
+          </div>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+          <div class="admin-card" style="margin-bottom: 0;">
+            <h2 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem;">Tren Pesanan Harian</h2>
+            <div style="position: relative; height: 300px; width: 100%;">
+              <canvas id="chart-orders-trend"></canvas>
+            </div>
+          </div>
+          
+          <div class="admin-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h2 style="font-size: 1.1rem; color: var(--dark); margin: 0;">Total Pendapatan Keseluruhan</h2>
+              <span id="grand-total-revenue" style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px;">Rp 0</span>
+            </div>
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
+              <table class="menu-table" style="margin: 0;">
+                <thead>
+                  <tr>
+                    <th style="position: sticky; top: 0; background: var(--light);">Hari, Tanggal</th>
+                    <th style="position: sticky; top: 0; background: var(--light); text-align: right;">Pendapatan</th>
+                  </tr>
+                </thead>
+                <tbody id="revenue-list-tbody">
+                  <tr><td colspan="2" class="text-center">Memuat rincian pendapatan...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h2 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem;">Menu Paling Sering Dibeli</h2>
+          <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
+            <canvas id="chart-top-items"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ── MODAL FORM ── -->
+  <div class="modal-overlay" id="menu-modal">
+    <div class="modal-content">
+      <h2 class="modal-title" id="modal-title">Tambah Menu</h2>
+      <form id="menu-form" class="modal-form">
+        <input type="hidden" id="menu-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nama Menu</label>
+            <input type="text" id="menu-name" required placeholder="Contoh: Nasi Goreng Spesial" />
+          </div>
+          <div class="form-group">
+            <label>URL Gambar</label>
+            <input type="url" id="menu-image-url" placeholder="https://..." />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kategori</label>
+            <select id="menu-cat" required>
+              <option value="noodles">Spesial Selasa</option>
+              <option value="salad">Spesial Rabu</option>
+              <option value="burger">Spesial Kamis</option>
+              <option value="rice">Spesial Jumat</option>
+              <option value="drinks">Menu Bebas (Semua Hari)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Warna Background Card</label>
+            <select id="menu-color" required>
+              <option value="card-c1">Kuning (c1)</option>
+              <option value="card-c2">Hijau (c2)</option>
+              <option value="card-c3">Merah/Orange (c3)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Harga (Rp)</label>
+            <input type="number" id="menu-price" required placeholder="Contoh: 45000" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deskripsi Singkat</label>
+          <textarea id="menu-desc" rows="3" required placeholder="Deskripsi makanan..."></textarea>
+        </div>
+
+        <div class="form-group" style="display:flex; align-items:center; gap: 8px;">
+          <input type="checkbox" id="menu-active" checked style="width:16px; height:16px; cursor:pointer;" />
+          <label for="menu-active" style="margin:0; cursor:pointer;">Menu Aktif (Tampil di aplikasi)</label>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel">Batal</button>
+          <button type="submit" class="btn-save" id="btn-save">Simpan Menu</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="order-detail-modal">
+    <div class="modal-content" style="max-width: 600px; padding: 2rem;">
+      <button id="btn-close-order-detail" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--admin-subtext);">&times;</button>
+      <h2 class="modal-title" style="margin-bottom: 1.5rem;">Detail Pesanan</h2>
+      <div id="order-detail-body" style="font-size: 0.95rem; color: var(--admin-text); line-height: 1.6;">
+        <!-- Order details injected here via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODAL EDIT PELANGGAN ── -->
+  <div class="modal-overlay" id="customer-modal">
+    <div class="modal-content" style="max-width: 650px;">
+      <h2 class="modal-title">Edit Profil Pelanggan</h2>
+      <form id="customer-form" class="modal-form">
+        <input type="hidden" id="customer-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nama Depan</label>
+            <input type="text" id="cust-first-name" required placeholder="Contoh: Budi" />
+          </div>
+          <div class="form-group">
+            <label>Nama Belakang</label>
+            <input type="text" id="cust-last-name" placeholder="Contoh: Pratama" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email (Tidak dapat diubah)</label>
+            <input type="email" id="cust-email" readonly style="background-color:#f1f5f9; cursor:not-allowed;" />
+          </div>
+          <div class="form-group">
+            <label>No. Kontak / WhatsApp</label>
+            <input type="tel" id="cust-phone" required placeholder="Contoh: 08123456789" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kota</label>
+            <input type="text" id="cust-kota" placeholder="Contoh: Jakarta Selatan" />
+          </div>
+          <div class="form-group">
+            <label>Kecamatan</label>
+            <input type="text" id="cust-kecamatan" placeholder="Contoh: Kebayoran Baru" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kelurahan</label>
+            <input type="text" id="cust-kelurahan" placeholder="Contoh: Gandaria Utara" />
+          </div>
+          <div class="form-group">
+            <label>Kode Pos</label>
+            <input type="text" id="cust-kodepos" placeholder="Contoh: 12140" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Alamat Otomatis (Map/Koordinat)</label>
+          <input type="text" id="cust-address-auto" placeholder="Alamat otomatis dari map..." />
+        </div>
+
+        <div class="form-group">
+          <label>Detail Alamat (Nama Jalan, No. Rumah, Blok)</label>
+          <textarea id="cust-address-detail" rows="3" placeholder="Contoh: Jl. Mawar No. 4, RT 02/RW 03"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" id="btn-cancel-customer">Batal</button>
+          <button type="submit" class="btn-save" id="btn-save-customer">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast">
+    <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+    </svg>
+    <span id="toast-msg">Berhasil!</span>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+/* ═══════════════════════════════════════════
+   contact.css — Halaman Kontak Dapur Lodeh
+   Mewarisi style.css (variabel & reset utama)
+   ═══════════════════════════════════════════ */
+
+.contact-page {
+  background: var(--cream);
+  min-height: 100vh;
+}
+
+.contact-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 120px 2rem 60px;
+}
+
+/* Header Halaman */
+.contact-header {
+  text-align: center;
+  max-width: 650px;
+  margin: 0 auto 3rem;
+}
+
+.contact-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.15;
+  margin-bottom: 0.6rem;
+}
+
+.contact-subtitle {
+  font-size: 1.05rem;
+  color: var(--warm-gray);
+  line-height: 1.6;
+}
+
+/* Layout Simple Centered */
+.simple-contact-wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.contact-card.simple-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 10px 35px rgba(92, 51, 23, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.contact-card.simple-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 45px rgba(92, 51, 23, 0.08);
+}
+
+.card-title-sub {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1.5px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.card-title-sub svg {
+  color: var(--orange);
+}
+
+/* Alamat & Informasi */
+.contact-info-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+  margin-bottom: 2.5rem;
+}
+
+.info-item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.info-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(232, 98, 26, 0.08);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.info-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--warm-gray);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--dark);
+  line-height: 1.5;
+}
+
+/* Action Buttons */
+.simple-card-actions {
+  display: flex;
+  gap: 1.2rem;
+  width: 100%;
+}
+
+.btn-wa-simple {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: #25D366;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(37, 211, 102, 0.15);
+}
+
+.btn-wa-simple:hover {
+  background: #128C7E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(18, 140, 126, 0.25);
+}
+
+.btn-maps-simple {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--orange);
+  border: none;
+  padding: 14px 24px;
+  border-radius: 100px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(232, 98, 26, 0.15);
+}
+
+.btn-maps-simple:hover {
+  background: var(--brown);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(92, 51, 23, 0.25);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .contact-container {
+    padding-top: 100px;
+  }
+  
+  .contact-title {
+    font-size: 2.3rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .contact-card.simple-card {
+    padding: 2rem;
+  }
+  
+  .simple-card-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .btn-wa-simple, .btn-maps-simple {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
