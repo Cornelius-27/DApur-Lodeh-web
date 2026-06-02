@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cravings — Menu</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="menu.css" />
 </head>
+
 <body class="menu-page">
 
   <nav>
@@ -45,9 +49,9 @@
         <h2 class="menu-content-title">Semua Menu</h2>
         <div class="category-tabs" id="cat-tabs">
           <button class="cat-tab active" data-cat="all">Semua</button>
-          <button class="cat-tab" data-cat="noodles">Mie</button>
-          <button class="cat-tab" data-cat="rice">Nasi</button>
-          <button class="cat-tab" data-cat="drinks">Minuman</button>
+          <button class="cat-tab" data-cat="nasi_mie">Nasi dan Mie</button>
+          <button class="cat-tab" data-cat="side_dish">Side Dish</button>
+          <button class="cat-tab" data-cat="minuman">Minuman</button>
         </div>
       </div>
 
@@ -63,14 +67,15 @@
       <!-- ── VIEW 1: CART (Keranjang Pesanan) ── -->
       <div id="cart-view" class="sidebar-pane active">
         <p class="sidebar-title" style="display: flex; align-items: center; gap: 8px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-title-icon" style="color: var(--orange);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" class="sidebar-title-icon" style="color: var(--orange);">
             <circle cx="9" cy="21" r="1"></circle>
             <circle cx="20" cy="21" r="1"></circle>
             <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
           </svg>
           Keranjang Belanja
         </p>
-        
+
         <div class="cart-items-container" id="cart-items-list">
           <!-- Dinamis oleh JS: list item di keranjang -->
         </div>
@@ -83,9 +88,9 @@
 
         <!-- Total Box -->
         <div class="order-total-box" style="margin-top: 1.5rem;">
-          <div class="total-row"><span>Subtotal</span>      <span id="cart-subtotal">Rp 0</span></div>
-          <div class="total-row"><span>Ongkir</span>        <span>Rp 10k</span></div>
-          <div class="total-row main"><span>Total</span>    <span id="cart-grand">Rp 0</span></div>
+          <div class="total-row"><span>Subtotal</span> <span id="cart-subtotal">Rp 0</span></div>
+          <div class="total-row"><span>Ongkir</span> <span>Rp 10k</span></div>
+          <div class="total-row main"><span>Total</span> <span id="cart-grand">Rp 0</span></div>
         </div>
 
         <button class="btn-order" id="btn-submit-order" style="margin-top: 1.5rem;">
@@ -96,22 +101,29 @@
 
       <!-- ── VIEW 2: CONFIGURE ITEM (Kustomisasi Menu) ── -->
       <div id="configure-view" class="sidebar-pane">
-        <div class="configure-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
+        <div class="configure-header"
+          style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.2rem;">
           <p class="sidebar-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-title-icon" style="color: var(--orange);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" class="sidebar-title-icon" style="color: var(--orange);">
               <circle cx="12" cy="12" r="3"></circle>
-              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+              <path
+                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z">
+              </path>
             </svg>
             Kustomisasi
           </p>
-          <button id="btn-back-to-cart" class="cat-tab" style="font-size: 0.75rem; border-radius: 100px; padding: 5px 12px; border: 1.5px solid var(--border);">← Kembali</button>
+          <button id="btn-back-to-cart" class="cat-tab"
+            style="font-size: 0.75rem; border-radius: 100px; padding: 5px 12px; border: 1.5px solid var(--border);">←
+            Kembali</button>
         </div>
 
         <!-- Selected item card -->
         <div class="selected-item-card" id="selected-card">
           <div class="selected-item-top">
             <div class="selected-item-emoji" id="sel-emoji-box">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity: 0.4;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round" class="card-placeholder-svg" style="opacity: 0.4;">
                 <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
                 <path d="M7 2v20"></path>
                 <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
@@ -119,14 +131,14 @@
             </div>
             <div class="selected-item-info">
               <p class="selected-item-name" id="sel-name">—</p>
-              <p class="selected-item-cat"  id="sel-cat">—</p>
+              <p class="selected-item-cat" id="sel-cat">—</p>
             </div>
           </div>
           <div class="qty-row">
             <div class="qty-controls">
               <button class="qty-btn" id="qty-minus">−</button>
-              <span   class="qty-num"  id="qty-num">1</span>
-              <button class="qty-btn"  id="qty-plus">+</button>
+              <span class="qty-num" id="qty-num">1</span>
+              <button class="qty-btn" id="qty-plus">+</button>
             </div>
             <span class="item-subtotal" id="item-subtotal">Rp 0</span>
           </div>
@@ -144,7 +156,55 @@
           <span>Tambah ke Pesanan</span>
         </button>
       </div>
+
     </aside>
+
+  </div>
+
+  <!-- ── MODAL DETAIL ITEM ── -->
+  <div class="payment-modal" id="item-modal">
+    <div class="payment-card" style="padding: 0; overflow: hidden; max-width: 480px;">
+      <div style="position: relative;">
+        <img id="modal-item-img" src="" alt="Item"
+          style="width: 100%; height: 260px; object-fit: cover; display: none;">
+        <div id="modal-item-emoji-box"
+          style="width: 100%; height: 260px; display: flex; align-items: center; justify-content: center; background: var(--card-bg); font-size: 5rem;">
+        </div>
+        <button id="btn-close-item-modal" class="btn-close-payment"
+          style="position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.8); width: 36px; height: 36px; border-radius: 50%;">×</button>
+      </div>
+      <div style="padding: 1.5rem 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+          <div>
+            <p id="modal-item-cat" class="card-tag" style="margin-bottom: 4px;">Kategori</p>
+            <h2 id="modal-item-name" class="payment-title" style="font-size: 1.6rem;">Nama Menu</h2>
+          </div>
+          <p id="modal-item-price" style="font-size: 1.25rem; font-weight: 700; color: var(--orange);">Rp 0</p>
+        </div>
+        <p id="modal-item-desc"
+          style="font-size: 0.9rem; color: var(--warm-gray); line-height: 1.6; margin-bottom: 1.5rem;">Deskripsi menu.
+        </p>
+
+        <div class="addons-section">
+          <p class="addons-title">Tambahan</p>
+          <div class="addon-list" id="modal-addon-list">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <div
+          style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.5rem;">
+          <div class="qty-controls" style="transform: scale(1.1); transform-origin: left center;">
+            <button class="qty-btn" id="modal-qty-minus">−</button>
+            <span class="qty-num" id="modal-qty-num">1</span>
+            <button class="qty-btn" id="modal-qty-plus">+</button>
+          </div>
+          <button class="btn-order" id="btn-modal-add-to-cart" style="width: auto; padding: 12px 32px;">
+            Tambah - <span id="modal-item-subtotal">Rp 0</span>
+          </button>
+        </div>
+      </div>
+    </div>
 
   </div>
 
@@ -157,31 +217,43 @@
       </div>
 
       <!-- Detail Pesanan Ringkas -->
-      <div style="margin-bottom: 1.5rem; background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem;">
-        <p style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); margin-bottom: 0.5rem; font-weight: 600;">Total Tagihan</p>
+      <div
+        style="margin-bottom: 1.5rem; background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; padding: 1rem 1.2rem;">
+        <p
+          style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warm-gray); margin-bottom: 0.5rem; font-weight: 600;">
+          Total Tagihan</p>
         <p style="font-size: 1.6rem; font-weight: 700; color: var(--orange); margin: 0;" id="pay-modal-total">Rp 0</p>
       </div>
 
       <p class="addons-title" style="margin-bottom: 0.8rem;">Pilih Cara Bayar</p>
-      
+
       <div class="payment-options-grid">
-        <button class="payment-option-btn active" data-method="qris" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg" style="color: var(--orange);">
+        <button class="payment-option-btn active" data-method="qris"
+          style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg"
+            style="color: var(--orange);">
             <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
             <line x1="12" y1="18" x2="12.01" y2="18"></line>
           </svg>
           <span class="payment-option-name">QRIS / Gopay</span>
         </button>
-        <button class="payment-option-btn" data-method="tf" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg" style="color: var(--orange);">
+        <button class="payment-option-btn" data-method="tf"
+          style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg"
+            style="color: var(--orange);">
             <rect x="3" y="10" width="18" height="12" rx="2"></rect>
             <path d="M3 10L12 3L21 10"></path>
             <path d="M6 14v4M10 14v4M14 14v4M18 14v4"></path>
           </svg>
           <span class="payment-option-name">Transfer Bank</span>
         </button>
-        <button class="payment-option-btn" data-method="cod" style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg" style="color: var(--orange);">
+        <button class="payment-option-btn" data-method="cod"
+          style="display: flex; flex-direction: column; align-items: center; gap: 6px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round" class="payment-option-icon-svg"
+            style="color: var(--orange);">
             <rect x="1" y="3" width="15" height="13"></rect>
             <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
             <circle cx="5.5" cy="18.5" r="2.5"></circle>
@@ -196,8 +268,10 @@
         <!-- Dinamis berdasarkan cara bayar -->
       </div>
 
-      <button class="btn-order" id="btn-confirm-pay" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <button class="btn-order" id="btn-confirm-pay"
+        style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+          stroke-linecap="round" stroke-linejoin="round">
           <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
           <line x1="1" y1="10" x2="23" y2="10"></line>
         </svg>
@@ -212,4 +286,5 @@
   <script type="module" src="menu.js"></script>
 
 </body>
+
 </html>

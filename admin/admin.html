@@ -25,7 +25,8 @@
       </div>
       <ul class="sidebar-nav">
         <li class="nav-item active" data-tab="tab-menu">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
             <path d="M6 6h10"></path>
             <path d="M6 10h10"></path>
@@ -33,14 +34,16 @@
           Menu (Selasa - Jumat)
         </li>
         <li class="nav-item" data-tab="tab-orders">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
             <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
           </svg>
           Manajemen Pesanan
         </li>
         <li class="nav-item" data-tab="tab-customers">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
@@ -49,13 +52,15 @@
           Akun Pelanggan
         </li>
         <li class="nav-item" data-tab="tab-admins">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
           Akun Admin
         </li>
         <li class="nav-item" data-tab="tab-growth">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
           </svg>
           Growth Analytics
@@ -64,7 +69,9 @@
       <div class="sidebar-footer">
         <span id="admin-email" class="admin-email"
           style="display:block; margin-bottom:10px; font-size:0.8rem; overflow:hidden; text-overflow:ellipsis;">Loading...</span>
-        <a href="../homepage/index.html" class="btn-secondary" style="display:flex; justify-content:center; align-items:center; width:100%; text-decoration:none; margin-bottom:10px; box-sizing:border-box; color:var(--dark); border-color:var(--admin-border); background-color:white; padding: 10px 16px; border-radius: 8px; font-weight: 500; border: 1.5px solid var(--admin-border); transition: all 0.2s ease;">Ke Homepage</a>
+        <a href="../homepage/index.html" class="btn-secondary"
+          style="display:flex; justify-content:center; align-items:center; width:100%; text-decoration:none; margin-bottom:10px; box-sizing:border-box; color:var(--dark); border-color:var(--admin-border); background-color:white; padding: 10px 16px; border-radius: 8px; font-weight: 500; border: 1.5px solid var(--admin-border); transition: all 0.2s ease;">Ke
+          Homepage</a>
         <button id="btn-logout" class="btn-logout" style="width:100%;">Logout</button>
       </div>
     </aside>
@@ -80,9 +87,10 @@
             <p class="admin-sub">Daftar menu harian (Selasa - Jumat) di aplikasi.</p>
           </div>
           <div class="header-actions">
-            <select id="filter-collection" class="btn-secondary" style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem; margin-right: 8px;">
+            <select id="filter-collection" class="btn-secondary"
+              style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem; margin-right: 8px;">
               <option value="menus">Menu Reguler</option>
-              <option value="catering">Catering</option>
+              <option value="catering">Menu Spesial</option>
             </select>
             <select id="filter-day" class="btn-secondary"
               style="border:1px solid var(--admin-border); appearance: auto; padding-right: 2rem;">
@@ -92,9 +100,10 @@
               <option value="Kamis">Kamis</option>
               <option value="Jumat">Jumat</option>
             </select>
-            <button id="btn-init-db" class="btn-secondary" style="display:none;"
-              title="Migrasi data awal ke Firebase">Init DB (Sekali saja)</button>
-            <button id="btn-fill-images" class="btn-secondary" style="margin-right: 8px; background-color: var(--orange); color: white; border: none;">Isi Gambar Acak</button>
+
+            <button id="btn-fill-images" class="btn-secondary"
+              style="margin-right: 8px; background-color: var(--orange); color: white; border: none;">Isi Gambar
+              Acak</button>
             <button id="btn-add-menu" class="btn-primary">+ Tambah Menu</button>
           </div>
         </header>
@@ -132,7 +141,8 @@
         </header>
 
         <!-- Pesanan Sedang Dimasak -->
-        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+        <h2
+          style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
           Pesanan Sedang Dimasak
           <span class="status-pulse-dot" title="Aktif"></span>
         </h2>
@@ -158,9 +168,11 @@
         </div>
 
         <!-- Histori Pesanan -->
-        <h2 style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
+        <h2
+          style="margin-bottom: 1rem; color: var(--dark); font-size: 1.25rem; display: flex; align-items: center; gap: 8px;">
           Histori Pesanan (Selesai)
-          <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block;" title="Selesai"></span>
+          <span style="width: 8px; height: 8px; background-color: #22c55e; border-radius: 50%; display: inline-block;"
+            title="Selesai"></span>
         </h2>
         <div class="admin-card">
           <div class="table-responsive">
@@ -192,7 +204,8 @@
             <p class="admin-sub">Kelola data pelanggan yang terdaftar.</p>
           </div>
           <div class="header-actions">
-            <input type="text" id="search-customer" placeholder="Cari nama atau email..." class="btn-secondary" style="border:1px solid var(--admin-border); padding: 8px 16px; border-radius: 8px; width: 250px;" />
+            <input type="text" id="search-customer" placeholder="Cari nama atau email..." class="btn-secondary"
+              style="border:1px solid var(--admin-border); padding: 8px 16px; border-radius: 8px; width: 250px;" />
           </div>
         </header>
         <div class="admin-card">
@@ -256,8 +269,14 @@
             <p class="admin-sub">Pantau grafik pertumbuhan pesanan, pendapatan, dan item terlaris.</p>
           </div>
           <div class="header-actions">
-            <button id="btn-export-revenue" class="btn-primary" style="padding: 8px 16px; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px; background: #10B981;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <button id="btn-export-revenue" class="btn-primary"
+              style="padding: 8px 16px; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px; background: #10B981;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
               Export ke Excel
             </button>
           </div>
@@ -270,11 +289,13 @@
               <canvas id="chart-orders-trend"></canvas>
             </div>
           </div>
-          
+
           <div class="admin-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
               <h2 style="font-size: 1.1rem; color: var(--dark); margin: 0;">Total Pendapatan Keseluruhan</h2>
-              <span id="grand-total-revenue" style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px;">Rp 0</span>
+              <span id="grand-total-revenue"
+                style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px;">Rp
+                0</span>
             </div>
             <div class="table-responsive" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
               <table class="menu-table" style="margin: 0;">
@@ -285,7 +306,9 @@
                   </tr>
                 </thead>
                 <tbody id="revenue-list-tbody">
-                  <tr><td colspan="2" class="text-center">Memuat rincian pendapatan...</td></tr>
+                  <tr>
+                    <td colspan="2" class="text-center">Memuat rincian pendapatan...</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -311,13 +334,28 @@
         <input type="hidden" id="menu-id" />
 
         <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label>Tipe Menu</label>
+            <select id="menu-type" required>
+              <option value="menus">Menu Reguler</option>
+              <option value="catering">Menu Spesial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
           <div class="form-group">
             <label>Nama Menu</label>
             <input type="text" id="menu-name" required placeholder="Contoh: Nasi Goreng Spesial" />
           </div>
-          <div class="form-group">
-            <label>URL Gambar</label>
-            <input type="url" id="menu-image-url" placeholder="https://..." />
+          <div class="form-group" style="display:flex; flex-direction:column; gap:8px;">
+            <label>Foto Produk</label>
+            <div style="display:flex; gap:12px; align-items:center;">
+              <img id="menu-image-preview" src="" alt="Preview" style="width:60px; height:60px; object-fit:cover; border-radius:8px; border:1px solid var(--admin-border); display:none;" />
+              <input type="file" id="menu-image-file" accept="image/png, image/jpeg, image/jpg" style="font-size:0.85rem;" />
+            </div>
+            <!-- Menyimpan URL lama / base64 tersembunyi -->
+            <input type="hidden" id="menu-image-url" />
           </div>
         </div>
 
@@ -325,11 +363,9 @@
           <div class="form-group">
             <label>Kategori</label>
             <select id="menu-cat" required>
-              <option value="noodles">Spesial Selasa</option>
-              <option value="salad">Spesial Rabu</option>
-              <option value="burger">Spesial Kamis</option>
-              <option value="rice">Spesial Jumat</option>
-              <option value="drinks">Menu Bebas (Semua Hari)</option>
+              <option value="nasi_mie">Nasi dan Mie</option>
+              <option value="side_dish">Side Dish</option>
+              <option value="minuman">Minuman</option>
             </select>
           </div>
           <div class="form-group">
@@ -354,6 +390,16 @@
           <textarea id="menu-desc" rows="3" required placeholder="Deskripsi makanan..."></textarea>
         </div>
 
+        <div class="form-group">
+          <label style="display:flex; justify-content:space-between; align-items:center;">
+            Kustomisasi / Tambahan (Opsional)
+            <button type="button" id="btn-add-addon" class="btn-secondary" style="font-size:0.8rem; padding:4px 8px;">+ Tambah</button>
+          </label>
+          <div id="addons-container" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+            <!-- Addon rows will be injected here by JS -->
+          </div>
+        </div>
+
         <div class="form-group" style="display:flex; align-items:center; gap: 8px;">
           <input type="checkbox" id="menu-active" checked style="width:16px; height:16px; cursor:pointer;" />
           <label for="menu-active" style="margin:0; cursor:pointer;">Menu Aktif (Tampil di aplikasi)</label>
@@ -369,7 +415,8 @@
 
   <div class="modal-overlay" id="order-detail-modal">
     <div class="modal-content" style="max-width: 600px; padding: 2rem;">
-      <button id="btn-close-order-detail" style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--admin-subtext);">&times;</button>
+      <button id="btn-close-order-detail"
+        style="position: absolute; top: 15px; right: 15px; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--admin-subtext);">&times;</button>
       <h2 class="modal-title" style="margin-bottom: 1.5rem;">Detail Pesanan</h2>
       <div id="order-detail-body" style="font-size: 0.95rem; color: var(--admin-text); line-height: 1.6;">
         <!-- Order details injected here via JS -->
@@ -447,7 +494,8 @@
   </div>
 
   <div id="toast">
-    <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <svg style="width: 18px; height: 18px; stroke: currentColor; fill: none;" viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
     </svg>
     <span id="toast-msg">Berhasil!</span>

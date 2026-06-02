@@ -487,8 +487,25 @@
 /* Menu items grid */
 .menu-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+
+/* Adjustments for 3-column layout to make cards less tall */
+.menu-grid .card-img {
+  height: 160px;
+}
+
+.menu-grid .card-body {
+  padding: 1rem 1rem 1.2rem;
+}
+
+.menu-grid .card-desc {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 0.8rem;
 }
 
 /* Custom override for food-card when selected in Menu */
