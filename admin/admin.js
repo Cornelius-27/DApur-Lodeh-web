@@ -14,6 +14,118 @@ let ADMIN_EMAILS = [];
 let ALL_ORDERS = [];
 let ALL_CUSTOMERS = [];
 
+const MENU_METADATA = {
+  "Perkedel kornet": {
+    desc: "Perkedel kentang lembut khas Dapur Lodeh, dipadukan dengan kornet sapi gurih berkualitas dan rempah pilihan, digoreng keemasan dengan balutan telur tipis yang renyah.",
+    imageUrl: "../assets/Perkedel kornet.jpg"
+  },
+  "Tumis sayur asin": {
+    desc: "Sayur asin segar pilihan yang ditumis dengan bawang putih harum, potongan cabai merah, dan bumbu gurih yang meresap sempurna, memberikan sensasi asam-asin-gurih yang menyegarkan.",
+    imageUrl: "../assets/Tumis sayur asin.jpg"
+  },
+  "Bihun goreng": {
+    desc: "Bihun jagung lembut yang digoreng dengan kecap manis legendaris, telur orak-arik, sayuran segar, bawang merah goreng, dan racikan bumbu khas Dapur Lodeh yang aromatik.",
+    imageUrl: "../assets/Bihun goreng.jpg"
+  },
+  "Pepes ikan kembung": {
+    desc: "Ikan kembung segar yang dibalur dengan bumbu kuning kaya rempah (kunyit, kemiri, serai, daun kemangi), dibungkus daun pisang lalu dikukus dan dipanggang hingga harum merebak.",
+    imageUrl: "../assets/Pepes ikan kembung.jpg"
+  },
+  "Bakwan jagung": {
+    desc: "Jagung manis pipil renyah dalam adonan tepung bumbu ketumbar dan daun bawang segar, digoreng garing hingga berwarna cokelat keemasan yang menggoda selera.",
+    imageUrl: "../assets/Bakwan jagung.jpg"
+  },
+  "Sayur lodeh": {
+    desc: "Kuah santan gurih beraroma ketumbar dan daun salam, berisi aneka sayuran segar (labu siam, kacang panjang, nangka muda, melinjo) yang dimasak perlahan hingga bumbu meresap sempurna.",
+    imageUrl: "../assets/Sayur lodeh.jpg"
+  },
+  "Nasi kuning": {
+    desc: "Nasi aromatik yang dimasak dengan kunyit segar, santan kental, serai, dan daun jeruk, menghasilkan nasi kuning pulen yang wangi, gurih, dan lezat.",
+    imageUrl: "../assets/Nasi kuning.jpg"
+  },
+  "Tongkol balado": {
+    desc: "Potongan ikan tongkol goreng gurih yang diselimuti sambal balado merah pedas-manis buatan rumah, dimasak dengan perasan jeruk nipis dan daun jeruk aromatik.",
+    imageUrl: "../assets/Tongkol balado.jpg"
+  },
+  "Telor asin": {
+    desc: "Telur bebek pilihan yang diasinkan dengan metode tradisional abu gosok dan garam mineral, menghasilkan kuning telur masir berminyak yang gurih dan tekstur putih telur yang pas.",
+    imageUrl: "../assets/Telor asin.jpg"
+  },
+  "Terong balado": {
+    desc: "Terong ungu lembut yang digoreng cepat dan disajikan dengan siraman sambal balado merah khas Minang yang melimpah, pedas, manis, dan menggugah selera.",
+    imageUrl: "../assets/Terong balado.jpg"
+  },
+  "Telor balado": {
+    desc: "Telur ayam rebus yang digoreng sebentar hingga berkulit, lalu dibalur dengan sambal balado pedas manis yang meresap hingga ke dalam.",
+    imageUrl: "../assets/Telor balado.jpg"
+  },
+  "Es Jeruk Peras": {
+    desc: "Minuman dingin penyegar dahaga dari jeruk peras asli berkualitas tinggi, dipadukan dengan sedikit sirup gula murni dan es batu melimpah.",
+    imageUrl: "../assets/Es jeruk peras.jpg"
+  },
+  "Cukiok": {
+    desc: "Cukiok (kaki babi) yang dimasak perlahan (slow-cooked) dengan kecap asin premium, pekak, kayu manis, dan bumbu rempah tradisional Cina hingga dagingnya empuk, lembut, dan kaya rasa.",
+    imageUrl: "../assets/Cukiok.jpg"
+  },
+  "Lontong sayur": {
+    desc: "Kombinasi lontong pulen berbalut kuah lodeh santan gurih yang sedikit pedas, disajikan dengan sayur labu siam, tahu, dan kerupuk renyah.",
+    imageUrl: "../assets/Lontong sayur.jpeg"
+  },
+  "Sayur asem": {
+    desc: "Sayur sup asam khas Sunda dengan kuah asam-segar dari asam jawa asli, berisi jagung manis, kacang tanah, labu siam, daun melinjo, dan kacang panjang.",
+    imageUrl: "../assets/Sayur asem.jpg"
+  },
+  "Kari ayam": {
+    desc: "Potongan ayam lembut dalam kuah kari kuning kental kaya rempah (kapulaga, jintan, kunyit) yang gurih, harum, dan sedikit pedas hangat.",
+    imageUrl: "../assets/Kari ayam.jpg"
+  },
+  "Sop ayam kampung ham maling": {
+    desc: "Sup kaldu ayam kampung premium yang hangat dan gurih, dimasak bersama potongan daging ayam empuk, wortel, kentang, dan luncheon meat berkualitas tinggi.",
+    imageUrl: "../assets/Sop ayam kampung ham maling.jpg"
+  },
+  "Tahu semur": {
+    desc: "Tahu sutra lembut yang menyerap kuah semur manis gurih legendaris dengan aroma rempah tradisional pala dan cengkeh yang khas.",
+    imageUrl: "../assets/Tahu semur.jpg"
+  },
+  "Telor semur": {
+    desc: "Telur rebus yang dimasak perlahan dalam kuah semur kecap manis kental yang kaya akan bumbu rempah pala, cengkeh, dan bawang merah goreng.",
+    imageUrl: "../assets/Telor semur.jpg"
+  },
+  "Sambel godog udang pete": {
+    desc: "Udang segar bertekstur kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
+    imageUrl: "../assets/Sambel godog udang pete.jpg"
+  },
+  "Nasi uduk": {
+    desc: "Nasi gurih khas Betawi yang ditanak dengan santan melimpah, daun salam, cengkeh, serai, dan jahe, disajikan hangat dengan taburan bawang goreng harum.",
+    imageUrl: "../assets/Nasi uduk.jpg"
+  },
+  "Tumis sawi putih": {
+    desc: "Sawi putih segar bertekstur renyah ditumis cepat dengan irisan bawang merah, bawang putih, cabai, dan kaldu jamur gurih yang ringan namun lezat.",
+    imageUrl: "../assets/Tumis sawi putih.jpg"
+  },
+  "Sop kembang tahu ayam kampung": {
+    desc: "Sup kaldu ayam kampung murni yang hangat dan gurih, dilengkapi dengan lembaran kembang tahu lembut, wortel manis, dan taburan daun seledri segar.",
+    imageUrl: "../assets/Sop kembang tahu ayam kampung.jpeg"
+  },
+  "Ikan kembung goreng": {
+    desc: "Ikan kembung segar dibumbui ketumbar dan kunyit, digoreng garing di luar namun tetap lembut dan manis dagingnya di dalam.",
+    imageUrl: "../assets/Ikan kembung goreng.jpg"
+  },
+  "Tumis toge": {
+    desc: "Toge segar renyah ditumis singkat (high heat) bersama irisan tahu kuning, kucai, bawang putih, dan sedikit kecap asin untuk mempertahankan kesegarannya.",
+    imageUrl: "../assets/Tumis toge.jpg"
+  },
+  "Tahu balado": {
+    desc: "Tahu putih goreng berkulit lembut disiram dengan sambal balado merah pedas gurih buatan rumah yang harum aroma daun jeruknya.",
+    imageUrl: "../assets/Tahu balado.jpg"
+  },
+  "Ayam goreng": {
+    desc: "Ayam ungkep bumbu kuning tradisional yang digoreng garing keemasan dengan taburan serundeng lengkuas gurih yang melimpah.",
+    imageUrl: "../assets/Ayam goreng.avif"
+  }
+};
+
+
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
 const btnLogout = document.getElementById("btn-logout");
@@ -81,12 +193,14 @@ onAuthStateChanged(auth, async user => {
       
       const kamis = ["Nasi kuning", "Sayur lodeh", "Bihun goreng", "Telor balado", "Telor asin", "Perkedel kornet", "Tumis sawi putih", "Sop kembang tahu ayam kampung", "Ikan kembung goreng", "Cukiok"];
       for (const name of kamis) {
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
+        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: meta.desc, isActive: true, addons: [] });
       }
 
       const jumat = ["Lontong sayur", "Sayur asem", "Kari ayam", "Sop ayam kampung ham maling", "Telor asin", "Telor semur", "Tahu semur", "Sambel godog udang pete", "Perkedel kornet", "Bakwan jagung"];
       for (const name of jumat) {
-        await addDoc(collection(db, "menus"), { name, imageUrl: "", cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: "Menu lezat Dapur Lodeh", isActive: true, addons: [] });
+        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
+        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: meta.desc, isActive: true, addons: [] });
       }
       
       localStorage.setItem("seeded_menus_kamis_jumat", "true");
@@ -361,66 +475,32 @@ btnInitDb.addEventListener("click", async () => {
   btnInitDb.disabled = true;
 
   const MENU_DATA = [
-    {
-      name: "Spicy Ramen Bowl",
-      cat: "noodles",
-      catLabel: "Mie",
-      emoji: "🍜",
-      colorClass: "card-c1",
-      price: 65000,
-      desc: "Tonkotsu kental, chashu pork, telur lembut, mie hand-pulled.",
-      addons: [{ name: "Telur tambahan", price: 5000 }, { name: "Extra chashu", price: 12000 }]
-    },
-    {
-      name: "Mie Goreng Spesial",
-      cat: "noodles",
-      catLabel: "Mie",
-      emoji: "🍝",
-      colorClass: "card-c1",
-      price: 45000,
-      desc: "Mie goreng bumbu khas dengan telur mata sapi dan kerupuk.",
-      addons: [{ name: "Ayam suwir", price: 8000 }, { name: "Seafood mix", price: 15000 }]
-    },
-    {
-      name: "Garden Harvest Bowl",
-      cat: "salad",
-      catLabel: "Salad",
-      emoji: "🥗",
-      colorClass: "card-c2",
-      price: 52000,
-      desc: "Romaine crispy, chickpeas panggang, alpukat, tahini dressing.",
-      addons: [{ name: "Tambah protein ayam", price: 10000 }]
-    },
-    {
-      name: "Double Smash Burger",
-      cat: "burger",
-      catLabel: "Burger",
-      emoji: "🍔",
-      colorClass: "card-c3",
-      price: 78000,
-      desc: "Dua smashed patty, keju american, acar, house sauce, brioche.",
-      addons: [{ name: "Tambah patty", price: 20000 }, { name: "Keju extra", price: 6000 }]
-    },
-    {
-      name: "Nasi Goreng Kampung",
-      cat: "rice",
-      catLabel: "Nasi",
-      emoji: "🍳",
-      colorClass: "card-c1",
-      price: 42000,
-      desc: "Nasi goreng bumbu tradisional, telur dadar, acar, kerupuk.",
-      addons: [{ name: "Ayam goreng", price: 12000 }]
-    },
-    {
-      name: "Es Jeruk Peras",
-      cat: "drinks",
-      catLabel: "Minuman",
-      emoji: "🍊",
-      colorClass: "card-c3",
-      price: 18000,
-      desc: "Jeruk segar diperas langsung, gula aren, es batu banyak.",
-      addons: [{ name: "Ukuran besar", price: 5000 }]
-    }
+    // Selasa (noodles / Mie)
+    { name: "Perkedel kornet", cat: "noodles", catLabel: "Mie", emoji: "🥔", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
+    { name: "Tumis sayur asin", cat: "noodles", catLabel: "Mie", emoji: "🥬", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tumis sayur asin"].desc, imageUrl: MENU_METADATA["Tumis sayur asin"].imageUrl, addons: [] },
+    { name: "Bihun goreng", cat: "noodles", catLabel: "Mie", emoji: "🍜", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bihun goreng"].desc, imageUrl: MENU_METADATA["Bihun goreng"].imageUrl, addons: [] },
+    { name: "Pepes ikan kembung", cat: "noodles", catLabel: "Mie", emoji: "🐟", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Pepes ikan kembung"].desc, imageUrl: MENU_METADATA["Pepes ikan kembung"].imageUrl, addons: [] },
+    { name: "Bakwan jagung", cat: "noodles", catLabel: "Mie", emoji: "🌽", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
+    { name: "Sayur lodeh", cat: "noodles", catLabel: "Mie", emoji: "🥣", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Sayur lodeh"].desc, imageUrl: MENU_METADATA["Sayur lodeh"].imageUrl, addons: [] },
+    { name: "Nasi kuning", cat: "noodles", catLabel: "Mie", emoji: "🍚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Nasi kuning"].desc, imageUrl: MENU_METADATA["Nasi kuning"].imageUrl, addons: [] },
+    { name: "Tongkol balado", cat: "noodles", catLabel: "Mie", emoji: "🌶️", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tongkol balado"].desc, imageUrl: MENU_METADATA["Tongkol balado"].imageUrl, addons: [] },
+    { name: "Telor asin", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
+    { name: "Terong balado", cat: "noodles", catLabel: "Mie", emoji: "🍆", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Terong balado"].desc, imageUrl: MENU_METADATA["Terong balado"].imageUrl, addons: [] },
+    { name: "Telor balado", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
+
+    // Rabu (salad / Salad)
+    { name: "Bakwan jagung", cat: "salad", catLabel: "Salad", emoji: "🌽", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
+    { name: "Tumis toge", cat: "salad", catLabel: "Salad", emoji: "🌱", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tumis toge"].desc, imageUrl: MENU_METADATA["Tumis toge"].imageUrl, addons: [] },
+    { name: "Telor balado", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
+    { name: "Perkedel kornet", cat: "salad", catLabel: "Salad", emoji: "🥔", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
+    { name: "Telor asin", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
+    { name: "Tahu balado", cat: "salad", catLabel: "Salad", emoji: "⬜", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tahu balado"].desc, imageUrl: MENU_METADATA["Tahu balado"].imageUrl, addons: [] },
+    { name: "Sayur asem", cat: "salad", catLabel: "Salad", emoji: "🥣", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Sayur asem"].desc, imageUrl: MENU_METADATA["Sayur asem"].imageUrl, addons: [] },
+    { name: "Ayam goreng", cat: "salad", catLabel: "Salad", emoji: "🍗", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Ayam goreng"].desc, imageUrl: MENU_METADATA["Ayam goreng"].imageUrl, addons: [] },
+    { name: "Nasi uduk", cat: "salad", catLabel: "Salad", emoji: "🍚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Nasi uduk"].desc, imageUrl: MENU_METADATA["Nasi uduk"].imageUrl, addons: [] },
+
+    // Minuman (drinks)
+    { name: "Es Jeruk Peras", cat: "drinks", catLabel: "Minuman", emoji: "🍊", colorClass: "card-c3", price: 18000, desc: MENU_METADATA["Es Jeruk Peras"].desc, imageUrl: MENU_METADATA["Es Jeruk Peras"].imageUrl, addons: [] }
   ];
 
   try {
