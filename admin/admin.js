@@ -92,7 +92,7 @@ const MENU_METADATA = {
     imageUrl: "../assets/Telor semur.jpg"
   },
   "Sambel godog udang pete": {
-    desc: "Udang segar bertekstur kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
+    desc: "Udang segar bertekak kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
     imageUrl: "../assets/Sambel godog udang pete.jpg"
   },
   "Nasi uduk": {
@@ -121,10 +121,14 @@ const MENU_METADATA = {
   },
   "Ayam goreng": {
     desc: "Ayam ungkep bumbu kuning tradisional yang digoreng garing keemasan dengan taburan serundeng lengkuas gurih yang melimpah.",
-    imageUrl: "../assets/Ayam goreng.avif"
+    imageUrl: "../assets/Ayam goreng.jpg"
   }
 };
 
+// Variabel referensi Chart.js
+let chartOrdersTrend = null;
+let chartRevenueTrend = null;
+let chartTopItems = null;
 
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
@@ -386,6 +390,7 @@ function closeModal() {
 btnCancel.addEventListener("click", closeModal);
 btnAddMenu.addEventListener("click", () => openModal());
 
+menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
   const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
@@ -653,6 +658,9 @@ async function loadOrders() {
 
     renderOrdersTable(activeOrders, activeTbody, true);
     renderOrdersTable(historyOrders, historyTbody, false);
+    
+    // Render grafik pertumbuhan
+    renderGrowthCharts(ALL_ORDERS);
   } catch (error) {
     console.error("Error loading orders:", error);
     activeTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat pesanan</td></tr>`;
@@ -689,29 +697,30 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
     }
 
     // Status Badge di bawah total
-    const currentPaymentStatus = order.paymentStatus || "Unpaid";
+    const currentPaymentStatus = !isActiveSection ? "Paid" : (order.paymentStatus || "Unpaid");
     const currentOrderStatus = order.status || "Pending";
 
     let actionHtml = "";
     if (isActiveSection) {
+      let workflowButton = "";
+      if (currentPaymentStatus === "Unpaid") {
+        workflowButton = `<button class="btn-confirm-payment" data-id="${order.id}" style="background-color: #f59e0b; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Konfirmasi Pembayaran</button>`;
+      } else if (currentOrderStatus !== "Delivered") {
+        workflowButton = `<button class="btn-ready-deliver" data-id="${order.id}" style="background-color: #3b82f6; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.85rem; width: 100%;">Siap Diantar</button>`;
+      }
+
       actionHtml = `
-        <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
-          <select class="select-payment-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Unpaid" ${currentPaymentStatus === "Unpaid" ? "selected" : ""}>Belum Bayar</option>
-            <option value="Paid" ${currentPaymentStatus === "Paid" ? "selected" : ""}>Sudah Bayar</option>
-          </select>
-          <select class="select-order-status" data-id="${order.id}" style="padding:4px; border-radius:4px; border:1px solid #ccc;">
-            <option value="Pending" ${currentOrderStatus === "Pending" ? "selected" : ""}>Pending (Dimasak)</option>
-            <option value="Processing" ${currentOrderStatus === "Processing" ? "selected" : ""}>Processing (Dikirim)</option>
-            <option value="Delivered" ${currentOrderStatus === "Delivered" ? "selected" : ""}>Delivered (Selesai)</option>
-          </select>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+          ${workflowButton}
+          <button class="btn-detail-order" data-id="${order.id}" style="width:100%; margin: 0;">Detail</button>
         </div>
-        <button class="btn-detail-order" data-id="${order.id}" style="width:100%;">Detail</button>
       `;
     } else {
       actionHtml = `
-        <span class="badge-delivered">Delivered</span>
-        <button class="btn-detail-order" style="margin-top:8px; width:100%;" data-id="${order.id}">Detail</button>
+        <div style="display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: flex-start;">
+          <span class="badge-delivered">Delivered</span>
+          <button class="btn-detail-order" style="width:100%; margin: 0;" data-id="${order.id}">Detail</button>
+        </div>
       `;
     }
 
@@ -737,36 +746,42 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
       <td class="td-actions" style="vertical-align:top;">${actionHtml}</td>
     `;
     tbody.appendChild(tr);
+
+    const trDetail = document.createElement("tr");
+    trDetail.id = `detail-row-${order.id}`;
+    trDetail.style.display = "none";
+    trDetail.innerHTML = `<td colspan="5" style="padding:0; border:none;"><div id="detail-content-${order.id}" class="slide-detail-container"></div></td>`;
+    tbody.appendChild(trDetail);
   });
 
   // Event Listener untuk update status
   if (isActiveSection) {
-    tbody.querySelectorAll(".select-payment-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-confirm-payment").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { paymentStatus: newStatus });
-          showToast("Status pembayaran diperbarui!");
+          // Update status pembayaran jadi Paid dan status pesanan jadi Processing
+          await updateDoc(doc(db, "orders", orderId), { paymentStatus: "Paid", status: "Processing" });
+          showToast("Pembayaran dikonfirmasi!");
           loadOrders(); // Refresh table
         } catch (err) {
-          console.error("Gagal update payment status", err);
-          alert("Gagal update status pembayaran.");
+          console.error("Gagal konfirmasi pembayaran", err);
+          alert("Gagal mengonfirmasi pembayaran.");
         }
       });
     });
 
-    tbody.querySelectorAll(".select-order-status").forEach(sel => {
-      sel.addEventListener("change", async (e) => {
+    tbody.querySelectorAll(".btn-ready-deliver").forEach(btn => {
+      btn.addEventListener("click", async (e) => {
         const orderId = e.target.dataset.id;
-        const newStatus = e.target.value;
         try {
-          await updateDoc(doc(db, "orders", orderId), { status: newStatus });
-          showToast("Status pesanan diperbarui!");
+          // Update status pesanan jadi Delivered
+          await updateDoc(doc(db, "orders", orderId), { status: "Delivered" });
+          showToast("Pesanan selesai (Delivered)!");
           loadOrders(); // Refresh table
         } catch (err) {
           console.error("Gagal update order status", err);
-          alert("Gagal update status pesanan.");
+          alert("Gagal menyelesaikan pesanan.");
         }
       });
     });
@@ -776,17 +791,43 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
 // Event Listener global untuk tombol "Detail"
 document.addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-detail-order")) {
-    openOrderDetail(e.target.dataset.id);
+    const orderId = e.target.dataset.id;
+    const detailRow = document.getElementById(`detail-row-${orderId}`);
+    const contentContainer = document.getElementById(`detail-content-${orderId}`);
+
+    const isCurrentlyClosed = detailRow.style.display === "none";
+
+    // 1. Tutup semua detail yang sedang terbuka
+    document.querySelectorAll(".slide-detail-container.open").forEach(openContainer => {
+      openContainer.classList.remove("open");
+      const row = openContainer.closest("tr");
+      if (row) {
+        setTimeout(() => { row.style.display = "none"; }, 300);
+      }
+    });
+
+    // 2. Kembalikan semua teks tombol menjadi "Detail"
+    document.querySelectorAll(".btn-detail-order").forEach(btn => {
+      if (btn.textContent === "Tutup Detail") {
+        btn.textContent = "Detail";
+      }
+    });
+
+    // 3. Jika sebelumnya tertutup, maka buka
+    if (isCurrentlyClosed) {
+      contentContainer.innerHTML = generateOrderDetailHtml(orderId);
+      detailRow.style.display = "table-row";
+      // Memberi jeda sedikit agar display berubah ke table-row sebelum transisi CSS berjalan
+      setTimeout(() => contentContainer.classList.add("open"), 10);
+      e.target.textContent = "Tutup Detail";
+    }
   }
 });
 
-function openOrderDetail(orderId) {
+function generateOrderDetailHtml(orderId) {
   const order = ALL_ORDERS.find(o => o.id === orderId);
-  if (!order) return;
+  if (!order) return "";
 
-  const modal = document.getElementById("order-detail-modal");
-  const body = document.getElementById("order-detail-body");
-  
   const dateObj = new Date(order.createdAt);
   const fullDate = dateObj.toLocaleDateString("id-ID", { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const fullTime = dateObj.toLocaleTimeString("id-ID", { hour: '2-digit', minute: '2-digit' });
@@ -826,65 +867,61 @@ function openOrderDetail(orderId) {
     }
   }
 
-  body.innerHTML = `
-    <div class="detail-grid">
-      <div>
-        <div class="detail-item-title">ID Pesanan</div>
-        <div class="detail-item-value">${order.id}</div>
+  return `
+    <div style="padding: 1rem 0;">
+      <div class="detail-grid">
+        <div>
+          <div class="detail-item-title">ID Pesanan</div>
+          <div class="detail-item-value">${order.id}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Waktu Transaksi</div>
+          <div class="detail-item-value">${fullDate} - ${fullTime}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Email Pemesan</div>
+          <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
+        </div>
+        <div>
+          <div class="detail-item-title">Metode Pembayaran</div>
+          <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
+        </div>
       </div>
-      <div>
-        <div class="detail-item-title">Waktu Transaksi</div>
-        <div class="detail-item-value">${fullDate} - ${fullTime}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Email Pemesan</div>
-        <div class="detail-item-value">${order.userEmail || "Tamu"}</div>
-      </div>
-      <div>
-        <div class="detail-item-title">Metode Pembayaran</div>
-        <div class="detail-item-value" style="text-transform: capitalize;">${order.paymentMethod || "-"}</div>
-      </div>
-    </div>
 
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
-      <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
-    </div>
-    
-    <div style="margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
-      ${itemsHtml}
-    </div>
-
-    ${order.note ? `
-    <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
-      <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
-      <div style="color:#9a3412;">${order.note}</div>
-    </div>
-    ` : ""}
-
-    <div style="background:#f8fafc; padding:15px; border-radius:8px;">
-      <div class="detail-summary">
-        <span>Subtotal</span>
-        <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:4px;">Alamat Pengiriman</div>
+        <div class="detail-item-value" style="line-height:1.4;">${addressHtml}</div>
       </div>
-      <div class="detail-summary">
-        <span>Ongkos Kirim</span>
-        <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="margin-bottom:8px;">Daftar Pesanan</div>
+        ${itemsHtml}
       </div>
-      <div class="detail-summary total">
-        <span>Total Bayar</span>
-        <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+
+      ${order.note ? `
+      <div style="background:#fff7ed; padding:10px; border-radius:8px; border:1px solid #fed7aa; margin-bottom: 1.5rem;">
+        <div class="detail-item-title" style="color:#c2410c;">Catatan Khusus</div>
+        <div style="color:#9a3412;">${order.note}</div>
+      </div>
+      ` : ""}
+
+      <div style="background:white; padding:15px; border-radius:8px; border:1px solid #e2e8f0;">
+        <div class="detail-summary">
+          <span>Subtotal</span>
+          <span>Rp ${(order.subtotal || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary">
+          <span>Ongkos Kirim</span>
+          <span>Rp ${(order.ongkir || 0).toLocaleString('id-ID')}</span>
+        </div>
+        <div class="detail-summary total">
+          <span>Total Bayar</span>
+          <span style="color:var(--admin-primary);">Rp ${(order.total || 0).toLocaleString('id-ID')}</span>
+        </div>
       </div>
     </div>
   `;
-
-  modal.classList.add("show");
 }
-
-document.getElementById("btn-close-order-detail").addEventListener("click", () => {
-  document.getElementById("order-detail-modal").classList.remove("show");
-});
 
 // ── 7. MANAJEMEN AKUN PELANGGAN ──
 async function loadCustomers() {
@@ -1111,5 +1148,230 @@ if (searchCustomerEl) {
     });
 
     renderCustomersTable(filtered);
+  });
+}
+
+// ── 9. GROWTH ANALYTICS (CHART.JS) ──
+function renderGrowthCharts(orders) {
+  // Hanya proses order yang valid (bisa juga difilter hanya yg Delivered/Selesai)
+  // Untuk tren, kita gunakan semua riwayat pesanan (termasuk yg aktif)
+  const orderCountsPerDay = {};
+  const revenuePerDay = {};
+  const itemCounts = {};
+
+  // Agregasi Data
+  let minDateObj = null;
+  let maxDateObj = null;
+
+  orders.forEach(order => {
+    if (!order.createdAt) return;
+    
+    const dateObj = new Date(order.createdAt);
+    // Format YYYY-MM-DD
+    const dateStr = dateObj.toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD format reliably in local time zone
+
+    // Tentukan rentang tanggal
+    if (!minDateObj || dateObj < minDateObj) minDateObj = new Date(dateObj);
+    if (!maxDateObj || dateObj > maxDateObj) maxDateObj = new Date(dateObj);
+
+    // 1 & 2. Hitung jumlah pesanan harian & pendapatan
+    if (!orderCountsPerDay[dateStr]) orderCountsPerDay[dateStr] = 0;
+    if (!revenuePerDay[dateStr]) revenuePerDay[dateStr] = 0;
+    
+    orderCountsPerDay[dateStr] += 1;
+    
+    // Hanya tambahkan ke total pendapatan jika sudah "Paid" atau "Delivered" (selesai)
+    const isPaid = (order.status === "Delivered") || (order.paymentStatus === "Paid");
+    if (isPaid) {
+      revenuePerDay[dateStr] += Number(order.total) || 0;
+    }
+
+    // 3. Hitung item terlaris
+    if (order.items && Array.isArray(order.items)) {
+      order.items.forEach(item => {
+        const itemName = item.name || "Unknown";
+        const qty = Number(item.qty) || 1;
+        if (!itemCounts[itemName]) itemCounts[itemName] = 0;
+        itemCounts[itemName] += qty;
+      });
+    }
+  });
+
+  // Isi tanggal yang kosong (0 pesanan) di antara min dan max
+  if (minDateObj && maxDateObj) {
+    let curr = new Date(minDateObj);
+    const end = new Date(maxDateObj);
+    
+    while (curr <= end) {
+      const dStr = curr.toLocaleDateString('en-CA');
+      if (orderCountsPerDay[dStr] === undefined) {
+        orderCountsPerDay[dStr] = 0;
+        revenuePerDay[dStr] = 0;
+      }
+      curr.setDate(curr.getDate() + 1);
+    }
+  }
+
+  // Hitung Grand Total Pendapatan
+  let grandTotal = 0;
+  Object.values(revenuePerDay).forEach(val => grandTotal += val);
+  
+  const totalRevenueEl = document.getElementById("grand-total-revenue");
+  if (totalRevenueEl) {
+    totalRevenueEl.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+  }
+
+  // Siapkan label (urutkan tanggal dari lama ke baru)
+  const sortedDates = Object.keys(orderCountsPerDay).sort();
+  
+  // Data array berdasarkan urutan tanggal
+  const ordersData = sortedDates.map(date => orderCountsPerDay[date]);
+
+  // Siapkan data item terlaris (sort descending by qty)
+  const sortedItems = Object.keys(itemCounts).sort((a, b) => itemCounts[b] - itemCounts[a]);
+  // Ambil top 5 atau top 10 saja
+  const topItemsNames = sortedItems.slice(0, 7);
+  const topItemsData = topItemsNames.map(name => itemCounts[name]);
+
+  // Warna-warna Chart
+  const primaryColor = '#E8621A'; // Orange khas
+  const secondaryColor = '#25D366'; // Hijau
+  const bgColors = [
+    'rgba(232, 98, 26, 0.7)',
+    'rgba(34, 197, 94, 0.7)',
+    'rgba(59, 130, 246, 0.7)',
+    'rgba(234, 179, 8, 0.7)',
+    'rgba(168, 85, 247, 0.7)',
+    'rgba(236, 72, 153, 0.7)',
+    'rgba(14, 165, 233, 0.7)'
+  ];
+
+  // Hancurkan chart lama jika ada sebelum render ulang
+  if (chartOrdersTrend) chartOrdersTrend.destroy();
+  if (chartTopItems) chartTopItems.destroy();
+
+  // 1. Chart Tren Pesanan (Line Chart)
+  const ctxOrders = document.getElementById("chart-orders-trend");
+  if (ctxOrders) {
+    chartOrdersTrend = new Chart(ctxOrders, {
+      type: 'line',
+      data: {
+        labels: sortedDates,
+        datasets: [{
+          label: 'Jumlah Pesanan',
+          data: ordersData,
+          borderColor: primaryColor,
+          backgroundColor: 'rgba(232, 98, 26, 0.1)',
+          fill: true,
+          tension: 0.3,
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: primaryColor
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        scales: {
+          y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // 2. Daftar Pendapatan Harian (List/Table)
+  const tbodyRevenue = document.getElementById("revenue-list-tbody");
+  if (tbodyRevenue) {
+    tbodyRevenue.innerHTML = "";
+    
+    // Urutkan dari terbaru ke terlama untuk ditambilkan di list
+    const datesDesc = [...sortedDates].reverse();
+    
+    datesDesc.forEach(dateStr => {
+      const dateObj = new Date(dateStr);
+      const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+      const fullDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      const revVal = revenuePerDay[dateStr] || 0;
+      
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td><strong>${dayName}</strong>, ${fullDate}</td>
+        <td style="text-align: right; color: ${revVal > 0 ? '#25D366' : 'var(--warm-gray)'}; font-weight: 500;">
+          Rp ${revVal.toLocaleString('id-ID')}
+        </td>
+      `;
+      tbodyRevenue.appendChild(tr);
+    });
+  }
+
+  // 3. Chart Menu Terlaris (Doughnut)
+  const ctxTopItems = document.getElementById("chart-top-items");
+  if (ctxTopItems) {
+    chartTopItems = new Chart(ctxTopItems, {
+      type: 'doughnut',
+      data: {
+        labels: topItemsNames,
+        datasets: [{
+          data: topItemsData,
+          backgroundColor: bgColors,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { 
+            position: 'right',
+            labels: {
+              usePointStyle: true,
+              padding: 20
+            }
+          }
+        }
+      }
+    });
+  }
+}
+
+// ── 10. EXPORT KE EXCEL / CSV ──
+const btnExport = document.getElementById("btn-export-revenue");
+if (btnExport) {
+  btnExport.addEventListener("click", () => {
+    const table = document.querySelector("#tab-growth table");
+    if (!table) return;
+    
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Hari dan Tanggal,Pendapatan\n"; // Header kolom
+
+    const rows = table.querySelectorAll("tbody tr");
+    let hasData = false;
+    rows.forEach(row => {
+      const cols = row.querySelectorAll("td");
+      if (cols.length === 2) {
+        hasData = true;
+        // Hapus koma pada tanggal agar tidak merusak kolom CSV
+        let dateText = cols[0].innerText.replace(/,/g, '');
+        // Hapus "Rp" dan tanda titik pada angka pendapatan agar menjadi format numerik asli
+        let revText = cols[1].innerText.replace(/Rp/g, '').replace(/\./g, '').trim();
+        csvContent += `"${dateText}",${revText}\n`;
+      }
+    });
+
+    if (!hasData) {
+      alert("Belum ada data pendapatan untuk di-ekspor.");
+      return;
+    }
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "Laporan_Pendapatan_DapurLodeh.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   });
 }

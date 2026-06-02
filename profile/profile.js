@@ -84,6 +84,7 @@ function initUserDropdown(user, userData) {
   const firstName = userData?.firstName || fullName.split(" ")[0];
   const initial = firstName.charAt(0).toUpperCase();
   const email = user.email;
+  const isAdmin = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"].includes(email);
 
   // Render user area wrapper
   const userArea = document.createElement("div");
@@ -114,6 +115,16 @@ function initUserDropdown(user, userData) {
           <div class="nav-dropdown-header-email">${email}</div>
         </div>
         <div class="nav-dropdown-divider"></div>
+        ${isAdmin ? `
+        <a href="../admin/admin.html" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
+          <span class="nav-dropdown-item-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+          </span>
+          <span>Halaman Admin</span>
+        </a>
+        ` : `
         <a href="profile.html" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
           <span class="nav-dropdown-item-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -123,6 +134,7 @@ function initUserDropdown(user, userData) {
           </span>
           <span>Pengaturan Profil</span>
         </a>
+        `}
         <div class="nav-dropdown-divider"></div>
         <button class="nav-dropdown-item logout-btn" id="btnLogoutDropdown">
           <span class="nav-dropdown-item-icon">

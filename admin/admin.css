@@ -657,3 +657,74 @@ input:checked + .slider:before {
   flex-shrink: 0;
 }
 
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .admin-wrapper {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .admin-sidebar {
+    width: 100%;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--admin-border);
+  }
+  
+  .sidebar-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem;
+  }
+  
+  .nav-item {
+    flex: 1 1 auto;
+    justify-content: center;
+    border-radius: var(--radius-md);
+  }
+  
+  .nav-item.active {
+    border-right: none;
+    border-bottom: 4px solid var(--admin-primary);
+  }
+  
+  .admin-main {
+    padding: 1.5rem;
+  }
+  
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Accordion Detail */
+.slide-detail-container {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out, margin 0.3s ease-in-out;
+  background-color: #f8fafc;
+  padding: 0 1.5rem;
+  border-radius: var(--radius-md);
+  margin: 0 1rem;
+}
+
+.slide-detail-container.open {
+  max-height: 1000px;
+  padding: 1.5rem;
+  margin-top: 0.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--admin-border);
+}

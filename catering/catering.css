@@ -1049,4 +1049,29 @@
   opacity: 0.4;
 }
 
+/* ── ADDITIONAL MOBILE RESPONSIVENESS ── */
+@media (max-width: 520px) {
+  .payment-options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .card-qty-counter {
+    justify-content: center;
+  }
+  
+  .payment-card {
+    padding: 1.5rem;
+  }
+  
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 

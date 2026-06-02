@@ -12,6 +12,7 @@
     rel="stylesheet" />
   <link rel="stylesheet" href="../homepage/style.css" />
   <link rel="stylesheet" href="admin.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body class="admin-page">
@@ -52,6 +53,12 @@
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
           </svg>
           Akun Admin
+        </li>
+        <li class="nav-item" data-tab="tab-growth">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+          </svg>
+          Growth Analytics
         </li>
       </ul>
       <div class="sidebar-footer">
@@ -235,6 +242,58 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: GROWTH -->
+      <div id="tab-growth" class="tab-pane">
+        <header class="admin-header">
+          <div>
+            <h1 class="admin-title">Growth Analytics</h1>
+            <p class="admin-sub">Pantau grafik pertumbuhan pesanan, pendapatan, dan item terlaris.</p>
+          </div>
+          <div class="header-actions">
+            <button id="btn-export-revenue" class="btn-primary" style="padding: 8px 16px; font-size: 0.95rem; display: inline-flex; align-items: center; gap: 6px; background: #10B981;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Export ke Excel
+            </button>
+          </div>
+        </header>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+          <div class="admin-card" style="margin-bottom: 0;">
+            <h2 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem;">Tren Pesanan Harian</h2>
+            <div style="position: relative; height: 300px; width: 100%;">
+              <canvas id="chart-orders-trend"></canvas>
+            </div>
+          </div>
+          
+          <div class="admin-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h2 style="font-size: 1.1rem; color: var(--dark); margin: 0;">Total Pendapatan Keseluruhan</h2>
+              <span id="grand-total-revenue" style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px;">Rp 0</span>
+            </div>
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
+              <table class="menu-table" style="margin: 0;">
+                <thead>
+                  <tr>
+                    <th style="position: sticky; top: 0; background: var(--light);">Hari, Tanggal</th>
+                    <th style="position: sticky; top: 0; background: var(--light); text-align: right;">Pendapatan</th>
+                  </tr>
+                </thead>
+                <tbody id="revenue-list-tbody">
+                  <tr><td colspan="2" class="text-center">Memuat rincian pendapatan...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h2 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem;">Menu Paling Sering Dibeli</h2>
+          <div style="position: relative; height: 350px; width: 100%; display: flex; justify-content: center;">
+            <canvas id="chart-top-items"></canvas>
           </div>
         </div>
       </div>
