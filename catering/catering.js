@@ -548,6 +548,9 @@ function selectItem(item) {
   selectedItem = item;
   qty = 1;
   checkedAddons.clear();
+  if (item.defaultAddons) {
+    item.defaultAddons.forEach(i => checkedAddons.add(i));
+  }
 
   // update hero banner
   updateHero();
@@ -584,9 +587,9 @@ function updateHero() {
       `;
     }
   } else {
-    document.getElementById("hero-tag").textContent   = "Catering";
-    document.getElementById("hero-name").textContent  = "Pilih paketmu";
-    document.getElementById("hero-desc").textContent  = "Semua paket catering tersedia dan siap dipesan untuk acara Anda.";
+    document.getElementById("hero-tag").textContent   = "Menu Spesial";
+    document.getElementById("hero-name").textContent  = "Pilih menu spesialmu";
+    document.getElementById("hero-desc").textContent  = "Semua paket menu spesial tersedia dan siap dipesan untuk acara Anda.";
     document.getElementById("hero-emoji").innerHTML = `
       <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
         <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
@@ -670,6 +673,14 @@ document.querySelectorAll(".cat-tab").forEach(tab => {
 document.getElementById("btn-submit-order").addEventListener("click", () => {
   if (CART.length === 0) {
     toast("Keranjang belanja kosong!");
+    return;
+  }
+
+  const orderDateInput = document.getElementById("order-date").value;
+  const orderAddressInput = document.getElementById("order-address").value.trim();
+
+  if (!orderDateInput || !orderAddressInput) {
+    toast("Mohon isi tanggal dan alamat pengiriman!");
     return;
   }
 
@@ -818,12 +829,14 @@ document.getElementById("btn-confirm-pay").addEventListener("click", async () =>
         price: item.price,
         addons: item.addons.map(a => ({ name: a.name, price: a.price }))
       })),
+      deliveryDate: document.getElementById("order-date").value,
+      deliveryAddress: document.getElementById("order-address").value.trim(),
       note: document.getElementById("order-note").value.trim(),
       subtotal: cartSubtotal,
       ongkir: ONGKIR,
       total: payTotal,
       paymentMethod: activePaymentMethod,
-      orderType: "Catering", // Penanda order dari catering
+      orderType: "Menu Spesial", // Penanda order dari menu spesial
       status: "Pending", // Status awal pemesanan
       createdAt: new Date().toISOString()
     };
@@ -859,7 +872,7 @@ function showPaymentSuccess() {
       <p class="payment-success-text">
         <p style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 2rem; line-height: 1.5;">Pesanan Anda berhasil dikirim dan sedang kami proses. Mohon siapkan pembayaran sesuai metode yang dipilih.</p>
       </p>
-      <button class="btn-order" id="btn-success-close">Kembali ke Catering</button>
+      <button class="btn-order" id="btn-success-close">Kembali ke Menu Spesial</button>
     </div>
   `;
 
@@ -880,16 +893,24 @@ async function init() {
   showPane("cart-view");
 
   try {
-    const querySnapshot = await getDocs(collection(db, "catering"));
-    MENU_DATA = [];
-
-    querySnapshot.forEach((doc) => {
-      const data = doc.data();
-      MENU_DATA.push({ id: doc.id, ...data });
-    });
-
-    MENU_DATA = MENU_DATA.filter(m => m.isActive !== false);
-
+    // Menu Data statis untuk Menu Spesial Nasi Kotak
+    MENU_DATA = [{
+      id: "nasi-kotak-spesial",
+      cat: "box",
+      catLabel: "Nasi Box",
+      name: "Nasi Kotak",
+      desc: "Nasi putih, Ayam goreng, Sayur asem, Tempe/tahu, Sambal, Gepuk.",
+      price: 35000,
+      imageUrl: "",
+      addons: [
+        { name: "Ayam goreng", price: 0 },
+        { name: "Sayur asem", price: 0 },
+        { name: "Tempe/tahu", price: 0 },
+        { name: "Sambal", price: 0 },
+        { name: "Gepuk", price: 0 }
+      ],
+      defaultAddons: [0, 1, 2, 3, 4]
+    }];
   } catch (error) {
     console.error("Error loading menus:", error);
     document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="color:red;">Gagal memuat paket: ${error.message}</div>`;

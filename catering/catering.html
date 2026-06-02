@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dapur Lodeh — Catering</title>
+  <title>Dapur Lodeh — Menu Spesial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -20,7 +20,7 @@
     <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
     <ul class="nav-links">
       <li><a href="../menu/menu.html">Menu</a></li>
-      <li><a href="catering.html" style="color:var(--orange)">Catering</a></li>
+      <li><a href="catering.html" style="color:var(--orange)">Menu Spesial</a></li>
       <li><a href="../contact/contact.html">Contact</a></li>
     </ul>
     <a href="../Login/login.html" class="nav-login">Log in</a>
@@ -34,9 +34,9 @@
         <div class="menu-hero-blob a"></div>
         <div class="menu-hero-blob b"></div>
         <div class="menu-hero-content">
-          <p class="menu-hero-tag" id="hero-tag">Catering</p>
-          <h1 class="menu-hero-name" id="hero-name">Paket Catering Spesial</h1>
-          <p class="menu-hero-desc" id="hero-desc">Pesan catering untuk acara Anda dengan menu terbaik dari Dapur Lodeh.
+          <p class="menu-hero-tag" id="hero-tag">Menu Spesial</p>
+          <h1 class="menu-hero-name" id="hero-name">Paket Menu Spesial</h1>
+          <p class="menu-hero-desc" id="hero-desc">Pesan Menu Spesial untuk acara Anda dengan menu terbaik dari Dapur Lodeh.
           </p>
         </div>
         <div class="menu-hero-emoji" id="hero-emoji"></div>
@@ -77,9 +77,15 @@
           <!-- Dinamis oleh JS: list item di keranjang -->
         </div>
 
-        <!-- Catatan Pesanan -->
+        <!-- Catatan & Pengiriman -->
         <div class="note-group" id="cart-note-group" style="margin-top: 1.5rem;">
-          <label class="note-label" for="order-note">Catatan Pesanan</label>
+          <label class="note-label" for="order-date">Tanggal Pengiriman</label>
+          <input type="date" class="note-input" id="order-date" style="margin-bottom: 1rem; cursor: pointer;">
+
+          <label class="note-label" for="order-address">Alamat Pengiriman</label>
+          <textarea class="note-input" id="order-address" placeholder="Contoh: Jl. Sudirman No. 1..." style="margin-bottom: 1rem;"></textarea>
+
+          <label class="note-label" for="order-note">Catatan Tambahan (Opsional)</label>
           <textarea class="note-input" id="order-note" placeholder="Contoh: sambal dipisah, sendok plastik…"></textarea>
         </div>
 
@@ -143,7 +149,7 @@
 
         <!-- Add-ons -->
         <div class="addons-section">
-          <p class="addons-title">Tambahan</p>
+          <p class="addons-title">Bahan / Tambahan</p>
           <div class="addon-list" id="addon-list">
             <!-- filled by JS based on category -->
           </div>
