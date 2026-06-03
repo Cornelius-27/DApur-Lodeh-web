@@ -902,6 +902,15 @@ async function init() {
       }
       MENU_DATA.push(item);
     });
+
+    // Cegah duplikasi tampilan jika ada duplikat data di database
+    const seen = new Set();
+    MENU_DATA = MENU_DATA.filter(m => {
+      const key = m.name ? m.name.toLowerCase().trim() : "";
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   } catch (error) {
     console.error("Error loading menus:", error);
     document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="color:red;">Gagal memuat paket: ${error.message}</div>`;

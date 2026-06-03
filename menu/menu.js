@@ -1020,6 +1020,15 @@ async function init() {
       MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
     });
 
+    // Cegah duplikasi tampilan jika ada duplikat data di database
+    const seen = new Set();
+    MENU_DATA = MENU_DATA.filter(m => {
+      const key = m.name ? m.name.toLowerCase().trim() : "";
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     // Filter berdasarkan hari ini (Selasa - Jumat)
     const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
     if (today >= 2 && today <= 5) {

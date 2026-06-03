@@ -255,37 +255,48 @@ onAuthStateChanged(auth, async user => {
   loadOrders();
   loadCustomers();
 
-  // --- TEMPORARY AUTO SEED SCRIPT KAMIS JUMAT ---
-  if (localStorage.getItem("seeded_menus_kamis_jumat") !== "true") {
+  // --- CLEANUP DUPLICATES SCRIPT ---
+  if (localStorage.getItem("cleaned_duplicates") !== "true") {
     try {
-      console.log("Seeding menus for Kamis & Jumat...");
+      console.log("Cleaning up duplicate menus...");
       const snapshot = await getDocs(collection(db, "menus"));
-      // Delete old Kamis & Jumat
+      const seen = new Set();
+      let deletedCount = 0;
       for (const d of snapshot.docs) {
-        const cat = d.data().cat;
-        if (cat === "burger" || cat === "rice") {
+        const data = d.data();
+        if (!data.name) continue;
+        const key = data.name.toLowerCase().trim();
+        if (seen.has(key)) {
           await deleteDoc(doc(db, "menus", d.id));
+          deletedCount++;
+        } else {
+          seen.add(key);
+        }
+      }
+      
+      // Also clean catering
+      const catSnapshot = await getDocs(collection(db, "catering"));
+      const catSeen = new Set();
+      for (const d of catSnapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        const key = data.name.toLowerCase().trim();
+        if (catSeen.has(key)) {
+          await deleteDoc(doc(db, "catering", d.id));
+          deletedCount++;
+        } else {
+          catSeen.add(key);
         }
       }
 
-      const kamis = ["Nasi kuning", "Sayur lodeh", "Bihun goreng", "Telor balado", "Telor asin", "Perkedel kornet", "Tumis sawi putih", "Sop kembang tahu ayam kampung", "Ikan kembung goreng", "Cukiok"];
-      for (const name of kamis) {
-        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
-        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: meta.desc, isActive: true, addons: [] });
+      localStorage.setItem("cleaned_duplicates", "true");
+      if (deletedCount > 0) {
+        alert(`Berhasil membersihkan ${deletedCount} menu duplikat! Halaman akan dimuat ulang.`);
+        window.location.reload();
       }
-
-      const jumat = ["Lontong sayur", "Sayur asem", "Kari ayam", "Sop ayam kampung ham maling", "Telor asin", "Telor semur", "Tahu semur", "Sambel godog udang pete", "Perkedel kornet", "Bakwan jagung"];
-      for (const name of jumat) {
-        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
-        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: meta.desc, isActive: true, addons: [] });
-      }
-
-      localStorage.setItem("seeded_menus_kamis_jumat", "true");
-      alert("Menu Kamis & Jumat berhasil diperbarui! Halaman akan dimuat ulang.");
-      window.location.reload();
-    } catch (e) { console.error("Seeding failed", e); }
+    } catch (e) { console.error("Cleanup failed", e); }
   }
-  // --- END TEMPORARY SCRIPT ---
+  // --- END CLEANUP ---
 });
 
 // Logout
@@ -1504,22 +1515,32 @@ function renderGrowthCharts(orders) {
 
     // Urutkan dari terbaru ke terlama untuk ditambilkan di list
     const datesDesc = [...sortedDates].reverse();
+    let hasRevenueRows = false;
 
     datesDesc.forEach(dateStr => {
+      const revVal = revenuePerDay[dateStr] || 0;
+      
+      // Filter: Hanya tampilkan tanggal yang memiliki pendapatan > 0
+      if (revVal <= 0) return;
+
+      hasRevenueRows = true;
       const dateObj = new Date(dateStr);
       const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
       const fullDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-      const revVal = revenuePerDay[dateStr] || 0;
 
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><strong>${dayName}</strong>, ${fullDate}</td>
-        <td style="text-align: right; color: ${revVal > 0 ? '#25D366' : 'var(--warm-gray)'}; font-weight: 500;">
+        <td style="text-align: right; color: #25D366; font-weight: 500;">
           Rp ${revVal.toLocaleString('id-ID')}
         </td>
       `;
       tbodyRevenue.appendChild(tr);
     });
+
+    if (!hasRevenueRows) {
+      tbodyRevenue.innerHTML = `<tr><td colspan="2" class="text-center" style="color: var(--admin-subtext);">Belum ada riwayat pendapatan.</td></tr>`;
+    }
   }
 
   // 3. Chart Menu Terlaris (Doughnut)

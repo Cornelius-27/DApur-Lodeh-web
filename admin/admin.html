@@ -21,18 +21,25 @@
     <!-- ── SIDEBAR ── -->
     <aside class="admin-sidebar">
       <div class="sidebar-brand">
-        Dapur Lodeh <span class="badge-admin">Admin</span>
-      </div>
-      <ul class="sidebar-nav">
-        <li class="nav-item active" data-tab="tab-menu">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
-            <path d="M6 6h10"></path>
-            <path d="M6 10h10"></path>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
-          Menu (Selasa - Jumat)
-        </li>
+        </button>
+        <span class="brand-text">Dapur Lodeh <span class="badge-admin">Admin</span></span>
+      </div>
+      <div class="sidebar-content" id="navLinks">
+        <ul class="sidebar-nav">
+          <li class="nav-item active" data-tab="tab-menu">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"></path>
+              <path d="M6 6h10"></path>
+              <path d="M6 10h10"></path>
+            </svg>
+            Menu (Selasa - Jumat)
+          </li>
         <li class="nav-item" data-tab="tab-orders">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -74,6 +81,7 @@
           Homepage</a>
         <button id="btn-logout" class="btn-logout" style="width:100%;">Logout</button>
       </div>
+    </div>
     </aside>
 
     <!-- ── MAIN CONTENT ── -->
@@ -282,27 +290,25 @@
           </div>
         </header>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <div class="growth-grid">
           <div class="admin-card" style="margin-bottom: 0;">
             <h2 style="font-size: 1.1rem; color: var(--dark); margin-bottom: 1rem;">Tren Pesanan Harian</h2>
             <div style="position: relative; height: 300px; width: 100%;">
               <canvas id="chart-orders-trend"></canvas>
             </div>
           </div>
-
           <div class="admin-card" style="margin-bottom: 0; display: flex; flex-direction: column;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-              <h2 style="font-size: 1.1rem; color: var(--dark); margin: 0;">Total Pendapatan Keseluruhan</h2>
+            <div class="revenue-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px;">
+              <h2 style="font-size: 1.1rem; color: var(--admin-text); margin: 0; text-align: center; flex: 1;">Total Pendapatan Keseluruhan</h2>
               <span id="grand-total-revenue"
-                style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 4px 10px; border-radius: 6px;">Rp
-                0</span>
+                style="font-size: 1.15rem; font-weight: bold; color: #25D366; background: rgba(37, 211, 102, 0.1); padding: 6px 12px; border-radius: 6px; white-space: nowrap; margin: 0 auto;">Rp 0</span>
             </div>
-            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
+            <div class="table-responsive" style="max-height: 300px; overflow-y: auto; margin-bottom: 1rem; position: relative;">
               <table class="menu-table" style="margin: 0;">
                 <thead>
                   <tr>
-                    <th style="position: sticky; top: 0; background: var(--light);">Hari, Tanggal</th>
-                    <th style="position: sticky; top: 0; background: var(--light); text-align: right;">Pendapatan</th>
+                    <th style="position: sticky; top: 0; background: var(--admin-surface); z-index: 10;">Hari, Tanggal</th>
+                    <th style="position: sticky; top: 0; background: var(--admin-surface); text-align: right; z-index: 10;">Pendapatan</th>
                   </tr>
                 </thead>
                 <tbody id="revenue-list-tbody">
@@ -502,6 +508,19 @@
   </div>
 
   <script type="module" src="admin.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks = document.getElementById('navLinks');
+      if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+          navLinks.classList.toggle('active');
+        });
+      }
+    });
+  </script>
+
 </body>
 
 </html>
