@@ -484,7 +484,17 @@ function renderGrid(cat) {
   list.forEach(item => {
     const isSelected = selectedItem && selectedItem.id === item.id;
     const todayDay = new Date().getDay();
-    const isAvailableToday = (!item.day || item.day === 0 || item.day === todayDay);
+    let isAvailableToday = false;
+    if (!item.day || item.day === 0 || item.day === "all") {
+      isAvailableToday = true;
+    } else {
+      const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
+      if (Array.isArray(item.day)) {
+        isAvailableToday = item.day.includes(todayDay) || item.day.some(d => dayMapNum[d] === todayDay);
+      } else {
+        isAvailableToday = (item.day === todayDay) || (dayMapNum[item.day] === todayDay);
+      }
+    }
 
     const card = document.createElement("div");
     card.className = "food-card" + (isSelected ? " selected-menu" : "");
@@ -1032,7 +1042,21 @@ async function init() {
     // Filter berdasarkan hari ini (Selasa - Jumat)
     const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
     if (today >= 2 && today <= 5) {
-      MENU_DATA = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
+      const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
+      MENU_DATA = MENU_DATA.filter(m => {
+        if (m.isActive === false) return false;
+        if (m.cat === "drinks" || m.cat === "minuman") return true;
+        
+        let available = false;
+        if (!m.day || m.day === 0 || m.day === "all") {
+          available = true;
+        } else if (Array.isArray(m.day)) {
+          available = m.day.includes(today) || m.day.some(d => dayMapNum[d] === today);
+        } else {
+          available = (m.day === today) || (dayMapNum[m.day] === today);
+        }
+        return available;
+      });
     } else {
       MENU_DATA = []; // Kosongkan jika akhir pekan / Senin
       document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Menu makanan tidak tersedia di akhir pekan / Senin. Kami buka dari Selasa hingga Jumat!</div>`;

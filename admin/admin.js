@@ -189,7 +189,7 @@ function renderAddonsAdmin() {
     `;
     container.appendChild(row);
   });
-  
+
   container.querySelectorAll(".btn-remove-addon").forEach(btn => {
     btn.addEventListener("click", (e) => {
       const idx = parseInt(e.target.dataset.index);
@@ -197,7 +197,7 @@ function renderAddonsAdmin() {
       renderAddonsAdmin();
     });
   });
-  
+
   container.querySelectorAll(".addon-name-input").forEach((input, index) => {
     input.addEventListener("input", (e) => { currentAddons[index].name = e.target.value; });
   });
@@ -273,7 +273,7 @@ onAuthStateChanged(auth, async user => {
           seen.add(key);
         }
       }
-      
+
       // Also clean catering
       const catSnapshot = await getDocs(collection(db, "catering"));
       const catSeen = new Set();
@@ -297,6 +297,156 @@ onAuthStateChanged(auth, async user => {
     } catch (e) { console.error("Cleanup failed", e); }
   }
   // --- END CLEANUP ---
+
+  // --- UPDATE SELASA SCRIPT ---
+  if (localStorage.getItem("updated_selasa_prices") !== "true") {
+    try {
+      console.log("Updating Selasa prices...");
+      const SELASA_PRICES = {
+        "Nasi kuning": 17000,
+        "Perkedel kornet": 5000,
+        "Pepes ikan kembung": 20000,
+        "Telor balado": 5000,
+        "Telor asin": 6000,
+        "Bihun goreng": 15000,
+        "Tongkol balado": 15000,
+        "Terong balado": 10000,
+        "Sayur lodeh": 15000,
+        "Tumis sayur asin": 15000,
+        "Bakwan jagung": 3000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(SELASA_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = SELASA_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
+        }
+      }
+      localStorage.setItem("updated_selasa_prices", "true");
+      if (updatedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu Selasa! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update selasa prices failed", e); }
+  }
+  // --- END UPDATE SELASA ---
+
+  // --- UPDATE RABU SCRIPT ---
+  if (localStorage.getItem("updated_rabu_prices") !== "true") {
+    try {
+      console.log("Updating Rabu prices...");
+      const RABU_PRICES = {
+        "Nasi uduk": 17000,
+        "Sayur asem": 15000,
+        "Tumis toge": 10000,
+        "Perkedel kornet": 5000,
+        "Bakwan jagung": 3000,
+        "Telor balado": 5000,
+        "Tahu balado": 3000,
+        "Telor asin": 6000,
+        "Ayam goreng": 15000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(RABU_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = RABU_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
+        }
+      }
+      localStorage.setItem("updated_rabu_prices", "true");
+      if (updatedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu Rabu! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update rabu prices failed", e); }
+  }
+  // --- END UPDATE RABU ---
+
+  // --- UPDATE KAMIS SCRIPT ---
+  if (localStorage.getItem("updated_kamis_prices_v3") !== "true") {
+    try {
+      console.log("Updating Kamis prices...");
+      const KAMIS_PRICES = {
+        "Nasi kuning": 17000,
+        "Sayur lodeh": 15000,
+        "Bihun goreng": 15000,
+        "Telor balado": 5000,
+        "Telor asin": 6000,
+        "Perkedel kornet": 5000,
+        "Tumis sawi putih": 10000,
+        "Sop kembang tahu ayam kampung": 25000,
+        "Ikan kembung goreng": 15000,
+        "Cukiok": 50000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      let addedCount = 0;
+      
+      const existingNames = snapshot.docs.map(d => d.data().name?.toLowerCase().trim()).filter(Boolean);
+      
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(KAMIS_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = KAMIS_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
+        }
+      }
+      
+      for (const [kamisName, kamisPrice] of Object.entries(KAMIS_PRICES)) {
+        if (!existingNames.includes(kamisName.toLowerCase())) {
+           let newCat = "side_dish";
+           let newCatLabel = "Side Dish";
+           const nameLower = kamisName.toLowerCase();
+           if (nameLower.includes("nasi ") || nameLower.includes("mie ") || nameLower.includes("bihun ") || nameLower.includes("lontong ")) {
+             newCat = "nasi_mie";
+             newCatLabel = "Nasi dan Mie";
+           }
+           
+           await addDoc(collection(db, "menus"), {
+             name: kamisName,
+             price: kamisPrice,
+             day: "Kamis",
+             cat: newCat,
+             catLabel: newCatLabel,
+             desc: MENU_DESCRIPTIONS[kamisName] || "Menu lezat Dapur Lodeh.",
+             imageUrl: MENU_METADATA[kamisName]?.imageUrl || "",
+             isActive: true,
+             addons: []
+           });
+           addedCount++;
+        }
+      }
+      
+      localStorage.setItem("updated_kamis_prices_v3", "true");
+      if (updatedCount > 0 || addedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu dan menambah ${addedCount} menu baru untuk Kamis! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update kamis prices failed", e); }
+  }
+  // --- END UPDATE KAMIS ---
 });
 
 // Logout
@@ -490,7 +640,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(evt) {
+        reader.onload = function (evt) {
           const base64Str = evt.target.result;
           menuImageUrl.value = base64Str;
           if (menuImagePreview) {
@@ -513,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function openModal(id = null) {
   const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
   const menuTypeEl = document.getElementById("menu-type");
-  
+
   // Simpan koleksi asli untuk mengecek apakah nanti tipe menu diubah saat edit
   document.getElementById("menu-id").dataset.originalCol = id ? colName : "";
 
@@ -536,7 +686,7 @@ function openModal(id = null) {
       document.getElementById("menu-desc").value = item.desc;
       document.getElementById("menu-active").checked = item.isActive !== false;
       currentAddons = item.addons ? JSON.parse(JSON.stringify(item.addons)) : [];
-      
+
       const preview = document.getElementById("menu-image-preview");
       if (preview) {
         if (item.imageUrl) {
@@ -556,7 +706,7 @@ function openModal(id = null) {
     document.getElementById("menu-id").value = "";
     document.getElementById("menu-active").checked = true;
     currentAddons = [];
-    
+
     const preview = document.getElementById("menu-image-preview");
     if (preview) {
       preview.src = "";
@@ -701,7 +851,7 @@ if (btnMigrateDb) {
     try {
       const menusSnapshot = await getDocs(collection(db, "menus"));
       let updatedCount = 0;
-      
+
       const dayMap = {
         "noodles": "Selasa",
         "salad": "Rabu",
@@ -717,7 +867,7 @@ if (btnMigrateDb) {
         let newCatLabel = data.catLabel;
 
         const name = (data.name || "").toLowerCase();
-        
+
         if (dayMap[data.cat]) {
           newDay = dayMap[data.cat];
         }
@@ -732,11 +882,11 @@ if (btnMigrateDb) {
           newCat = "side_dish";
           newCatLabel = "Side Dish";
         }
-        
+
         await updateDoc(doc(db, "menus", d.id), { cat: newCat, catLabel: newCatLabel, day: newDay });
         updatedCount++;
       }
-      
+
       alert(`Berhasil memperbarui ${updatedCount} menu ke format baru!`);
       window.location.reload();
     } catch (e) {
@@ -1519,7 +1669,7 @@ function renderGrowthCharts(orders) {
 
     datesDesc.forEach(dateStr => {
       const revVal = revenuePerDay[dateStr] || 0;
-      
+
       // Filter: Hanya tampilkan tanggal yang memiliki pendapatan > 0
       if (revVal <= 0) return;
 
