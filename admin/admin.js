@@ -255,6 +255,30 @@ onAuthStateChanged(auth, async user => {
   loadOrders();
   loadCustomers();
 
+  // Load status toko
+  const storeStatusToggle = document.getElementById("toggle-store-status");
+  if (storeStatusToggle) {
+    try {
+      const statusDoc = await getDocs(collection(db, "settings"));
+      let isOpen = true; // default
+      statusDoc.forEach(d => { if (d.id === "storeStatus") isOpen = d.data().isOpen; });
+      storeStatusToggle.checked = isOpen;
+      
+      storeStatusToggle.addEventListener("change", async (e) => {
+        try {
+          await setDoc(doc(db, "settings", "storeStatus"), { isOpen: e.target.checked });
+          showToast(e.target.checked ? "Toko dibuka!" : "Toko ditutup!");
+        } catch (err) {
+          console.error(err);
+          alert("Gagal mengubah status toko.");
+          e.target.checked = !e.target.checked;
+        }
+      });
+    } catch(err) {
+      console.error("Gagal memuat status toko", err);
+    }
+  }
+
   // --- CLEANUP DUPLICATES SCRIPT ---
   if (localStorage.getItem("cleaned_duplicates") !== "true") {
     try {
@@ -1592,6 +1616,15 @@ function renderGrowthCharts(orders) {
   let grandTotal = 0;
   Object.values(revenuePerDay).forEach(val => grandTotal += val);
 
+  // --- Agregasi Pendapatan Bulanan ---
+  const revenuePerMonth = {};
+  Object.keys(revenuePerDay).forEach(dateStr => {
+    // dateStr is 'YYYY-MM-DD', ambil 'YYYY-MM'
+    const monthStr = dateStr.substring(0, 7);
+    if (!revenuePerMonth[monthStr]) revenuePerMonth[monthStr] = 0;
+    revenuePerMonth[monthStr] += revenuePerDay[dateStr];
+  });
+
   const totalRevenueEl = document.getElementById("grand-total-revenue");
   if (totalRevenueEl) {
     totalRevenueEl.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
@@ -1653,6 +1686,56 @@ function renderGrowthCharts(orders) {
         },
         scales: {
           y: { beginAtZero: true, ticks: { stepSize: 1 } }
+        }
+      }
+    });
+  }
+
+  // 1b. Chart Tren Pendapatan Bulanan (Bar Chart)
+  const sortedMonths = Object.keys(revenuePerMonth).sort();
+  const revenueMonthlyData = sortedMonths.map(m => revenuePerMonth[m]);
+  const formattedMonths = sortedMonths.map(m => {
+    const [yy, mm] = m.split('-');
+    const dateObj = new Date(yy, mm - 1, 1);
+    return dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+  });
+
+  const ctxRevenueMonthly = document.getElementById("chart-revenue-monthly");
+  if (ctxRevenueMonthly) {
+    if (chartRevenueTrend) chartRevenueTrend.destroy();
+    chartRevenueTrend = new Chart(ctxRevenueMonthly, {
+      type: 'bar',
+      data: {
+        labels: formattedMonths,
+        datasets: [{
+          label: 'Pendapatan Bulanan',
+          data: revenueMonthlyData,
+          backgroundColor: secondaryColor,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: { 
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + value.toLocaleString('id-ID');
+              }
+            }
+          }
         }
       }
     });

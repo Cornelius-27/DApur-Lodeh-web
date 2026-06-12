@@ -121,7 +121,7 @@
       GoogleAuthProvider, signInWithPopup,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
     import { firebaseConfig } from "../firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -141,14 +141,21 @@
         setLoading(true);
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
-            sessionStorage.removeItem("authRedirect");
-            window.location.href = redirect;
-          } else {
-            await auth.signOut();
-            showError("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+          if (!userDoc.exists()) {
+            const fullName = user.displayName || user.email.split("@")[0];
+            const firstName = fullName.split(" ")[0];
+            const lastName = fullName.split(" ").slice(1).join(" ");
+            await setDoc(doc(db, "users", user.uid), {
+              email: user.email,
+              displayName: fullName,
+              firstName: firstName,
+              lastName: lastName,
+              createdAt: new Date().toISOString()
+            });
           }
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         } catch (err) {
           console.error("Gagal memeriksa database user:", err);
           await auth.signOut();

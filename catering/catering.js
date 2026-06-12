@@ -893,6 +893,14 @@ async function init() {
   showPane("cart-view");
 
   try {
+    const statusSnapshot = await getDocs(collection(db, "settings"));
+    let isOpen = true;
+    statusSnapshot.forEach(d => { if (d.id === "storeStatus" && d.data().isOpen !== undefined) isOpen = d.data().isOpen; });
+    if (!isOpen) {
+      document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="font-size: 1.2rem;">Maaf, Dapur Lodeh sedang tutup saat ini. Mohon kembali lagi nanti.</div>`;
+      return;
+    }
+
     MENU_DATA = [];
     const querySnapshot = await getDocs(collection(db, "catering"));
     querySnapshot.forEach((doc) => {
