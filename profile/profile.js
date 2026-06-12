@@ -13,6 +13,33 @@ let currentUser = null;
 /* ══════════════════════════════════════════════════════
    MAP STATE & FUNCTIONS
    ══════════════════════════════════════════════════════ */
+function fillAddressFields(addressObj, displayName) {
+  if (!addressObj) return;
+  
+  const kelurahan = addressObj.village || addressObj.suburb || addressObj.neighbourhood || addressObj.residential || "";
+  const kecamatan = addressObj.city_district || addressObj.municipality || addressObj.county || addressObj.suburb || "";
+  const kota = addressObj.city || addressObj.town || addressObj.county || addressObj.state_district || "";
+  const kodepos = addressObj.postcode || "";
+  
+  const road = addressObj.road || "";
+  const houseNum = addressObj.house_number || "";
+  let detail = road;
+  if (houseNum) detail += ` No. ${houseNum}`;
+  if (!detail && displayName) detail = displayName.split(",")[0];
+
+  const fieldKel = document.getElementById("profile-kelurahan");
+  const fieldKec = document.getElementById("profile-kecamatan");
+  const fieldKota = document.getElementById("profile-kota");
+  const fieldPos = document.getElementById("profile-kodepos");
+  const fieldDetail = document.getElementById("profile-address-detail");
+
+  if (fieldKel && kelurahan) fieldKel.value = kelurahan;
+  if (fieldKec && kecamatan) fieldKec.value = kecamatan;
+  if (fieldKota && kota) fieldKota.value = kota;
+  if (fieldPos && kodepos) fieldPos.value = kodepos;
+  if (fieldDetail && detail) fieldDetail.value = detail;
+}
+
 let map = null;
 let marker = null;
 
@@ -37,16 +64,73 @@ function initLeafletMap(lat, lng) {
     document.getElementById("profile-lng").value = position.lng;
     
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${position.lat}&lon=${position.lng}&addressdetails=1`);
       const data = await response.json();
       if (data && data.display_name) {
         document.getElementById("profile-address-auto").value = data.display_name;
+        if (data.address) fillAddressFields(data.address, data.display_name);
       }
     } catch(err) {
       console.error("Geocoding failed", err);
     }
   });
 }
+
+/* ══════════════════════════════════════════════════════
+   FITUR PENCARIAN PETA (GEOCODING)
+   ══════════════════════════════════════════════════════ */
+document.addEventListener("DOMContentLoaded", () => {
+  const btnMapSearch = document.getElementById("btn-map-search");
+  const inputMapSearch = document.getElementById("map-search-input");
+
+  if (btnMapSearch && inputMapSearch) {
+    const performSearch = async () => {
+      const query = inputMapSearch.value.trim();
+      if (!query) return;
+
+      const originalText = btnMapSearch.textContent;
+      btnMapSearch.textContent = "Mencari...";
+      btnMapSearch.disabled = true;
+
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1&addressdetails=1`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          
+          if (map && marker) {
+            map.setView([lat, lng], 15);
+            marker.setLatLng([lat, lng]);
+            
+            document.getElementById("profile-lat").value = lat;
+            document.getElementById("profile-lng").value = lng;
+            document.getElementById("profile-address-auto").value = data[0].display_name;
+            if (data[0].address) fillAddressFields(data[0].address, data[0].display_name);
+          }
+        } else {
+          alert("Lokasi tidak ditemukan. Coba gunakan kata kunci kota atau jalan yang lebih umum.");
+        }
+      } catch (err) {
+        console.error("Pencarian lokasi gagal", err);
+        alert("Terjadi kesalahan saat mencari lokasi.");
+      } finally {
+        btnMapSearch.textContent = originalText;
+        btnMapSearch.disabled = false;
+      }
+    };
+
+    btnMapSearch.addEventListener("click", performSearch);
+    inputMapSearch.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        performSearch();
+      }
+    });
+  }
+});
+
 
 /* ══════════════════════════════════════════════════════
    1. PROTEKSI ROUTE & TAMPILAN USER DROPDOWN
