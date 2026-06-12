@@ -151,7 +151,11 @@
 
               <div class="form-group-profile" style="margin-bottom: 0;">
                 <label class="profile-label">Titik Lokasi Peta (Pinpoint)</label>
-                <p style="font-size: 0.8rem; color: var(--warm-gray); margin-bottom: 8px;">Geser marker di peta untuk menentukan titik akurat pengiriman Anda. Ini akan digunakan untuk menghitung ongkos kirim.</p>
+                <p style="font-size: 0.8rem; color: var(--warm-gray); margin-bottom: 8px;">Geser marker di peta atau cari nama tempat untuk menentukan titik akurat pengiriman Anda.</p>
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <input type="text" id="map-search-input" class="profile-input" style="flex: 1; margin-bottom: 0;" placeholder="Cari tempat (misal: Monas, Jakarta)..." />
+                  <button type="button" id="btn-map-search" class="btn-primary" style="padding: 0.8rem 1.5rem; margin-bottom: 0; border-radius: 12px; white-space: nowrap;">Cari</button>
+                </div>
                 <div id="map" style="height: 250px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 8px; z-index: 1;"></div>
                 <input class="profile-input disabled" type="text" id="profile-address-auto" readonly disabled placeholder="Koordinat akan otomatis terisi" />
                 <input type="hidden" id="profile-lat" />
