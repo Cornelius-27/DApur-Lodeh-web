@@ -130,18 +130,91 @@ let chartOrdersTrend = null;
 let chartRevenueTrend = null;
 let chartTopItems = null;
 
+const MENU_DESCRIPTIONS = {
+  "Perkedel kornet": "Perkedel kentang lembut khas Dapur Lodeh, dipadukan dengan kornet sapi gurih berkualitas dan rempah pilihan, digoreng keemasan dengan balutan telur tipis yang renyah.",
+  "Tumis sayur asin": "Sayur asin segar pilihan yang ditumis dengan bawang putih harum, potongan cabai merah, dan bumbu gurih yang meresap sempurna, memberikan sensasi asam-asin-gurih yang menyegarkan.",
+  "Bihun goreng": "Bihun jagung lembut yang digoreng dengan kecap manis legendaris, telur orak-arik, sayuran segar, bawang merah goreng, dan racikan bumbu khas Dapur Lodeh yang aromatik.",
+  "Pepes ikan kembung": "Ikan kembung segar yang dibalur dengan bumbu kuning kaya rempah (kunyit, kemiri, serai, daun kemangi), dibungkus daun pisang lalu dikukus dan dipanggang hingga harum merebak.",
+  "Bakwan jagung": "Jagung manis pipil renyah dalam adonan tepung bumbu ketumbar dan daun bawang segar, digoreng garing hingga berwarna cokelat keemasan yang menggoda selera.",
+  "Sayur lodeh": "Kuah santan gurih beraroma ketumbar dan daun salam, berisi aneka sayuran segar (labu siam, kacang panjang, nangka muda, melinjo) yang dimasak perlahan hingga bumbu meresap sempurna.",
+  "Nasi kuning": "Nasi aromatik yang dimasak dengan kunyit segar, santan kental, serai, dan daun jeruk, menghasilkan nasi kuning pulen yang wangi, gurih, dan lezat.",
+  "Tongkol balado": "Potongan ikan tongkol goreng gurih yang diselimuti sambal balado merah pedas-manis buatan rumah, dimasak dengan perasan jeruk nipis and daun jeruk aromatik.",
+  "Telor asin": "Telur bebek pilihan yang diasinkan dengan metode tradisional abu gosok dan garam mineral, menghasilkan kuning telur masir berminyak yang gurih dan tekstur putih telur yang pas.",
+  "Terong balado": "Terong ungu lembut yang digoreng cepat dan disajikan dengan siraman sambal balado merah khas Minang yang melimpah, pedas, manis, dan menggugah selera.",
+  "Telor balado": "Telur ayam rebus yang digoreng sebentar hingga berkulit, lalu dibalur dengan sambal balado pedas manis yang meresap hingga ke dalam.",
+  "Es Jeruk Peras": "Minuman dingin penyegar dahaga dari jeruk peras asli berkualitas tinggi, dipadukan dengan sedikit sirup gula murni dan es batu melimpah.",
+  "Cukiok": "Cukiok (kaki babi) yang dimasak perlahan (slow-cooked) dengan kecap asin premium, pekak, kayu manis, dan bumbu rempah tradisional Cina hingga dagingnya empuk, lembut, dan kaya rasa.",
+  "Lontong sayur": "Kombinasi lontong pulen berbalut kuah lodeh santan gurih yang sedikit pedas, disajikan dengan sayur labu siam, tahu, dan kerupuk renyah.",
+  "Sayur asem": "Sayur sup asam khas Sunda dengan kuah asam-segar dari asam jawa asli, berisi jagung manis, kacang tanah, labu siam, daun melinjo, dan kacang panjang.",
+  "Kari ayam": "Potongan ayam lembut dalam kuah kari kuning kental kaya rempah (kapulaga, jintan, kunyit) yang gurih, harum, dan sedikit pedas hangat.",
+  "Sop ayam kampung ham maling": "Sup kaldu ayam kampung premium yang hangat dan gurih, dimasak bersama potongan daging ayam empuk, wortel, kentang, dan luncheon meat berkualitas tinggi.",
+  "Tahu semur": "Tahu sutra lembut yang menyerap kuah semur manis gurih legendaris dengan aroma rempah tradisional pala dan cengkeh yang khas.",
+  "Telor semur": "Telur rebus yang dimasak perlahan dalam kuah semur kecap manis kental yang kaya akan bumbu rempah pala, cengkeh, dan bawang merah goreng.",
+  "Sambel godog udang pete": "Udang segar bertekstur kenyal ditumis dengan pete kupas renyah dalam kuah sambal santan merah kental yang pedas, gurih, dan beraroma khas.",
+  "Nasi uduk": "Nasi gurih khas Betawi yang ditanak dengan santan melimpah, daun salam, cengkeh, serai, dan jahe, disajikan hangat dengan taburan bawang goreng harum.",
+  "Tumis sawi putih": "Sawi putih segar bertekstur renyah ditumis cepat dengan irisan bawang merah, bawang putih, cabai, dan kaldu jamur gurih yang ringan namun lezat.",
+  "Sop kembang tahu ayam kampung": "Sup kaldu ayam kampung murni yang hangat dan gurih, dilengkapi dengan lembaran kembang tahu lembut, wortel manis, dan taburan daun seledri segar.",
+  "Ikan kembung goreng": "Ikan kembung segar dibumbui ketumbar dan kunyit, digoreng garing di luar namun tetap lembut dan manis dagingnya di dalam.",
+  "Tumis toge": "Toge segar renyah ditumis singkat (high heat) bersama irisan tahu kuning, kucai, bawang putih, dan sedikit kecap asin untuk mempertahankan kesegarannya.",
+  "Tahu balado": "Tahu putih goreng berkulit lembut disiram dengan sambal balado merah pedas gurih buatan rumah yang harum aroma daun jeruknya.",
+  "Ayam goreng": "Ayam ungkep bumbu kuning tradisional yang digoreng garing keemasan dengan taburan serundeng lengkuas gurih yang melimpah."
+};
+
+
 // Referensi Elemen DOM
 const adminEmailEl = document.getElementById("admin-email");
 const btnLogout = document.getElementById("btn-logout");
 const menuTbody = document.getElementById("menu-tbody");
-const btnInitDb = document.getElementById("btn-init-db");
 const btnAddMenu = document.getElementById("btn-add-menu");
 const menuModal = document.getElementById("menu-modal");
 const btnCancel = document.getElementById("btn-cancel");
 const menuForm = document.getElementById("menu-form");
 const modalTitle = document.getElementById("modal-title");
+const btnFillImages = document.getElementById("btn-fill-images");
 
 let menuList = [];
+let currentAddons = [];
+
+function renderAddonsAdmin() {
+  const container = document.getElementById("addons-container");
+  if (!container) return;
+  container.innerHTML = "";
+  currentAddons.forEach((addon, index) => {
+    const row = document.createElement("div");
+    row.style = "display:flex; gap:8px; align-items:center;";
+    row.innerHTML = `
+      <input type="text" class="addon-name-input" placeholder="Nama (misal: Telur)" value="${addon.name}" style="flex:1; border: 1px solid var(--admin-border); padding: 8px; border-radius: 6px;">
+      <input type="number" class="addon-price-input" placeholder="Harga" value="${addon.price}" style="width:100px; border: 1px solid var(--admin-border); padding: 8px; border-radius: 6px;">
+      <button type="button" class="btn-cancel btn-remove-addon" data-index="${index}" style="padding: 8px 12px;">Hapus</button>
+    `;
+    container.appendChild(row);
+  });
+
+  container.querySelectorAll(".btn-remove-addon").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt(e.target.dataset.index);
+      currentAddons.splice(idx, 1);
+      renderAddonsAdmin();
+    });
+  });
+
+  container.querySelectorAll(".addon-name-input").forEach((input, index) => {
+    input.addEventListener("input", (e) => { currentAddons[index].name = e.target.value; });
+  });
+  container.querySelectorAll(".addon-price-input").forEach((input, index) => {
+    input.addEventListener("input", (e) => { currentAddons[index].price = parseInt(e.target.value) || 0; });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btnAddAddon = document.getElementById('btn-add-addon');
+  if (btnAddAddon) {
+    btnAddAddon.addEventListener('click', () => {
+      currentAddons.push({ name: '', price: 0 });
+      renderAddonsAdmin();
+    });
+  }
+});
 
 // ── 1. AUTENTIKASI & PROTEKSI HALAMAN ──
 onAuthStateChanged(auth, async user => {
@@ -156,7 +229,7 @@ onAuthStateChanged(auth, async user => {
     const adminDocSnap = await getDocs(collection(db, "settings"));
     let adminData = null;
     adminDocSnap.forEach(d => { if (d.id === "admins") adminData = d.data(); });
-    
+
     if (adminData && adminData.emails) {
       ADMIN_EMAILS = adminData.emails;
     } else {
@@ -182,37 +255,222 @@ onAuthStateChanged(auth, async user => {
   loadOrders();
   loadCustomers();
 
-  // --- TEMPORARY AUTO SEED SCRIPT KAMIS JUMAT ---
-  if (localStorage.getItem("seeded_menus_kamis_jumat") !== "true") {
+  // Load status toko
+  const storeStatusToggle = document.getElementById("toggle-store-status");
+  if (storeStatusToggle) {
     try {
-      console.log("Seeding menus for Kamis & Jumat...");
+      const statusDoc = await getDocs(collection(db, "settings"));
+      let isOpen = true; // default
+      statusDoc.forEach(d => { if (d.id === "storeStatus") isOpen = d.data().isOpen; });
+      storeStatusToggle.checked = isOpen;
+      
+      storeStatusToggle.addEventListener("change", async (e) => {
+        try {
+          await setDoc(doc(db, "settings", "storeStatus"), { isOpen: e.target.checked });
+          showToast(e.target.checked ? "Toko dibuka!" : "Toko ditutup!");
+        } catch (err) {
+          console.error(err);
+          alert("Gagal mengubah status toko.");
+          e.target.checked = !e.target.checked;
+        }
+      });
+    } catch(err) {
+      console.error("Gagal memuat status toko", err);
+    }
+  }
+
+  // --- CLEANUP DUPLICATES SCRIPT ---
+  if (localStorage.getItem("cleaned_duplicates") !== "true") {
+    try {
+      console.log("Cleaning up duplicate menus...");
       const snapshot = await getDocs(collection(db, "menus"));
-      // Delete old Kamis & Jumat
+      const seen = new Set();
+      let deletedCount = 0;
       for (const d of snapshot.docs) {
-        const cat = d.data().cat;
-        if (cat === "burger" || cat === "rice") {
+        const data = d.data();
+        if (!data.name) continue;
+        const key = data.name.toLowerCase().trim();
+        if (seen.has(key)) {
           await deleteDoc(doc(db, "menus", d.id));
+          deletedCount++;
+        } else {
+          seen.add(key);
+        }
+      }
+
+      // Also clean catering
+      const catSnapshot = await getDocs(collection(db, "catering"));
+      const catSeen = new Set();
+      for (const d of catSnapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        const key = data.name.toLowerCase().trim();
+        if (catSeen.has(key)) {
+          await deleteDoc(doc(db, "catering", d.id));
+          deletedCount++;
+        } else {
+          catSeen.add(key);
+        }
+      }
+
+      localStorage.setItem("cleaned_duplicates", "true");
+      if (deletedCount > 0) {
+        alert(`Berhasil membersihkan ${deletedCount} menu duplikat! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Cleanup failed", e); }
+  }
+  // --- END CLEANUP ---
+
+  // --- UPDATE SELASA SCRIPT ---
+  if (localStorage.getItem("updated_selasa_prices") !== "true") {
+    try {
+      console.log("Updating Selasa prices...");
+      const SELASA_PRICES = {
+        "Nasi kuning": 17000,
+        "Perkedel kornet": 5000,
+        "Pepes ikan kembung": 20000,
+        "Telor balado": 5000,
+        "Telor asin": 6000,
+        "Bihun goreng": 15000,
+        "Tongkol balado": 15000,
+        "Terong balado": 10000,
+        "Sayur lodeh": 15000,
+        "Tumis sayur asin": 15000,
+        "Bakwan jagung": 3000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(SELASA_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = SELASA_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
+        }
+      }
+      localStorage.setItem("updated_selasa_prices", "true");
+      if (updatedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu Selasa! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update selasa prices failed", e); }
+  }
+  // --- END UPDATE SELASA ---
+
+  // --- UPDATE RABU SCRIPT ---
+  if (localStorage.getItem("updated_rabu_prices") !== "true") {
+    try {
+      console.log("Updating Rabu prices...");
+      const RABU_PRICES = {
+        "Nasi uduk": 17000,
+        "Sayur asem": 15000,
+        "Tumis toge": 10000,
+        "Perkedel kornet": 5000,
+        "Bakwan jagung": 3000,
+        "Telor balado": 5000,
+        "Tahu balado": 3000,
+        "Telor asin": 6000,
+        "Ayam goreng": 15000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(RABU_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = RABU_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
+        }
+      }
+      localStorage.setItem("updated_rabu_prices", "true");
+      if (updatedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu Rabu! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update rabu prices failed", e); }
+  }
+  // --- END UPDATE RABU ---
+
+  // --- UPDATE KAMIS SCRIPT ---
+  if (localStorage.getItem("updated_kamis_prices_v3") !== "true") {
+    try {
+      console.log("Updating Kamis prices...");
+      const KAMIS_PRICES = {
+        "Nasi kuning": 17000,
+        "Sayur lodeh": 15000,
+        "Bihun goreng": 15000,
+        "Telor balado": 5000,
+        "Telor asin": 6000,
+        "Perkedel kornet": 5000,
+        "Tumis sawi putih": 10000,
+        "Sop kembang tahu ayam kampung": 25000,
+        "Ikan kembung goreng": 15000,
+        "Cukiok": 50000
+      };
+      const snapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      let addedCount = 0;
+      
+      const existingNames = snapshot.docs.map(d => d.data().name?.toLowerCase().trim()).filter(Boolean);
+      
+      for (const d of snapshot.docs) {
+        const data = d.data();
+        if (!data.name) continue;
+        
+        const nameKey = Object.keys(KAMIS_PRICES).find(k => k.toLowerCase() === data.name.toLowerCase().trim());
+        if (nameKey) {
+          const newPrice = KAMIS_PRICES[nameKey];
+          if (data.price !== newPrice) {
+            await updateDoc(doc(db, "menus", d.id), { price: newPrice });
+            updatedCount++;
+          }
         }
       }
       
-      const kamis = ["Nasi kuning", "Sayur lodeh", "Bihun goreng", "Telor balado", "Telor asin", "Perkedel kornet", "Tumis sawi putih", "Sop kembang tahu ayam kampung", "Ikan kembung goreng", "Cukiok"];
-      for (const name of kamis) {
-        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
-        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "burger", catLabel: "Spesial Kamis", colorClass: "card-c3", price: 15000, desc: meta.desc, isActive: true, addons: [] });
-      }
-
-      const jumat = ["Lontong sayur", "Sayur asem", "Kari ayam", "Sop ayam kampung ham maling", "Telor asin", "Telor semur", "Tahu semur", "Sambel godog udang pete", "Perkedel kornet", "Bakwan jagung"];
-      for (const name of jumat) {
-        const meta = MENU_METADATA[name] || { desc: "Menu lezat Dapur Lodeh", imageUrl: "" };
-        await addDoc(collection(db, "menus"), { name, imageUrl: meta.imageUrl, cat: "rice", catLabel: "Spesial Jumat", colorClass: "card-c4", price: 15000, desc: meta.desc, isActive: true, addons: [] });
+      for (const [kamisName, kamisPrice] of Object.entries(KAMIS_PRICES)) {
+        if (!existingNames.includes(kamisName.toLowerCase())) {
+           let newCat = "side_dish";
+           let newCatLabel = "Side Dish";
+           const nameLower = kamisName.toLowerCase();
+           if (nameLower.includes("nasi ") || nameLower.includes("mie ") || nameLower.includes("bihun ") || nameLower.includes("lontong ")) {
+             newCat = "nasi_mie";
+             newCatLabel = "Nasi dan Mie";
+           }
+           
+           await addDoc(collection(db, "menus"), {
+             name: kamisName,
+             price: kamisPrice,
+             day: "Kamis",
+             cat: newCat,
+             catLabel: newCatLabel,
+             desc: MENU_DESCRIPTIONS[kamisName] || "Menu lezat Dapur Lodeh.",
+             imageUrl: MENU_METADATA[kamisName]?.imageUrl || "",
+             isActive: true,
+             addons: []
+           });
+           addedCount++;
+        }
       }
       
-      localStorage.setItem("seeded_menus_kamis_jumat", "true");
-      alert("Menu Kamis & Jumat berhasil diperbarui! Halaman akan dimuat ulang.");
-      window.location.reload();
-    } catch(e) { console.error("Seeding failed", e); }
+      localStorage.setItem("updated_kamis_prices_v3", "true");
+      if (updatedCount > 0 || addedCount > 0) {
+        alert(`Berhasil memperbarui harga ${updatedCount} menu dan menambah ${addedCount} menu baru untuk Kamis! Halaman akan dimuat ulang.`);
+        window.location.reload();
+      }
+    } catch (e) { console.error("Update kamis prices failed", e); }
   }
-  // --- END TEMPORARY SCRIPT ---
+  // --- END UPDATE KAMIS ---
 });
 
 // Logout
@@ -220,6 +478,40 @@ btnLogout.addEventListener("click", async () => {
   await signOut(auth);
   window.location.href = "../Login/login.html";
 });
+
+// Auto-fill Images
+if (btnFillImages) {
+  btnFillImages.addEventListener("click", async () => {
+    const confirmFill = confirm("Apakah Anda ingin mengisi otomatis gambar kosong dengan gambar makanan acak dari internet? (Ini akan mengubah menu yang tidak memiliki gambar)");
+    if (!confirmFill) return;
+
+    btnFillImages.textContent = "Mengisi...";
+    btnFillImages.disabled = true;
+
+    try {
+      const menusSnapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+      let index = 1;
+      for (const d of menusSnapshot.docs) {
+        const data = d.data();
+        if (!data.imageUrl || data.imageUrl.trim() === "") {
+          const randomUrl = `https://loremflickr.com/400/300/food?lock=${index}`;
+          await updateDoc(doc(db, "menus", d.id), { imageUrl: randomUrl });
+          updatedCount++;
+        }
+        index++;
+      }
+      alert(`Berhasil memperbarui ${updatedCount} menu dengan gambar makanan acak!`);
+      window.location.reload();
+    } catch (e) {
+      console.error(e);
+      alert("Gagal memperbarui gambar.");
+    } finally {
+      btnFillImages.textContent = "Isi Gambar Acak";
+      btnFillImages.disabled = false;
+    }
+  });
+}
 
 // ── 2. FUNGSI LOAD DATA DARI FIRESTORE ──
 async function loadMenus() {
@@ -235,12 +527,6 @@ async function loadMenus() {
 
     renderTable();
 
-    // Tampilkan tombol Init DB jika data masih kosong
-    if (menuList.length === 0) {
-      btnInitDb.style.display = "inline-block";
-    } else {
-      btnInitDb.style.display = "none";
-    }
   } catch (error) {
     console.error("Error mengambil data:", error);
     menuTbody.innerHTML = `<tr><td colspan="5" class="text-center" style="color:red;">Gagal memuat data: ${error.message}</td></tr>`;
@@ -315,7 +601,7 @@ function renderTable() {
   document.querySelectorAll(".btn-edit").forEach(btn => {
     btn.addEventListener("click", (e) => openModal(e.target.dataset.id));
   });
-  
+
   // Pasang event listener untuk Toggle Status
   document.querySelectorAll(".toggle-status").forEach(toggle => {
     toggle.addEventListener("change", async (e) => {
@@ -341,14 +627,14 @@ function renderTable() {
 }
 
 // ── 3. MODAL & CRUD OPERATIONS ──
-function openModal(id = null) {
-  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
+function updateCatSelectOptions(colName) {
   const catSelect = document.getElementById("menu-cat");
+  if (!catSelect) return;
   if (colName === "catering") {
     catSelect.innerHTML = `
-      <option value="prasmanan">Prasmanan</option>
-      <option value="box">Nasi Box</option>
-      <option value="snack">Snack Box</option>
+      <option value="nasi_mie">Nasi dan Mie</option>
+      <option value="side_dish">Side Dish</option>
+      <option value="minuman">Minuman</option>
     `;
   } else {
     catSelect.innerHTML = `
@@ -359,6 +645,57 @@ function openModal(id = null) {
       <option value="drinks">Menu Bebas (Semua Hari)</option>
     `;
   }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const menuTypeEl = document.getElementById('menu-type');
+  if (menuTypeEl) {
+    menuTypeEl.addEventListener('change', (e) => {
+      updateCatSelectOptions(e.target.value);
+    });
+  }
+
+  // File reader untuk foto menu
+  const menuImageFile = document.getElementById("menu-image-file");
+  const menuImagePreview = document.getElementById("menu-image-preview");
+  const menuImageUrl = document.getElementById("menu-image-url");
+  if (menuImageFile) {
+    menuImageFile.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (evt) {
+          const base64Str = evt.target.result;
+          menuImageUrl.value = base64Str;
+          if (menuImagePreview) {
+            menuImagePreview.src = base64Str;
+            menuImagePreview.style.display = "block";
+          }
+        };
+        reader.readAsDataURL(file);
+      } else {
+        if (menuImagePreview) {
+          menuImagePreview.style.display = "none";
+          menuImagePreview.src = "";
+        }
+        menuImageUrl.value = "";
+      }
+    });
+  }
+});
+
+function openModal(id = null) {
+  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
+  const menuTypeEl = document.getElementById("menu-type");
+
+  // Simpan koleksi asli untuk mengecek apakah nanti tipe menu diubah saat edit
+  document.getElementById("menu-id").dataset.originalCol = id ? colName : "";
+
+  if (menuTypeEl) {
+    menuTypeEl.value = colName;
+    menuTypeEl.disabled = false; // Memungkinkan admin untuk mengubah tipe menu saat edit
+  }
+  updateCatSelectOptions(colName);
 
   if (id) {
     modalTitle.textContent = "Edit Menu";
@@ -372,13 +709,37 @@ function openModal(id = null) {
       document.getElementById("menu-price").value = item.price;
       document.getElementById("menu-desc").value = item.desc;
       document.getElementById("menu-active").checked = item.isActive !== false;
+      currentAddons = item.addons ? JSON.parse(JSON.stringify(item.addons)) : [];
+
+      const preview = document.getElementById("menu-image-preview");
+      if (preview) {
+        if (item.imageUrl) {
+          preview.src = item.imageUrl;
+          preview.style.display = "block";
+        } else {
+          preview.src = "";
+          preview.style.display = "none";
+        }
+      }
+      const fileInput = document.getElementById("menu-image-file");
+      if (fileInput) fileInput.value = "";
     }
   } else {
     modalTitle.textContent = "Tambah Menu";
     menuForm.reset();
     document.getElementById("menu-id").value = "";
     document.getElementById("menu-active").checked = true;
+    currentAddons = [];
+
+    const preview = document.getElementById("menu-image-preview");
+    if (preview) {
+      preview.src = "";
+      preview.style.display = "none";
+    }
+    const fileInput = document.getElementById("menu-image-file");
+    if (fileInput) fileInput.value = "";
   }
+  renderAddonsAdmin();
   menuModal.classList.add("show");
 }
 
@@ -393,21 +754,19 @@ btnAddMenu.addEventListener("click", () => openModal());
 menuForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const id = document.getElementById("menu-id").value;
-  const colName = document.getElementById("filter-collection") ? document.getElementById("filter-collection").value : "menus";
-  
+  const colName = document.getElementById("menu-type") ? document.getElementById("menu-type").value : "menus";
+
   const cat = document.getElementById("menu-cat").value;
   let catLabels = {
-    "noodles": "Spesial Selasa",
-    "salad": "Spesial Rabu",
-    "burger": "Spesial Kamis",
-    "rice": "Spesial Jumat",
-    "drinks": "Minuman"
+    "nasi_mie": "Nasi dan Mie",
+    "side_dish": "Side Dish",
+    "minuman": "Minuman"
   };
   if (colName === "catering") {
     catLabels = {
-      "prasmanan": "Prasmanan",
-      "box": "Nasi Box",
-      "snack": "Snack Box"
+      "nasi_mie": "Nasi dan Mie",
+      "side_dish": "Side Dish",
+      "minuman": "Minuman"
     };
   }
 
@@ -420,7 +779,7 @@ menuForm.addEventListener("submit", async (e) => {
     price: parseInt(document.getElementById("menu-price").value),
     desc: document.getElementById("menu-desc").value,
     isActive: document.getElementById("menu-active").checked,
-    addons: [] // Biarkan kosong dulu untuk simplisitas
+    addons: currentAddons
   };
 
   const btnSave = document.getElementById("btn-save");
@@ -429,9 +788,17 @@ menuForm.addEventListener("submit", async (e) => {
 
   try {
     if (id) {
-      // Update
-      await updateDoc(doc(db, colName, id), menuData);
-      showToast("Menu berhasil diperbarui!");
+      const originalCol = document.getElementById("menu-id").dataset.originalCol;
+      if (originalCol && originalCol !== colName) {
+        // Tipe menu diubah, pindahkan data antar koleksi
+        await setDoc(doc(db, colName, id), menuData); // Buat di koleksi baru
+        await deleteDoc(doc(db, originalCol, id));    // Hapus dari koleksi lama
+        showToast("Menu berhasil diperbarui dan dipindahkan!");
+      } else {
+        // Update biasa
+        await updateDoc(doc(db, colName, id), menuData);
+        showToast("Menu berhasil diperbarui!");
+      }
     } else {
       // Create
       await addDoc(collection(db, colName), menuData);
@@ -472,56 +839,89 @@ function showToast(msg) {
 }
 
 // ── 4. MIGRASI AWAL DATA ──
-btnInitDb.addEventListener("click", async () => {
-  const confirmInit = confirm("Aksi ini akan menyalin data hardcoded ke Firestore. Lanjutkan?");
-  if (!confirmInit) return;
-
-  btnInitDb.textContent = "Menyalin...";
-  btnInitDb.disabled = true;
-
-  const MENU_DATA = [
-    // Selasa (noodles / Mie)
-    { name: "Perkedel kornet", cat: "noodles", catLabel: "Mie", emoji: "🥔", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
-    { name: "Tumis sayur asin", cat: "noodles", catLabel: "Mie", emoji: "🥬", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tumis sayur asin"].desc, imageUrl: MENU_METADATA["Tumis sayur asin"].imageUrl, addons: [] },
-    { name: "Bihun goreng", cat: "noodles", catLabel: "Mie", emoji: "🍜", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bihun goreng"].desc, imageUrl: MENU_METADATA["Bihun goreng"].imageUrl, addons: [] },
-    { name: "Pepes ikan kembung", cat: "noodles", catLabel: "Mie", emoji: "🐟", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Pepes ikan kembung"].desc, imageUrl: MENU_METADATA["Pepes ikan kembung"].imageUrl, addons: [] },
-    { name: "Bakwan jagung", cat: "noodles", catLabel: "Mie", emoji: "🌽", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
-    { name: "Sayur lodeh", cat: "noodles", catLabel: "Mie", emoji: "🥣", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Sayur lodeh"].desc, imageUrl: MENU_METADATA["Sayur lodeh"].imageUrl, addons: [] },
-    { name: "Nasi kuning", cat: "noodles", catLabel: "Mie", emoji: "🍚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Nasi kuning"].desc, imageUrl: MENU_METADATA["Nasi kuning"].imageUrl, addons: [] },
-    { name: "Tongkol balado", cat: "noodles", catLabel: "Mie", emoji: "🌶️", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Tongkol balado"].desc, imageUrl: MENU_METADATA["Tongkol balado"].imageUrl, addons: [] },
-    { name: "Telor asin", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
-    { name: "Terong balado", cat: "noodles", catLabel: "Mie", emoji: "🍆", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Terong balado"].desc, imageUrl: MENU_METADATA["Terong balado"].imageUrl, addons: [] },
-    { name: "Telor balado", cat: "noodles", catLabel: "Mie", emoji: "🥚", colorClass: "card-c1", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
-
-    // Rabu (salad / Salad)
-    { name: "Bakwan jagung", cat: "salad", catLabel: "Salad", emoji: "🌽", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Bakwan jagung"].desc, imageUrl: MENU_METADATA["Bakwan jagung"].imageUrl, addons: [] },
-    { name: "Tumis toge", cat: "salad", catLabel: "Salad", emoji: "🌱", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tumis toge"].desc, imageUrl: MENU_METADATA["Tumis toge"].imageUrl, addons: [] },
-    { name: "Telor balado", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor balado"].desc, imageUrl: MENU_METADATA["Telor balado"].imageUrl, addons: [] },
-    { name: "Perkedel kornet", cat: "salad", catLabel: "Salad", emoji: "🥔", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Perkedel kornet"].desc, imageUrl: MENU_METADATA["Perkedel kornet"].imageUrl, addons: [] },
-    { name: "Telor asin", cat: "salad", catLabel: "Salad", emoji: "🥚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Telor asin"].desc, imageUrl: MENU_METADATA["Telor asin"].imageUrl, addons: [] },
-    { name: "Tahu balado", cat: "salad", catLabel: "Salad", emoji: "⬜", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Tahu balado"].desc, imageUrl: MENU_METADATA["Tahu balado"].imageUrl, addons: [] },
-    { name: "Sayur asem", cat: "salad", catLabel: "Salad", emoji: "🥣", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Sayur asem"].desc, imageUrl: MENU_METADATA["Sayur asem"].imageUrl, addons: [] },
-    { name: "Ayam goreng", cat: "salad", catLabel: "Salad", emoji: "🍗", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Ayam goreng"].desc, imageUrl: MENU_METADATA["Ayam goreng"].imageUrl, addons: [] },
-    { name: "Nasi uduk", cat: "salad", catLabel: "Salad", emoji: "🍚", colorClass: "card-c2", price: 15000, desc: MENU_METADATA["Nasi uduk"].desc, imageUrl: MENU_METADATA["Nasi uduk"].imageUrl, addons: [] },
-
-    // Minuman (drinks)
-    { name: "Es Jeruk Peras", cat: "drinks", catLabel: "Minuman", emoji: "🍊", colorClass: "card-c3", price: 18000, desc: MENU_METADATA["Es Jeruk Peras"].desc, imageUrl: MENU_METADATA["Es Jeruk Peras"].imageUrl, addons: [] }
-  ];
-
-  try {
-    for (const item of MENU_DATA) {
-      await addDoc(collection(db, "menus"), item);
-    }
-    showToast("Migrasi data sukses!");
+// Auto-seed Nasi Kotak ke tabel Catering (Menu Spesial)
+if (!localStorage.getItem("seeded_nasi_kotak_v2")) {
+  addDoc(collection(db, "catering"), {
+    name: "Nasi Kotak",
+    imageUrl: "",
+    cat: "box",
+    catLabel: "Nasi Box",
+    colorClass: "card-c1",
+    price: 35000,
+    desc: "Nasi putih, Ayam goreng, Sayur asem, Tempe/tahu, Sambal, Gepuk.",
+    isActive: true,
+    addons: [
+      { name: "Ayam goreng", price: 0 },
+      { name: "Sayur asem", price: 0 },
+      { name: "Tempe/tahu", price: 0 },
+      { name: "Sambal", price: 0 },
+      { name: "Gepuk", price: 0 }
+    ]
+  }).then(() => {
+    localStorage.setItem("seeded_nasi_kotak_v2", "true");
     loadMenus();
-  } catch (err) {
-    console.error("Migrasi gagal", err);
-    alert("Gagal memigrasi data: " + err.message);
-  } finally {
-    btnInitDb.textContent = "Init DB (Sekali saja)";
-    btnInitDb.disabled = false;
-  }
-});
+  }).catch(e => console.error("Gagal seed Nasi Kotak", e));
+}
+
+const btnMigrateDb = document.getElementById("btn-migrate-db");
+if (btnMigrateDb) {
+  btnMigrateDb.addEventListener("click", async () => {
+    const confirmInit = confirm("Aksi ini akan mengubah format menu lama menjadi format baru (Nasi & Mie, Side Dish, Minuman). Lanjutkan?");
+    if (!confirmInit) return;
+
+    btnMigrateDb.textContent = "Memigrasi...";
+    btnMigrateDb.disabled = true;
+
+    try {
+      const menusSnapshot = await getDocs(collection(db, "menus"));
+      let updatedCount = 0;
+
+      const dayMap = {
+        "noodles": "Selasa",
+        "salad": "Rabu",
+        "burger": "Kamis",
+        "rice": "Jumat",
+        "drinks": "all"
+      };
+
+      for (const d of menusSnapshot.docs) {
+        const data = d.data();
+        let newCat = data.cat;
+        let newDay = data.day || "all";
+        let newCatLabel = data.catLabel;
+
+        const name = (data.name || "").toLowerCase();
+
+        if (dayMap[data.cat]) {
+          newDay = dayMap[data.cat];
+        }
+
+        if (name.includes("nasi ") || name.includes("mie ") || name.includes("bihun ") || name.includes("lontong ") || data.cat === "nasi_mie") {
+          newCat = "nasi_mie";
+          newCatLabel = "Nasi dan Mie";
+        } else if (data.cat === "drinks" || name.includes("es ") || name.includes("kopi ") || name.includes("teh ") || data.cat === "minuman") {
+          newCat = "minuman";
+          newCatLabel = "Minuman";
+        } else {
+          newCat = "side_dish";
+          newCatLabel = "Side Dish";
+        }
+
+        await updateDoc(doc(db, "menus", d.id), { cat: newCat, catLabel: newCatLabel, day: newDay });
+        updatedCount++;
+      }
+
+      alert(`Berhasil memperbarui ${updatedCount} menu ke format baru!`);
+      window.location.reload();
+    } catch (e) {
+      console.error("Migrasi gagal", e);
+      alert("Gagal memigrasi data: " + e.message);
+    } finally {
+      btnMigrateDb.textContent = "Migrasi Format Baru";
+      btnMigrateDb.disabled = false;
+    }
+  });
+}
 
 // ── 5. MANAJEMEN ADMIN ──
 function renderAdmins() {
@@ -577,7 +977,7 @@ if (btnAddAdmin) {
       if (newEmail !== null) alert("Email tidak valid.");
       return;
     }
-    
+
     if (ADMIN_EMAILS.includes(newEmail)) {
       alert("Email tersebut sudah terdaftar sebagai admin!");
       return;
@@ -658,7 +1058,7 @@ async function loadOrders() {
 
     renderOrdersTable(activeOrders, activeTbody, true);
     renderOrdersTable(historyOrders, historyTbody, false);
-    
+
     // Render grafik pertumbuhan
     renderGrowthCharts(ALL_ORDERS);
   } catch (error) {
@@ -724,15 +1124,15 @@ function renderOrdersTable(ordersList, tbody, isActiveSection) {
       `;
     }
 
-    const statusBadge = isActiveSection 
-      ? `<span class="badge-pending" style="display:inline-block; margin-top:6px;">${currentOrderStatus}</span>` 
+    const statusBadge = isActiveSection
+      ? `<span class="badge-pending" style="display:inline-block; margin-top:6px;">${currentOrderStatus}</span>`
       : "";
 
     tr.innerHTML = `
       <td>
         <div style="font-weight:600;">${dateStr}</div>
         <div style="color:#64748b; font-size:0.85rem;">${timeStr}</div>
-        <div style="color:#94a3b8; font-size:0.75rem; margin-top:4px;">ID: ${order.id.substring(0,6)}...</div>
+        <div style="color:#94a3b8; font-size:0.75rem; margin-top:4px;">ID: ${order.id.substring(0, 6)}...</div>
         <div style="font-size:0.75rem; margin-top:4px; color:${currentPaymentStatus === 'Paid' ? '#047857' : '#C2410C'}; font-weight:bold;">${currentPaymentStatus}</div>
       </td>
       <td>
@@ -859,7 +1259,7 @@ function generateOrderDetailHtml(orderId) {
     if (kecamatan) parts.push(`Kec. ${kecamatan}`);
     if (kota) parts.push(kota);
     if (kodepos) parts.push(kodepos);
-    
+
     if (parts.length > 0) {
       addressHtml = parts.join(", ");
     } else if (addressAuto) {
@@ -1165,7 +1565,7 @@ function renderGrowthCharts(orders) {
 
   orders.forEach(order => {
     if (!order.createdAt) return;
-    
+
     const dateObj = new Date(order.createdAt);
     // Format YYYY-MM-DD
     const dateStr = dateObj.toLocaleDateString('en-CA'); // en-CA gives YYYY-MM-DD format reliably in local time zone
@@ -1177,9 +1577,9 @@ function renderGrowthCharts(orders) {
     // 1 & 2. Hitung jumlah pesanan harian & pendapatan
     if (!orderCountsPerDay[dateStr]) orderCountsPerDay[dateStr] = 0;
     if (!revenuePerDay[dateStr]) revenuePerDay[dateStr] = 0;
-    
+
     orderCountsPerDay[dateStr] += 1;
-    
+
     // Hanya tambahkan ke total pendapatan jika sudah "Paid" atau "Delivered" (selesai)
     const isPaid = (order.status === "Delivered") || (order.paymentStatus === "Paid");
     if (isPaid) {
@@ -1201,7 +1601,7 @@ function renderGrowthCharts(orders) {
   if (minDateObj && maxDateObj) {
     let curr = new Date(minDateObj);
     const end = new Date(maxDateObj);
-    
+
     while (curr <= end) {
       const dStr = curr.toLocaleDateString('en-CA');
       if (orderCountsPerDay[dStr] === undefined) {
@@ -1215,7 +1615,16 @@ function renderGrowthCharts(orders) {
   // Hitung Grand Total Pendapatan
   let grandTotal = 0;
   Object.values(revenuePerDay).forEach(val => grandTotal += val);
-  
+
+  // --- Agregasi Pendapatan Bulanan ---
+  const revenuePerMonth = {};
+  Object.keys(revenuePerDay).forEach(dateStr => {
+    // dateStr is 'YYYY-MM-DD', ambil 'YYYY-MM'
+    const monthStr = dateStr.substring(0, 7);
+    if (!revenuePerMonth[monthStr]) revenuePerMonth[monthStr] = 0;
+    revenuePerMonth[monthStr] += revenuePerDay[dateStr];
+  });
+
   const totalRevenueEl = document.getElementById("grand-total-revenue");
   if (totalRevenueEl) {
     totalRevenueEl.textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
@@ -1223,7 +1632,7 @@ function renderGrowthCharts(orders) {
 
   // Siapkan label (urutkan tanggal dari lama ke baru)
   const sortedDates = Object.keys(orderCountsPerDay).sort();
-  
+
   // Data array berdasarkan urutan tanggal
   const ordersData = sortedDates.map(date => orderCountsPerDay[date]);
 
@@ -1282,29 +1691,89 @@ function renderGrowthCharts(orders) {
     });
   }
 
+  // 1b. Chart Tren Pendapatan Bulanan (Bar Chart)
+  const sortedMonths = Object.keys(revenuePerMonth).sort();
+  const revenueMonthlyData = sortedMonths.map(m => revenuePerMonth[m]);
+  const formattedMonths = sortedMonths.map(m => {
+    const [yy, mm] = m.split('-');
+    const dateObj = new Date(yy, mm - 1, 1);
+    return dateObj.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+  });
+
+  const ctxRevenueMonthly = document.getElementById("chart-revenue-monthly");
+  if (ctxRevenueMonthly) {
+    if (chartRevenueTrend) chartRevenueTrend.destroy();
+    chartRevenueTrend = new Chart(ctxRevenueMonthly, {
+      type: 'bar',
+      data: {
+        labels: formattedMonths,
+        datasets: [{
+          label: 'Pendapatan Bulanan',
+          data: revenueMonthlyData,
+          backgroundColor: secondaryColor,
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+              }
+            }
+          }
+        },
+        scales: {
+          y: { 
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return 'Rp ' + value.toLocaleString('id-ID');
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
   // 2. Daftar Pendapatan Harian (List/Table)
   const tbodyRevenue = document.getElementById("revenue-list-tbody");
   if (tbodyRevenue) {
     tbodyRevenue.innerHTML = "";
-    
+
     // Urutkan dari terbaru ke terlama untuk ditambilkan di list
     const datesDesc = [...sortedDates].reverse();
-    
+    let hasRevenueRows = false;
+
     datesDesc.forEach(dateStr => {
+      const revVal = revenuePerDay[dateStr] || 0;
+
+      // Filter: Hanya tampilkan tanggal yang memiliki pendapatan > 0
+      if (revVal <= 0) return;
+
+      hasRevenueRows = true;
       const dateObj = new Date(dateStr);
       const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
       const fullDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-      const revVal = revenuePerDay[dateStr] || 0;
-      
+
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td><strong>${dayName}</strong>, ${fullDate}</td>
-        <td style="text-align: right; color: ${revVal > 0 ? '#25D366' : 'var(--warm-gray)'}; font-weight: 500;">
+        <td style="text-align: right; color: #25D366; font-weight: 500;">
           Rp ${revVal.toLocaleString('id-ID')}
         </td>
       `;
       tbodyRevenue.appendChild(tr);
     });
+
+    if (!hasRevenueRows) {
+      tbodyRevenue.innerHTML = `<tr><td colspan="2" class="text-center" style="color: var(--admin-subtext);">Belum ada riwayat pendapatan.</td></tr>`;
+    }
   }
 
   // 3. Chart Menu Terlaris (Doughnut)
@@ -1324,7 +1793,7 @@ function renderGrowthCharts(orders) {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
-          legend: { 
+          legend: {
             position: 'right',
             labels: {
               usePointStyle: true,
@@ -1343,7 +1812,7 @@ if (btnExport) {
   btnExport.addEventListener("click", () => {
     const table = document.querySelector("#tab-growth table");
     if (!table) return;
-    
+
     let csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Hari dan Tanggal,Pendapatan\n"; // Header kolom
 

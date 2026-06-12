@@ -21,13 +21,13 @@ const RESTO_LNG = 106.816666;
 
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
   const R = 6371; // Radius of the earth in km
-  const dLat = (lat2-lat1) * (Math.PI/180);
-  const dLon = (lon2-lon1) * (Math.PI/180); 
-  const a = 
-    Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * 
-    Math.sin(dLon/2) * Math.sin(dLon/2); 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // Distance in km
 }
 
@@ -39,7 +39,7 @@ function initUserDropdown(user, userData) {
   const nav = document.querySelector("nav");
   const existingArea = document.querySelector(".nav-user-area");
   const navLogin = document.querySelector(".nav-login");
-  
+
   if (existingArea) {
     existingArea.remove();
   }
@@ -165,7 +165,7 @@ function initUserDropdown(user, userData) {
 
 onAuthStateChanged(auth, async user => {
   currentUser = user;
-  
+
   if (user) {
     // Fetch user data from Firestore
     let userData = null;
@@ -213,7 +213,7 @@ function fmt(n) {
 }
 
 function toast(msg) {
-  const el  = document.getElementById("toast");
+  const el = document.getElementById("toast");
   const txt = document.getElementById("toast-msg");
   txt.textContent = msg;
   el.classList.add("show");
@@ -233,11 +233,22 @@ function showPane(paneId) {
 /* ══════════════════════════════════════════════════════
    CONFIGURING ITEM (Kustomisasi) — update tampilan
    ══════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════
+   SIDEBAR CONFIGURATION
+   ══════════════════════════════════════════════════════ */
+function openSidebarConfig(item) {
+  selectedItem = item;
+  qty = 1;
+  checkedAddons.clear();
+
+  updateHero();
+  renderSidebar();
+  showPane("configure-view");
+}
+
 function renderSidebar() {
   if (!selectedItem) return;
-
   const item = selectedItem;
-
   // emoji box
   const box = document.getElementById("sel-emoji-box");
   box.className = "selected-item-emoji " + (item.colorClass === "card-c1" ? "c1" : item.colorClass === "card-c2" ? "c2" : "c3");
@@ -248,11 +259,10 @@ function renderSidebar() {
       <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
     </svg>
   `;
-  document.getElementById("sel-name").textContent  = item.name;
-  document.getElementById("sel-cat").textContent   = item.catLabel;
-  document.getElementById("qty-num").textContent   = qty;
+  document.getElementById("sel-name").textContent = item.name;
+  document.getElementById("sel-cat").textContent = item.catLabel;
+  document.getElementById("qty-num").textContent = qty;
 
-  // add-ons
   const addonList = document.getElementById("addon-list");
   addonList.innerHTML = "";
   const addons = item.addons || [];
@@ -273,17 +283,59 @@ function renderSidebar() {
     });
     addonList.appendChild(div);
   });
-
-  updateTotal();
+  updateSidebarTotal();
 }
 
-function updateTotal() {
+function updateSidebarTotal() {
   if (!selectedItem) return;
   const addons = selectedItem.addons || [];
   const addonTotal = [...checkedAddons].reduce((s, i) => s + (addons[i]?.price || 0), 0);
-  const sub  = (selectedItem.price + addonTotal) * qty;
+  const sub = (selectedItem.price + addonTotal) * qty;
+  document.getElementById("item-subtotal").textContent = fmt(sub);
+}
 
-  document.getElementById("item-subtotal").textContent  = fmt(sub);
+function renderModalAddons() {
+  if (!selectedItem) return;
+
+  const item = selectedItem;
+  document.getElementById("modal-qty-num").textContent = qty;
+
+  const addonList = document.getElementById("modal-addon-list");
+  addonList.innerHTML = "";
+  const addons = item.addons || [];
+
+  if (addons.length === 0) {
+    addonList.innerHTML = `<p style="color:var(--warm-gray); font-size:0.85rem; margin-top:0;">Tidak ada tambahan tersedia.</p>`;
+  } else {
+    addons.forEach((a, i) => {
+      const div = document.createElement("div");
+      div.className = "addon-item" + (checkedAddons.has(i) ? " checked" : "");
+      div.innerHTML = `
+        <div class="addon-left">
+          <div class="addon-check">${checkedAddons.has(i) ? "✓" : ""}</div>
+          <span class="addon-name">${a.name}</span>
+        </div>
+        <span class="addon-price">${a.price > 0 ? "+" + fmt(a.price) : "Gratis"}</span>
+      `;
+      div.addEventListener("click", () => {
+        if (checkedAddons.has(i)) checkedAddons.delete(i);
+        else checkedAddons.add(i);
+        renderModalAddons();
+      });
+      addonList.appendChild(div);
+    });
+  }
+
+  updateModalTotal();
+}
+
+function updateModalTotal() {
+  if (!selectedItem) return;
+  const addons = selectedItem.addons || [];
+  const addonTotal = [...checkedAddons].reduce((s, i) => s + (addons[i]?.price || 0), 0);
+  const sub = (selectedItem.price + addonTotal) * qty;
+
+  document.getElementById("modal-item-subtotal").textContent = fmt(sub);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -431,6 +483,19 @@ function renderGrid(cat) {
 
   list.forEach(item => {
     const isSelected = selectedItem && selectedItem.id === item.id;
+    const todayDay = new Date().getDay();
+    let isAvailableToday = false;
+    if (!item.day || item.day === 0 || item.day === "all") {
+      isAvailableToday = true;
+    } else {
+      const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
+      if (Array.isArray(item.day)) {
+        isAvailableToday = item.day.includes(todayDay) || item.day.some(d => dayMapNum[d] === todayDay);
+      } else {
+        isAvailableToday = (item.day === todayDay) || (dayMapNum[item.day] === todayDay);
+      }
+    }
+
     const card = document.createElement("div");
     card.className = "food-card" + (isSelected ? " selected-menu" : "");
 
@@ -463,7 +528,7 @@ function renderGrid(cat) {
             <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
           </svg>
         `}
-        <button class="card-hover-customize-btn" style="display: flex; align-items: center; gap: 4px;">
+        <button class="card-hover-customize-btn" style="display: ${item.addons && item.addons.length > 0 ? 'flex' : 'none'}; align-items: center; gap: 4px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
@@ -484,10 +549,19 @@ function renderGrid(cat) {
 
     // Click customize button inside card image opens customization view
     const customizeBtn = card.querySelector(".card-hover-customize-btn");
-    customizeBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      selectItem(item);
-    });
+    if (customizeBtn) {
+      customizeBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openSidebarConfig(item);
+      });
+    }
+
+    if (isAvailableToday) {
+      card.style.cursor = "pointer";
+      card.addEventListener("click", () => {
+        selectItem(item);
+      });
+    }
 
     if (cartItem) {
       // Qty Decrement on Card
@@ -519,7 +593,7 @@ function renderGrid(cat) {
       const addBtn = card.querySelector(".btn-add-cart-shortcut");
       addBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        
+
         CART.push({
           id: Date.now().toString() + Math.random().toString(36).substr(2, 5),
           menuId: item.id,
@@ -549,18 +623,32 @@ function selectItem(item) {
   qty = 1;
   checkedAddons.clear();
 
-  // update hero banner
-  updateHero();
+  document.getElementById("modal-item-name").textContent = item.name;
+  document.getElementById("modal-item-cat").textContent = item.catLabel || item.cat;
+  document.getElementById("modal-item-desc").textContent = item.desc || "Tidak ada deskripsi.";
+  document.getElementById("modal-item-price").textContent = fmt(item.price);
 
-  // update active tab selection state
-  document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-  const allTab = document.querySelector('.cat-tab[data-cat="all"]');
-  if (allTab) allTab.classList.add("active");
-  renderGrid("all");
+  const imgEl = document.getElementById("modal-item-img");
+  const emojiBox = document.getElementById("modal-item-emoji-box");
 
-  // Buka pane Kustomisasi
-  renderSidebar();
-  showPane("configure-view");
+  if (item.imageUrl) {
+    imgEl.src = item.imageUrl;
+    imgEl.style.display = "block";
+    emojiBox.style.display = "none";
+  } else {
+    imgEl.style.display = "none";
+    emojiBox.style.display = "flex";
+    emojiBox.innerHTML = `
+      <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
+        <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
+        <path d="M7 2v20"></path>
+        <path d="M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7"></path>
+      </svg>
+    `;
+  }
+
+  renderModalAddons();
+  document.getElementById("item-modal").classList.add("show");
 }
 
 /* ══════════════════════════════════════════════════════
@@ -568,9 +656,9 @@ function selectItem(item) {
    ══════════════════════════════════════════════════════ */
 function updateHero() {
   if (selectedItem) {
-    document.getElementById("hero-tag").textContent   = selectedItem.catLabel;
-    document.getElementById("hero-name").textContent  = selectedItem.name;
-    document.getElementById("hero-desc").textContent  = selectedItem.desc;
+    document.getElementById("hero-tag").textContent = selectedItem.catLabel;
+    document.getElementById("hero-name").textContent = selectedItem.name;
+    document.getElementById("hero-desc").textContent = selectedItem.desc;
     const heroBox = document.getElementById("hero-emoji");
     if (selectedItem.imageUrl) {
       heroBox.innerHTML = `<img src="${selectedItem.imageUrl}" class="menu-hero-image" alt="${selectedItem.name}">`;
@@ -584,9 +672,9 @@ function updateHero() {
       `;
     }
   } else {
-    document.getElementById("hero-tag").textContent   = "Menu";
-    document.getElementById("hero-name").textContent  = "Pilih makananmu";
-    document.getElementById("hero-desc").textContent  = "Semua menu tersedia dan siap dipesan untuk kamu.";
+    document.getElementById("hero-tag").textContent = "Menu";
+    document.getElementById("hero-name").textContent = "Pilih makananmu";
+    document.getElementById("hero-desc").textContent = "Semua menu tersedia dan siap dipesan untuk kamu.";
     document.getElementById("hero-emoji").innerHTML = `
       <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--cream)" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3;">
         <path d="M3 2v7c0 1.1.9 2 2 2h4c1.1 0 2-.9 2-2V2"></path>
@@ -598,9 +686,9 @@ function updateHero() {
 }
 
 /* ══════════════════════════════════════════════════════
-   ADD TO CART HANDLER (Tombol "Tambah ke Pesanan")
+   ADD TO CART HANDLER (Tombol "Tambah ke Pesanan" Modal)
    ══════════════════════════════════════════════════════ */
-document.getElementById("btn-add-to-cart").addEventListener("click", () => {
+document.getElementById("btn-modal-add-to-cart").addEventListener("click", () => {
   if (!selectedItem) return;
 
   const addonsArr = selectedItem.addons || [];
@@ -620,30 +708,77 @@ document.getElementById("btn-add-to-cart").addEventListener("click", () => {
   saveCart();
   toast(`${selectedItem.name} ditambahkan!`);
 
-  // Reset kustomisasi & kembali ke keranjang
+  // Reset & tutup modal
+  selectedItem = null;
+  document.getElementById("item-modal").classList.remove("show");
+
+  // Update tampilan keranjang dan grid (untuk refresh badge status)
+  renderCart();
+  const activeTab = document.querySelector(".cat-tab.active");
+  renderGrid(activeTab ? activeTab.dataset.cat : "all");
+});
+
+document.getElementById("btn-close-item-modal").addEventListener("click", () => {
+  document.getElementById("item-modal").classList.remove("show");
+  selectedItem = null;
+});
+
+/* ══════════════════════════════════════════════════════
+   QTY CONTROLS (Modal)
+   ══════════════════════════════════════════════════════ */
+document.getElementById("modal-qty-minus").addEventListener("click", () => {
+  if (qty > 1) { qty--; renderModalAddons(); }
+});
+
+document.getElementById("modal-qty-plus").addEventListener("click", () => {
+  qty++;
+  renderModalAddons();
+});
+
+/* ══════════════════════════════════════════════════════
+   SIDEBAR CONTROLS
+   ══════════════════════════════════════════════════════ */
+document.getElementById("btn-add-to-cart").addEventListener("click", () => {
+  if (!selectedItem) return;
+
+  const addonsArr = selectedItem.addons || [];
+  const selectedAddons = [...checkedAddons].map(i => addonsArr[i]);
+
+  CART.push({
+    id: Date.now().toString(),
+    menuId: selectedItem.id,
+    name: selectedItem.name,
+    imageUrl: selectedItem.imageUrl,
+    price: selectedItem.price,
+    qty: qty,
+    addons: selectedAddons
+  });
+
+  saveCart();
+  toast(`${selectedItem.name} ditambahkan!`);
+
   selectedItem = null;
   updateHero();
   renderCart();
   showPane("cart-view");
 
-  // Re-render grid to clear select border
-  const activeTab = document.querySelector(".cat-tab.active");
-  renderGrid(activeTab ? activeTab.dataset.cat : "all");
+  document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
+  const allTab = document.querySelector('.cat-tab[data-cat="all"]');
+  if (allTab) allTab.classList.add("active");
+  renderGrid("all");
 });
 
-// Tombol Kembali/Batal
 document.getElementById("btn-back-to-cart").addEventListener("click", () => {
   selectedItem = null;
   updateHero();
   showPane("cart-view");
 
-  const activeTab = document.querySelector(".cat-tab.active");
-  renderGrid(activeTab ? activeTab.dataset.cat : "all");
+  document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
+  const allTab = document.querySelector('.cat-tab[data-cat="all"]');
+  if (allTab) allTab.classList.add("active");
+  renderGrid("all");
 });
 
-/* ══════════════════════════════════════════════════════
-   QTY CONTROLS (Kustomisasi)
-   ══════════════════════════════════════════════════════ */
 document.getElementById("qty-minus").addEventListener("click", () => {
   if (qty > 1) { qty--; renderSidebar(); }
 });
@@ -690,7 +825,7 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
 
 function openPaymentModal() {
   const payModal = document.getElementById("payment-modal");
-  
+
   // Hitung total harga keranjang
   const cartSubtotal = CART.reduce((sum, item) => {
     const addonsPrice = item.addons.reduce((s, a) => s + a.price, 0);
@@ -718,7 +853,7 @@ document.querySelectorAll(".payment-option-btn").forEach(btn => {
     document.querySelectorAll(".payment-option-btn").forEach(b => b.classList.remove("active"));
     const selectedBtn = e.currentTarget;
     selectedBtn.classList.add("active");
-    
+
     activePaymentMethod = selectedBtn.dataset.method;
     setPaymentDetails(activePaymentMethod);
   });
@@ -873,15 +1008,23 @@ function showPaymentSuccess() {
    ══════════════════════════════════════════════════════ */
 async function init() {
   document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Memuat daftar menu...</div>`;
-  
+
   // Render persistent cart first
   renderCart();
   showPane("cart-view");
 
   try {
+    const statusSnapshot = await getDocs(collection(db, "settings"));
+    let isOpen = true;
+    statusSnapshot.forEach(d => { if (d.id === "storeStatus" && d.data().isOpen !== undefined) isOpen = d.data().isOpen; });
+    if (!isOpen) {
+      document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="font-size: 1.2rem;">Maaf, Dapur Lodeh sedang tutup saat ini. Mohon kembali lagi nanti.</div>`;
+      return;
+    }
+
     const querySnapshot = await getDocs(collection(db, "menus"));
     MENU_DATA = [];
-    
+
     const catDayMap = {
       "noodles": 2, // Selasa
       "salad": 3,   // Rabu
@@ -891,14 +1034,37 @@ async function init() {
 
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const artificialDay = catDayMap[data.cat] || 0; 
+      const artificialDay = catDayMap[data.cat] || 0;
       MENU_DATA.push({ id: doc.id, day: artificialDay, ...data });
     });
-    
+
+    // Cegah duplikasi tampilan jika ada duplikat data di database
+    const seen = new Set();
+    MENU_DATA = MENU_DATA.filter(m => {
+      const key = m.name ? m.name.toLowerCase().trim() : "";
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
     // Filter berdasarkan hari ini (Selasa - Jumat)
     const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
     if (today >= 2 && today <= 5) {
-      MENU_DATA = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
+      const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
+      MENU_DATA = MENU_DATA.filter(m => {
+        if (m.isActive === false) return false;
+        if (m.cat === "drinks" || m.cat === "minuman") return true;
+        
+        let available = false;
+        if (!m.day || m.day === 0 || m.day === "all") {
+          available = true;
+        } else if (Array.isArray(m.day)) {
+          available = m.day.includes(today) || m.day.some(d => dayMapNum[d] === today);
+        } else {
+          available = (m.day === today) || (dayMapNum[m.day] === today);
+        }
+        return available;
+      });
     } else {
       MENU_DATA = []; // Kosongkan jika akhir pekan / Senin
       document.getElementById("menu-grid").innerHTML = `<div class="menu-empty">Menu makanan tidak tersedia di akhir pekan / Senin. Kami buka dari Selasa hingga Jumat!</div>`;
@@ -911,8 +1077,8 @@ async function init() {
     return;
   }
 
-  const params  = new URLSearchParams(window.location.search);
-  const itemId  = params.get("item");
+  const params = new URLSearchParams(window.location.search);
+  const itemId = params.get("item");
 
   if (itemId) {
     const found = MENU_DATA.find(m => m.id === itemId);
@@ -931,7 +1097,7 @@ async function init() {
   if (directItemStr) {
     const directItem = JSON.parse(directItemStr);
     sessionStorage.removeItem("directCheckoutItem");
-    
+
     // Cari apakah item dasar sudah ada di keranjang
     const existingIndex = CART.findIndex(c => c.menuId === directItem.id && (!c.addons || c.addons.length === 0));
     if (existingIndex !== -1) {
@@ -947,10 +1113,10 @@ async function init() {
         addons: []
       });
     }
-    
+
     saveCart();
     renderCart();
-    
+
     // Jika sudah login, otomatis buka pembayaran
     if (auth.currentUser) {
       setTimeout(() => {

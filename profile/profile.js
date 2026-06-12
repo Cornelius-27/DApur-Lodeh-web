@@ -246,7 +246,7 @@ function populateProfileData(user, userData) {
   document.getElementById("profile-first-name").value = userData?.firstName || fullName.split(" ")[0] || "";
   document.getElementById("profile-last-name").value = userData?.lastName || fullName.split(" ").slice(1).join(" ") || "";
   document.getElementById("profile-phone-input").value = userData?.phone || "";
-  document.getElementById("profile-email-input").value = user.email;
+  document.getElementById("profile-email-input").value = userData?.email || user.email;
 
   // TABS 2: Lokasi Pengiriman
   const loc = userData?.location || {};
@@ -341,6 +341,7 @@ document.getElementById("form-personal").addEventListener("submit", async (e) =>
   const firstName = document.getElementById("profile-first-name").value.trim();
   const lastName = document.getElementById("profile-last-name").value.trim();
   const phone = document.getElementById("profile-phone-input").value.trim();
+  const email = document.getElementById("profile-email-input").value.trim();
   const displayName = `${firstName} ${lastName}`;
 
   try {
@@ -349,7 +350,8 @@ document.getElementById("form-personal").addEventListener("submit", async (e) =>
       firstName,
       lastName,
       displayName,
-      phone
+      phone,
+      email
     }, { merge: true });
 
     // 2. Perbarui profil di Firebase Auth

@@ -893,24 +893,32 @@ async function init() {
   showPane("cart-view");
 
   try {
-    // Menu Data statis untuk Menu Spesial Nasi Kotak
-    MENU_DATA = [{
-      id: "nasi-kotak-spesial",
-      cat: "box",
-      catLabel: "Nasi Box",
-      name: "Nasi Kotak",
-      desc: "Nasi putih, Ayam goreng, Sayur asem, Tempe/tahu, Sambal, Gepuk.",
-      price: 35000,
-      imageUrl: "",
-      addons: [
-        { name: "Ayam goreng", price: 0 },
-        { name: "Sayur asem", price: 0 },
-        { name: "Tempe/tahu", price: 0 },
-        { name: "Sambal", price: 0 },
-        { name: "Gepuk", price: 0 }
-      ],
-      defaultAddons: [0, 1, 2, 3, 4]
-    }];
+    const statusSnapshot = await getDocs(collection(db, "settings"));
+    let isOpen = true;
+    statusSnapshot.forEach(d => { if (d.id === "storeStatus" && d.data().isOpen !== undefined) isOpen = d.data().isOpen; });
+    if (!isOpen) {
+      document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="font-size: 1.2rem;">Maaf, Dapur Lodeh sedang tutup saat ini. Mohon kembali lagi nanti.</div>`;
+      return;
+    }
+
+    MENU_DATA = [];
+    const querySnapshot = await getDocs(collection(db, "catering"));
+    querySnapshot.forEach((doc) => {
+      let item = { id: doc.id, ...doc.data() };
+      if (item.addons && item.addons.length > 0) {
+        item.defaultAddons = item.addons.map((_, idx) => idx);
+      }
+      MENU_DATA.push(item);
+    });
+
+    // Cegah duplikasi tampilan jika ada duplikat data di database
+    const seen = new Set();
+    MENU_DATA = MENU_DATA.filter(m => {
+      const key = m.name ? m.name.toLowerCase().trim() : "";
+      if (!key || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   } catch (error) {
     console.error("Error loading menus:", error);
     document.getElementById("menu-grid").innerHTML = `<div class="menu-empty" style="color:red;">Gagal memuat paket: ${error.message}</div>`;

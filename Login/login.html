@@ -18,6 +18,13 @@
 
   <!-- ── NAVBAR ── -->
   <nav>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
     <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
   </nav>
 
@@ -114,7 +121,7 @@
       GoogleAuthProvider, signInWithPopup,
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
     import { firebaseConfig } from "../firebase-config.js";
 
     const app = initializeApp(firebaseConfig);
@@ -134,14 +141,21 @@
         setLoading(true);
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
-            sessionStorage.removeItem("authRedirect");
-            window.location.href = redirect;
-          } else {
-            await auth.signOut();
-            showError("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
+          if (!userDoc.exists()) {
+            const fullName = user.displayName || user.email.split("@")[0];
+            const firstName = fullName.split(" ")[0];
+            const lastName = fullName.split(" ").slice(1).join(" ");
+            await setDoc(doc(db, "users", user.uid), {
+              email: user.email,
+              displayName: fullName,
+              firstName: firstName,
+              lastName: lastName,
+              createdAt: new Date().toISOString()
+            });
           }
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          sessionStorage.removeItem("authRedirect");
+          window.location.href = redirect;
         } catch (err) {
           console.error("Gagal memeriksa database user:", err);
           await auth.signOut();
@@ -239,6 +253,19 @@
       document.getElementById(id).addEventListener("keydown", e => {
         if (e.key === "Enter") document.getElementById("btn-login").click();
       });
+    });
+  </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks = document.getElementById('navLinks');
+      if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+          navLinks.classList.toggle('active');
+        });
+      }
     });
   </script>
 

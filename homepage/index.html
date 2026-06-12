@@ -13,8 +13,15 @@
 
   <!-- ── NAVBAR ── -->
   <nav>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
     <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
       <li><a href="../menu/menu.html">Menu</a></li>
       <li><a href="../catering/catering.html">Menu Spesial</a></li>
       <li><a href="../contact/contact.html">Contact</a></li>
@@ -28,7 +35,7 @@
     <div class="hero-blob blob-2"></div>
     <p class="hero-eyebrow">🍽 Hometaste</p>
     <h1>DapurLodeh</h1>
-    <p class="hero-sub">Discover today's best dishes, hand-picked by our chefs — delivered hot to your door.</p>
+    <p class="hero-sub">Makanan Rumahan yang dibuat dengan cinta</p>
     <div class="hero-cta">
       <a href="../menu/menu.html" class="btn-primary">Browse Menu</a>
       <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
@@ -41,7 +48,6 @@
     <h2 class="section-title reveal reveal-delay-1">Top 3 recommended<br />for today</h2>
 
     <div class="cards-grid">
-      <!-- Cards will be dynamically loaded here by script -->
     </div>
   </section>
 
@@ -56,14 +62,12 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
     import { firebaseConfig } from "../firebase-config.js";
 
-    // Inisialisasi Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
     let currentUser = null;
 
-    // Helper to toggle user dropdown menu & Tombol Riwayat
     function initUserDropdown(user, userData) {
       const nav = document.querySelector("nav");
       const existingArea = document.querySelector(".nav-user-area");
@@ -86,14 +90,12 @@
         navLogin.style.display = "none";
       }
 
-      // Prepare display name and initial
       const fullName = userData?.displayName || user.displayName || user.email.split("@")[0];
       const firstName = userData?.firstName || fullName.split(" ")[0];
       const initial = firstName.charAt(0).toUpperCase();
       const email = user.email;
       const isAdmin = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"].includes(email);
 
-      // Construct user area wrapper
       const userArea = document.createElement("div");
       userArea.className = "nav-user-area";
       userArea.innerHTML = `
@@ -251,7 +253,21 @@
         
         let filteredMenu = [];
         if (today >= 2 && today <= 5) {
-          filteredMenu = MENU_DATA.filter(m => (m.day === today || m.cat === "drinks") && m.isActive !== false);
+          const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
+          filteredMenu = MENU_DATA.filter(m => {
+            if (m.isActive === false) return false;
+            if (m.cat === "drinks" || m.cat === "minuman") return true;
+            
+            let available = false;
+            if (!m.day || m.day === 0 || m.day === "all") {
+              available = true;
+            } else if (Array.isArray(m.day)) {
+              available = m.day.includes(today) || m.day.some(d => dayMapNum[d] === today);
+            } else {
+              available = (m.day === today) || (dayMapNum[m.day] === today);
+            }
+            return available;
+          });
         }
 
         if (today < 2 || today > 5) {
@@ -367,6 +383,19 @@
 
     // Run onload
     loadTodayMenu();
+  </script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks = document.getElementById('navLinks');
+      if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+          navLinks.classList.toggle('active');
+        });
+      }
+    });
   </script>
 
 </body>

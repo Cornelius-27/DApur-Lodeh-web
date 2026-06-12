@@ -16,8 +16,15 @@
 
   <!-- ── NAVBAR ── -->
   <nav>
+    <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
     <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
-    <ul class="nav-links">
+    <ul class="nav-links" id="navLinks">
       <li><a href="../menu/menu.html">Menu</a></li>
       <li><a href="../catering/catering.html">Menu Spesial</a></li>
       <li><a href="../contact/contact.html">Contact</a></li>
@@ -93,9 +100,9 @@
               </div>
 
               <div class="form-group-profile">
-                <label class="profile-label" for="profile-email-input">Alamat Email</label>
-                <input class="profile-input disabled" type="email" id="profile-email-input" readonly disabled title="Email tidak dapat diubah" />
-                <small style="color: var(--warm-gray); display: block; margin-top: 4px;">* Email terikat dengan akun Anda dan tidak dapat diubah.</small>
+                <label class="profile-label" for="profile-email-input">Alamat Email Kontak</label>
+                <input class="profile-input" type="email" id="profile-email-input" placeholder="contoh@email.com" required />
+                <small style="color: var(--warm-gray); display: block; margin-top: 4px;">* Email kontak untuk notifikasi pesanan.</small>
               </div>
 
               <button class="btn-save-profile" type="submit" id="btn-save-personal">
@@ -199,6 +206,19 @@
 
   <!-- Firebase Scripts -->
   <script type="module" src="profile.js"></script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hamburger = document.getElementById('navHamburger');
+      const navLinks = document.getElementById('navLinks');
+      if (hamburger && navLinks) {
+        hamburger.addEventListener('click', () => {
+          navLinks.classList.toggle('active');
+        });
+      }
+    });
+  </script>
 
 </body>
 </html>
