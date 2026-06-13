@@ -21,13 +21,13 @@
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
     </button>
-    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <a class="nav-logo" href="../homepage/">Dapur Lodeh</a>
     <ul class="nav-links" id="navLinks">
-      <li><a href="../menu/menu.html">Menu</a></li>
-      <li><a href="../catering/catering.html">Menu Spesial</a></li>
-      <li><a href="contact.html" style="color:var(--orange)">Contact</a></li>
+      <li><a href="../menu/">Menu</a></li>
+      <li><a href="../catering/">Menu Spesial</a></li>
+      <li><a href="../contact/" style="color:var(--orange)">Contact</a></li>
     </ul>
-    <a href="../Login/login.html" class="nav-login">Log in</a>
+    <a href="../Login/" class="nav-login">Log in</a>
   </nav>
 
   <!-- ── MAIN CONTENT ── -->
@@ -147,7 +147,7 @@
         if (navLogin) {
           navLogin.style.display = "inline-block";
           navLogin.textContent = "Log in";
-          navLogin.href = "../Login/login.html";
+          navLogin.href = "../Login/";
         }
         return;
       }
@@ -166,7 +166,7 @@
       const userArea = document.createElement("div");
       userArea.className = "nav-user-area";
       userArea.innerHTML = `
-        <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+        <a href="../history/" class="nav-history-btn" title="Riwayat Pesanan">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 8v4l3 3"></path>
             <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -187,7 +187,7 @@
             </div>
             <div class="nav-dropdown-divider"></div>
             ${isAdmin ? `
-            <a href="../admin/admin.html" class="nav-dropdown-item">
+            <a href="../admin/" class="nav-dropdown-item">
               <span class="nav-dropdown-item-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -196,7 +196,7 @@
               <span>Halaman Admin</span>
             </a>
             ` : `
-            <a href="../profile/profile.html" class="nav-dropdown-item">
+            <a href="../profile/" class="nav-dropdown-item">
               <span class="nav-dropdown-item-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>

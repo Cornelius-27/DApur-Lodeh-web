@@ -22,7 +22,13 @@
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
     </button>
-    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <a class="nav-logo" href="../homepage/">Dapur Lodeh</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../menu/">Menu</a></li>
+      <li><a href="../catering/">Menu Spesial</a></li>
+      <li><a href="../contact/">Contact</a></li>
+    </ul>
+    <a href="../Login/" class="nav-login" style="display:none">Log in</a>
   </nav>
 
   <!-- ── AUTH WRAPPER ── -->
@@ -50,7 +56,7 @@
 
         <div class="auth-card-header">
           <h1 class="auth-title">Buat akun</h1>
-          <p class="auth-sub">Sudah punya akun? <a href="login.html" class="auth-link">Masuk di sini</a></p>
+          <p class="auth-sub">Sudah punya akun? <a href="../Login/" class="auth-link">Masuk di sini</a></p>
         </div>
 
         <!-- Google Sign-up -->
@@ -184,7 +190,7 @@
     // Redirect if already logged in
     onAuthStateChanged(auth, user => {
       if (user && !isRegistering) {
-        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+        const redirect = sessionStorage.getItem("authRedirect") || "../homepage/";
         sessionStorage.removeItem("authRedirect");
         window.location.href = redirect;
       }
@@ -304,7 +310,7 @@
         });
         showSuccess("Akun berhasil dibuat! Mengarahkan ke tujuan Anda…");
         setTimeout(() => { 
-          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/";
           sessionStorage.removeItem("authRedirect");
           window.location.href = redirect; 
         }, 1500);
@@ -360,7 +366,7 @@
         showSuccess("Pendaftaran berhasil! Mengarahkan ke tujuan Anda...");
 
         setTimeout(() => {
-          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/";
           sessionStorage.removeItem("authRedirect");
           window.location.href = redirect;
         }, 1500);

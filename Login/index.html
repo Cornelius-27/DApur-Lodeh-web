@@ -26,7 +26,13 @@
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
     </button>
-    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <a class="nav-logo" href="../homepage/">Dapur Lodeh</a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="../menu/">Menu</a></li>
+      <li><a href="../catering/">Menu Spesial</a></li>
+      <li><a href="../contact/">Contact</a></li>
+    </ul>
+    <a href="../Login/" class="nav-login" style="display:none">Log in</a>
   </nav>
 
   <!-- ── AUTH WRAPPER ── -->
@@ -48,7 +54,7 @@
 
         <div class="auth-card-header">
           <h1 class="auth-title">Log in</h1>
-          <p class="auth-sub">Don't have an account? <a href="register.html" class="auth-link">Sign up free</a></p>
+          <p class="auth-sub">Don't have an account? <a href="../register/" class="auth-link">Sign up free</a></p>
         </div>
 
         <!-- Google Sign-in -->
@@ -134,7 +140,7 @@
       if (user) {
         const admins = ["admindapur@gmail.com", "admin@gmail.com", "onel2@gmail.com"];
         if (admins.includes(user.email)) {
-          window.location.href = "../admin/admin.html";
+          window.location.href = "../admin/";
           return;
         }
 
@@ -154,7 +160,7 @@
               createdAt: new Date().toISOString()
             });
           }
-          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/index.html";
+          const redirect = sessionStorage.getItem("authRedirect") || "../homepage/";
           sessionStorage.removeItem("authRedirect");
           window.location.href = redirect;
         } catch (err) {
@@ -214,7 +220,7 @@
         if (email === "admindapur@gmail.com" && password === "admin123" && (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential")) {
           try {
             await createUserWithEmailAndPassword(auth, email, password);
-            window.location.href = "../admin/admin.html";
+            window.location.href = "../admin/";
             return;
           } catch (createErr) {
             showError("Gagal membuat akun admin otomatis: " + createErr.message);

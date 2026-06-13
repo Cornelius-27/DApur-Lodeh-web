@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dapur Lodeh — Order Food Online</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
 
   <!-- ── NAVBAR ── -->
   <nav>
     <button class="nav-hamburger" id="navHamburger" aria-label="Menu">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
         <line x1="3" y1="12" x2="21" y2="12"></line>
         <line x1="3" y1="6" x2="21" y2="6"></line>
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
     </button>
-    <a class="nav-logo" href="../homepage/index.html">Dapur Lodeh</a>
+    <a class="nav-logo" href="../homepage/">Dapur Lodeh</a>
     <ul class="nav-links" id="navLinks">
-      <li><a href="../menu/menu.html">Menu</a></li>
-      <li><a href="../catering/catering.html">Menu Spesial</a></li>
-      <li><a href="../contact/contact.html">Contact</a></li>
+      <li><a href="../menu/">Menu</a></li>
+      <li><a href="../catering/">Menu Spesial</a></li>
+      <li><a href="../contact/">Contact</a></li>
     </ul>
-    <a href="../Login/login.html" class="nav-login">Log in</a>
+    <a href="../Login/" class="nav-login">Log in</a>
   </nav>
 
   <!-- ── HERO ── -->
@@ -37,7 +42,7 @@
     <h1>DapurLodeh</h1>
     <p class="hero-sub">Makanan Rumahan yang dibuat dengan cinta</p>
     <div class="hero-cta">
-      <a href="../menu/menu.html" class="btn-primary">Browse Menu</a>
+      <a href="../menu/" class="btn-primary">Browse Menu</a>
       <a href="#recommended" class="btn-secondary">Today's Picks ↓</a>
     </div>
   </section>
@@ -72,7 +77,7 @@
       const nav = document.querySelector("nav");
       const existingArea = document.querySelector(".nav-user-area");
       const navLogin = document.querySelector(".nav-login");
-      
+
       if (existingArea) {
         existingArea.remove();
       }
@@ -81,7 +86,7 @@
         if (navLogin) {
           navLogin.style.display = "inline-block";
           navLogin.textContent = "Log in";
-          navLogin.href = "../Login/login.html";
+          navLogin.href = "../Login/";
         }
         return;
       }
@@ -99,7 +104,7 @@
       const userArea = document.createElement("div");
       userArea.className = "nav-user-area";
       userArea.innerHTML = `
-        <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+        <a href="../history/" class="nav-history-btn" title="Riwayat Pesanan">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 8v4l3 3"></path>
             <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -120,7 +125,7 @@
             </div>
             <div class="nav-dropdown-divider"></div>
             ${isAdmin ? `
-            <a href="../admin/admin.html" class="nav-dropdown-item">
+            <a href="../admin/" class="nav-dropdown-item">
               <span class="nav-dropdown-item-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -129,7 +134,7 @@
               <span>Halaman Admin</span>
             </a>
             ` : `
-            <a href="../profile/profile.html" class="nav-dropdown-item">
+            <a href="../profile/" class="nav-dropdown-item">
               <span class="nav-dropdown-item-icon">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
@@ -250,14 +255,14 @@
 
         // Filter berdasarkan hari ini (Selasa - Jumat)
         const today = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, ..., 6 = Sat
-        
+
         let filteredMenu = [];
         if (today >= 2 && today <= 5) {
           const dayMapNum = { "Senin": 1, "Selasa": 2, "Rabu": 3, "Kamis": 4, "Jumat": 5, "Sabtu": 6, "Minggu": 0 };
           filteredMenu = MENU_DATA.filter(m => {
             if (m.isActive === false) return false;
             if (m.cat === "drinks" || m.cat === "minuman") return true;
-            
+
             let available = false;
             if (!m.day || m.day === 0 || m.day === "all") {
               available = true;
@@ -279,7 +284,7 @@
               <p style="color: var(--warm-gray); line-height: 1.6; margin-bottom: 2rem; font-size: 0.95rem;">
                 Kami buka dari hari <strong>Selasa hingga Jumat</strong>. Menu makanan spesial kami berganti setiap harinya! Silakan jelajahi menu lengkap kami untuk memesan di hari kerja.
               </p>
-              <a href="../menu/menu.html" class="btn-primary" style="display: inline-block;">Jelajahi Menu Lengkap</a>
+              <a href="../menu/" class="btn-primary" style="display: inline-block;">Jelajahi Menu Lengkap</a>
             </div>
           `;
           // Update title to be informative
@@ -332,12 +337,12 @@
 
             if (currentUser) {
               sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
-              window.location.href = "../menu/menu.html";
+              window.location.href = "../menu/";
             } else {
               sessionStorage.setItem("directCheckoutItem", JSON.stringify(item));
-              sessionStorage.setItem("authRedirect", "../menu/menu.html");
+              sessionStorage.setItem("authRedirect", "../menu/");
               alert("⚠️ Silakan Login terlebih dahulu untuk melakukan pemesanan!");
-              window.location.href = "../Login/login.html";
+              window.location.href = "../Login/";
             }
           };
 
@@ -399,4 +404,5 @@
   </script>
 
 </body>
+
 </html>
