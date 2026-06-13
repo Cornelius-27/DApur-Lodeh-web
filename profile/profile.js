@@ -155,7 +155,7 @@ function initUserDropdown(user, userData) {
     if (navLogin) {
       navLogin.style.display = "inline-block";
       navLogin.textContent = "Log in";
-      navLogin.href = "../Login/login.html";
+      navLogin.href = "../Login/";
     }
     return;
   }
@@ -174,12 +174,12 @@ function initUserDropdown(user, userData) {
   const userArea = document.createElement("div");
   userArea.className = "nav-user-area";
 
-  // Tombol riwayat (history.html) diletakkan di samping avatar dropdown
-  const isHistoryActive = window.location.pathname.includes("history.html");
+  // Tombol riwayat (../history/) diletakkan di samping avatar dropdown
+  const isHistoryActive = window.location.pathname.includes("../history/");
   const historyActiveStyle = isHistoryActive ? 'style="background: rgba(232, 98, 26, 0.1); border-color: var(--orange); color: var(--orange);"' : '';
 
   userArea.innerHTML = `
-    <a href="history.html" class="nav-history-btn" title="Riwayat Pesanan" ${historyActiveStyle}>
+    <a href="../history/" class="nav-history-btn" title="Riwayat Pesanan" ${historyActiveStyle}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 8v4l3 3"></path>
         <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -200,7 +200,7 @@ function initUserDropdown(user, userData) {
         </div>
         <div class="nav-dropdown-divider"></div>
         ${isAdmin ? `
-        <a href="../admin/admin.html" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
+        <a href="../admin/" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
           <span class="nav-dropdown-item-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -209,7 +209,7 @@ function initUserDropdown(user, userData) {
           <span>Halaman Admin</span>
         </a>
         ` : `
-        <a href="profile.html" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
+        <a href="../profile/" class="nav-dropdown-item" style="background: rgba(232, 98, 26, 0.08); color: var(--orange);">
           <span class="nav-dropdown-item-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
@@ -268,7 +268,7 @@ function initUserDropdown(user, userData) {
   logoutBtn.addEventListener("click", (e) => {
     e.preventDefault();
     auth.signOut().then(() => {
-      window.location.href = "../homepage/index.html";
+      window.location.href = "../homepage/";
     });
   });
 }
@@ -277,9 +277,9 @@ function initUserDropdown(user, userData) {
 onAuthStateChanged(auth, async user => {
   if (!user) {
     // Belum login, selamat tinggal! Redirect ke login
-    sessionStorage.setItem("authRedirect", "../profile/profile.html");
+    sessionStorage.setItem("authRedirect", "../profile/");
     alert("⚠️ Silakan login terlebih dahulu untuk mengakses profil Anda!");
-    window.location.href = "../Login/login.html";
+    window.location.href = "../Login/";
     return;
   }
 
@@ -296,7 +296,7 @@ onAuthStateChanged(auth, async user => {
       if (!admins.includes(user.email)) {
         await auth.signOut();
         alert("Akun Anda telah dinonaktifkan atau dihapus oleh administrator.");
-        window.location.href = "../Login/login.html";
+        window.location.href = "../Login/";
         return;
       }
     }

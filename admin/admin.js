@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 onAuthStateChanged(auth, async user => {
   if (!user) {
     // Belum login, tendang ke login page
-    window.location.href = "../Login/login.html";
+    window.location.href = "../Login/";
     return;
   }
 
@@ -244,7 +244,7 @@ onAuthStateChanged(auth, async user => {
   // Cek apakah user adalah admin
   if (!ADMIN_EMAILS.includes(user.email)) {
     alert("Akses Ditolak! Anda bukan admin.");
-    window.location.href = "../homepage/index.html";
+    window.location.href = "../homepage/";
     return;
   }
 
@@ -476,7 +476,7 @@ onAuthStateChanged(auth, async user => {
 // Logout
 btnLogout.addEventListener("click", async () => {
   await signOut(auth);
-  window.location.href = "../Login/login.html";
+  window.location.href = "../Login/";
 });
 
 // Auto-fill Images

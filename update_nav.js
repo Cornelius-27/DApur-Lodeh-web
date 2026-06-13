@@ -6,10 +6,10 @@ const files = [
   'menu/menu.html',
   'catering/catering.html',
   'contact/contact.html',
-  'profile/profile.html',
-  'profile/history.html',
-  'Login/login.html',
-  'Login/register.html',
+  'profile/../profile/',
+  'profile/../history/',
+  'Login/../Login/',
+  'Login/../register/',
   'admin/admin.html'
 ];
 

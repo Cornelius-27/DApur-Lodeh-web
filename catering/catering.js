@@ -48,7 +48,7 @@ function initUserDropdown(user, userData) {
     if (navLogin) {
       navLogin.style.display = "inline-block";
       navLogin.textContent = "Log in";
-      navLogin.href = "../Login/login.html";
+      navLogin.href = "../Login/";
     }
     return;
   }
@@ -68,7 +68,7 @@ function initUserDropdown(user, userData) {
   const userArea = document.createElement("div");
   userArea.className = "nav-user-area";
   userArea.innerHTML = `
-    <a href="../profile/history.html" class="nav-history-btn" title="Riwayat Pesanan">
+    <a href="../history/" class="nav-history-btn" title="Riwayat Pesanan">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 8v4l3 3"></path>
         <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
@@ -89,7 +89,7 @@ function initUserDropdown(user, userData) {
         </div>
         <div class="nav-dropdown-divider"></div>
         ${isAdmin ? `
-        <a href="../admin/admin.html" class="nav-dropdown-item">
+        <a href="../admin/" class="nav-dropdown-item">
           <span class="nav-dropdown-item-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -98,7 +98,7 @@ function initUserDropdown(user, userData) {
           <span>Halaman Admin</span>
         </a>
         ` : `
-        <a href="../profile/profile.html" class="nav-dropdown-item">
+        <a href="../profile/" class="nav-dropdown-item">
           <span class="nav-dropdown-item-icon">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="3"></circle>
@@ -687,10 +687,10 @@ document.getElementById("btn-submit-order").addEventListener("click", () => {
   // 1. CEK STATUS LOGIN PENGGUNA (Menggunakan SDK langsung untuk performa instan dan aman)
   const user = auth.currentUser;
   if (!user) {
-    sessionStorage.setItem("authRedirect", "../catering/catering.html");
+    sessionStorage.setItem("authRedirect", "../catering/");
     toast("Silakan Login terlebih dahulu untuk memesan!");
     setTimeout(() => {
-      window.location.href = "../Login/login.html";
+      window.location.href = "../Login/";
     }, 1500);
     return;
   }
