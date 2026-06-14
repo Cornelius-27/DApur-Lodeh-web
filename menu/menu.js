@@ -866,14 +866,32 @@ function setPaymentDetails(method) {
   if (method === "qris") {
     detailsBox.innerHTML = `
       <div style="text-align: center;">
-        <p style="font-size: 0.85rem; color: rgba(255, 248, 240, 0.75); margin-bottom: 0.5rem;">
+        <p style="font-size: 0.85rem; color: rgba(255, 248, 240, 0.75); margin-bottom: 0.8rem;">
           Pindai QRIS di bawah dengan aplikasi E-Wallet Anda (Gopay/OVO/Dana)
         </p>
-        <div class="qr-placeholder">
-          <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=DapurLodehOrderPay" alt="QRIS Dapur Lodeh">
+        <div class="qr-placeholder" style="background: white; padding: 10px; border-radius: 12px; display: inline-block; margin-bottom: 0.5rem; cursor: pointer; transition: transform 0.2s; width: auto; height: auto;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'" onclick="document.getElementById('qris-lightbox').style.display='flex'">
+          <img class="qr-img" src="../assets/QRIS.jpg" alt="QRIS Dapur Lodeh" style="max-width: 400px; width: 100%; border-radius: 8px; display: block;">
+          <div style="font-size: 0.75rem; color: #555; margin-top: 8px; font-weight: 600;">🔍 Klik untuk memperbesar</div>
         </div>
-        <p style="font-size: 0.75rem; color: var(--orange-light); margin-top: 0.4rem; font-weight: 500;">
-          ⚡ Pembayaran akan otomatis terverifikasi instan
+
+        <!-- Lightbox -->
+        <div id="qris-lightbox" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(5px);" onclick="this.style.display='none'">
+          <div style="background: white; padding: 24px; border-radius: 20px; position: relative; max-width: 90vw; text-align: center;" onclick="event.stopPropagation()">
+            <button style="position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.8rem; color: #555; cursor: pointer;" onclick="document.getElementById('qris-lightbox').style.display='none'">&times;</button>
+            <h3 style="color: #1A1208; margin-bottom: 16px; font-family: 'Playfair Display', serif; font-size: 1.4rem;">QRIS Dapur Lodeh</h3>
+            <div style="overflow: auto; max-height: 65vh; max-width: 100%; border-radius: 12px;">
+              <img src="../assets/QRIS.jpg" style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
+            </div>
+            <p style="font-size: 0.85rem; color: #8A7968; margin-top: 16px;">Tunjukkan gambar ini untuk dipindai oleh E-Wallet Anda</p>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.2rem; text-align: left;">
+          <label style="font-size: 0.85rem; color: rgba(255, 248, 240, 0.85); display: block; margin-bottom: 0.5rem;">Unggah Bukti Pembayaran:</label>
+          <input type="file" id="payment-proof" accept="image/*" style="width: 100%; padding: 0.6rem; background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,248,240,0.3); border-radius: 8px; color: var(--cream); font-size: 0.8rem; cursor: pointer;">
+        </div>
+        <p style="font-size: 0.75rem; color: var(--orange-light); margin-top: 0.8rem; font-weight: 500;">
+          ⚡ Pastikan nominal transfer sesuai dengan total tagihan
         </p>
       </div>
     `;
